@@ -12,7 +12,7 @@ El proyecto se encuentra en su fase inicial. Actualmente incluye:
 - una estructura funcional basada en Clean Architecture;
 - datasets de español con español, gallego y portugués en TSV;
 - carga y validación de todos los semordnilaps de un conjunto seleccionado;
-- exploración bilingüe con búsqueda independiente;
+- exploración bilingüe con filtros combinados y filas siempre alineadas;
 - composición en memoria con actualización inversa automática;
 - una interfaz adaptable con paleta violeta y mostaza;
 - pruebas de dominio, aplicación, infraestructura y presentación;

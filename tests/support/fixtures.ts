@@ -1,5 +1,5 @@
-import type { AvailableDataset, SemordnilapCatalogItem } from '@/application'
 import type { AtomicSemordnilap } from '@/domain/semordnilap'
+import type { AvailableDataset, SemordnilapCatalogItem } from '@/application'
 
 export const testDataset: AvailableDataset = {
   id: 'test-es-gl',

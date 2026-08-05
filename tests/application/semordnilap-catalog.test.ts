@@ -4,14 +4,13 @@ import type {
   LoadedSemordnilapDataset,
   SemordnilapDatasetSource,
 } from '@/application'
+import { ListAvailableDatasets, LoadAtomicSemordnilaps } from '@/application'
+
 import {
   createCatalogItem,
   createAtomicSemordnilap,
   testDataset,
-} from '@/test/fixtures'
-
-import { ListAvailableDatasets } from './list-available-datasets'
-import { LoadAtomicSemordnilaps } from './load-atomic-semordnilaps'
+} from '../support/fixtures'
 
 describe('casos de uso del catálogo', () => {
   it('delegan en el puerto sin conocer la infraestructura', async () => {

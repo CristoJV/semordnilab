@@ -88,7 +88,11 @@ El usuario podrá elegir uno de los conjuntos disponibles. Los archivos incluido
 
 ## Búsqueda y filtros
 
-La búsqueda se realiza de forma independiente en cada idioma. Debe admitir:
+Cada idioma dispone de su propio campo de búsqueda, pero ambos campos filtran un único conjunto compartido. El resultado aplica la intersección de las dos consultas y muestra siempre las dos expresiones del mismo `AtomicSemordnilap` en una fila común.
+
+Por ejemplo, una búsqueda en español reduce simultáneamente la columna gallega a sus correspondencias. Una consulta posterior en gallego se aplica únicamente a ese conjunto ya reducido. Las dos columnas comparten desplazamiento y nunca pierden la alineación.
+
+La búsqueda debe admitir:
 
 - diferencias de mayúsculas, minúsculas y tildes;
 - coincidencias parciales y por varias palabras;

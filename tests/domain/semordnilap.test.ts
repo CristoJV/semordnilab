@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import { createAtomicSemordnilap } from '@/test/fixtures'
-
-import { InvalidSemordnilapError } from './errors'
 import {
   composeAtomicSemordnilaps,
+  InvalidSemordnilapError,
   reverseUnicode,
   validateAtomicSemordnilap,
-} from './semordnilap'
+} from '@/domain/semordnilap'
+
+import { createAtomicSemordnilap } from '../support/fixtures'
 
 describe('reverseUnicode', () => {
   it('invierte grafemas completos', () => {

@@ -9,13 +9,13 @@ import {
   type SemordnilapDatasetSource,
 } from '@/application'
 import type { ApplicationDependencies } from '@/app/composition/create-application-dependencies'
+import { WorkspacePage } from '@/presentation/pages/WorkspacePage'
+
 import {
   createAtomicSemordnilap,
   createCatalogItem,
   testDataset,
-} from '@/test/fixtures'
-
-import { WorkspacePage } from './WorkspacePage'
+} from '../support/fixtures'
 
 const ella = createAtomicSemordnilap('ella', 'ella', 'ella', 'a lle', 'alle')
 const noSe = createAtomicSemordnilap('no-se', 'no se', 'nose', 'e son', 'eson')
@@ -59,18 +59,33 @@ describe('WorkspacePage', () => {
       testDataset.id,
     )
 
-    const sourcePanel = await screen.findByRole('region', {
-      name: 'Español',
+    const catalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
     })
-    const targetPanel = screen.getByRole('region', { name: 'Gallego' })
+    const pairedList = within(catalog).getByRole('list', {
+      name: 'Semordnilaps filtrados',
+    })
+    const pairedRows = within(pairedList).getAllByRole('listitem')
+
+    expect(pairedRows).toHaveLength(2)
+    expect(
+      within(pairedRows[0]!).getByRole('button', {
+        name: 'Añadir ella a la composición',
+      }),
+    ).toBeInTheDocument()
+    expect(
+      within(pairedRows[0]!).getByRole('button', {
+        name: 'Añadir a lle a la composición',
+      }),
+    ).toBeInTheDocument()
 
     await user.click(
-      within(sourcePanel).getByRole('button', {
+      within(catalog).getByRole('button', {
         name: 'Añadir ella a la composición',
       }),
     )
     await user.click(
-      within(targetPanel).getByRole('button', {
+      within(catalog).getByRole('button', {
         name: 'Añadir e son a la composición',
       }),
     )
@@ -109,7 +124,7 @@ describe('WorkspacePage', () => {
     ).toBeInTheDocument()
   })
 
-  it('filtra cada idioma de forma independiente', async () => {
+  it('combina ambos filtros sin romper la alineación', async () => {
     const user = userEvent.setup()
     render(<WorkspacePage dependencies={createDependencies()} />)
 
@@ -118,25 +133,46 @@ describe('WorkspacePage', () => {
       testDataset.id,
     )
 
-    const targetPanel = await screen.findByRole('region', { name: 'Gallego' })
+    const catalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
     await user.type(
-      within(targetPanel).getByRole('searchbox', {
-        name: 'Buscar en Gallego',
+      within(catalog).getByRole('searchbox', {
+        name: 'Buscar en Español',
       }),
-      'e son',
+      'ella',
     )
 
     await waitFor(() => {
-      expect(
-        within(targetPanel).getByRole('button', {
-          name: 'Añadir e son a la composición',
-        }),
-      ).toBeInTheDocument()
-      expect(
-        within(targetPanel).queryByRole('button', {
-          name: 'Añadir a lle a la composición',
-        }),
-      ).not.toBeInTheDocument()
+      const rows = within(catalog)
+        .getByRole('list', { name: 'Semordnilaps filtrados' })
+        .querySelectorAll('li')
+      expect(rows).toHaveLength(1)
+      expect(rows[0]).toHaveTextContent('ella')
+      expect(rows[0]).toHaveTextContent('a lle')
+    })
+
+    const targetSearch = within(catalog).getByRole('searchbox', {
+      name: 'Buscar en Gallego',
+    })
+    await user.type(targetSearch, 'e son')
+
+    expect(
+      await within(catalog).findByText(
+        'No hay semordnilaps que coincidan con ambas búsquedas.',
+      ),
+    ).toBeInTheDocument()
+
+    await user.clear(targetSearch)
+    await user.type(targetSearch, 'a lle')
+
+    await waitFor(() => {
+      const row = within(catalog)
+        .getByRole('list', { name: 'Semordnilaps filtrados' })
+        .querySelector('li')
+      expect(row).toHaveTextContent('ella')
+      expect(row).toHaveTextContent('a lle')
+      expect(row).not.toHaveTextContent('no se')
     })
   })
 
@@ -157,7 +193,7 @@ describe('WorkspacePage', () => {
     await user.click(screen.getByRole('button', { name: 'Reintentar' }))
 
     expect(
-      await screen.findByRole('region', { name: 'Gallego' }),
+      await screen.findByRole('region', { name: 'Catálogo bilingüe' }),
     ).toBeInTheDocument()
     expect(load).toHaveBeenCalledTimes(2)
   })

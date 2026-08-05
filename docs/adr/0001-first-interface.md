@@ -93,11 +93,16 @@ Las dos columnas consumen el mismo conjunto de `AtomicSemordnilap`:
 - la izquierda representa `source` y alinea el texto hacia la derecha;
 - la derecha representa `target` y alinea el texto hacia la izquierda;
 - ambas identifican cada elemento mediante el mismo `SemordnilapId`;
-- cada columna mantiene su propia consulta de búsqueda y posición de desplazamiento.
+- cada idioma mantiene su propia consulta de búsqueda;
+- las consultas se combinan mediante intersección sobre el conjunto compartido;
+- cada fila representa las dos expresiones de un mismo semordnilap;
+- ambas columnas utilizan una única posición de desplazamiento.
+
+Una consulta en cualquiera de los idiomas reduce simultáneamente las dos columnas. La segunda consulta solo puede refinar el conjunto producido por la primera. Esta relación evita mostrar expresiones sin su correspondencia y mantiene la alineación en todo momento.
 
 La primera búsqueda admite coincidencia parcial sobre el texto visible y la forma normalizada. La búsqueda difusa avanzada no es necesaria para comprobar esta interfaz.
 
-Todos los semordnilaps del conjunto seleccionado se cargan en memoria. `SemordnilapList` encapsula el renderizado para que se pueda incorporar virtualización más adelante sin modificar la página ni los casos de uso. La primera implementación se mantiene sencilla y se optimiza solo después de medir el conjunto más grande.
+Todos los semordnilaps del conjunto seleccionado se cargan en memoria. `PairedSemordnilapCatalog` encapsula el filtrado y el renderizado de filas para que se pueda incorporar virtualización más adelante sin modificar la página ni los casos de uso. La primera implementación se mantiene sencilla y se optimiza solo después de medir el conjunto más grande.
 
 ## Paleta
 
@@ -136,9 +141,9 @@ presentation/
     DatasetSelector
     CompositionWorkspace
     SemordnilapComponent
-    LanguagePanel
-    SemordnilapList
-    SemordnilapListItem
+    PairedSemordnilapCatalog
+    CatalogLanguageHeader
+    SemordnilapOption
     AppFooter
   hooks/
     useSemordnilapCatalog
@@ -191,7 +196,8 @@ El borrador de composición vive durante esta iteración en memoria. Dexie no pa
 
 - mostrar las expresiones enfrentadas;
 - alinear la columna izquierda hacia el centro y la derecha hacia el centro;
-- añadir búsqueda independiente en ambos idiomas;
+- añadir dos consultas combinadas sobre un único conjunto filtrado;
+- representar cada correspondencia en una fila bilingüe con desplazamiento compartido;
 - incorporar navegación y selección mediante teclado;
 - medir el renderizado con el dataset más grande.
 
@@ -218,6 +224,8 @@ Este primer paso se considera completo cuando:
 - el selector carga cualquiera de los datasets incluidos;
 - todos sus semordnilaps quedan disponibles para búsqueda y selección;
 - ambas columnas muestran el idioma correcto y se orientan hacia el centro;
+- cualquier búsqueda actualiza ambas columnas sin romper la alineación;
+- la combinación de consultas solo refina el conjunto compartido;
 - una selección desde cualquier columna añade el componente correcto;
 - el destino se actualiza siempre en orden inverso;
 - retirar o vaciar componentes no desincroniza las expresiones;

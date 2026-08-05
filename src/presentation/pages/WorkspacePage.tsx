@@ -4,7 +4,7 @@ import type { ApplicationDependencies } from '@/app/composition/create-applicati
 import { AppFooter } from '@/presentation/components/AppFooter'
 import { AppHeader } from '@/presentation/components/AppHeader'
 import { CompositionWorkspace } from '@/presentation/components/CompositionWorkspace'
-import { LanguagePanel } from '@/presentation/components/LanguagePanel'
+import { PairedSemordnilapCatalog } from '@/presentation/components/PairedSemordnilapCatalog'
 import { useCompositionWorkspace } from '@/presentation/hooks/useCompositionWorkspace'
 import { useSemordnilapCatalog } from '@/presentation/hooks/useSemordnilapCatalog'
 
@@ -64,24 +64,13 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
           aria-busy={catalog.status === 'loading'}
         >
           {catalog.status === 'ready' && loadedDataset ? (
-            <>
-              <LanguagePanel
-                key={`${loadedDataset.dataset.id}:source`}
-                languageLabel={loadedDataset.dataset.sourceLanguage.label}
-                items={loadedDataset.items}
-                side="source"
-                selectedCounts={selectedCounts}
-                onAdd={addComponent}
-              />
-              <LanguagePanel
-                key={`${loadedDataset.dataset.id}:target`}
-                languageLabel={loadedDataset.dataset.targetLanguage.label}
-                items={loadedDataset.items}
-                side="target"
-                selectedCounts={selectedCounts}
-                onAdd={addComponent}
-              />
-            </>
+            <PairedSemordnilapCatalog
+              key={loadedDataset.dataset.id}
+              dataset={loadedDataset.dataset}
+              items={loadedDataset.items}
+              selectedCounts={selectedCounts}
+              onAdd={addComponent}
+            />
           ) : (
             <div className={styles.catalogState}>
               {catalog.status === 'loading' && (

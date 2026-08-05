@@ -12,7 +12,7 @@ El repositorio contiene actualmente:
 - carga, parseo y validación de los datasets incluidos;
 - casos de uso para listar conjuntos y cargar `AtomicSemordnilap`;
 - un área de composición en memoria con inversión derivada;
-- dos catálogos lingüísticos con búsqueda independiente;
+- un catálogo bilingüe con filas alineadas y filtros combinados;
 - CSS Modules y estilos globales basados en tokens;
 - pruebas con Vitest para dominio, aplicación, infraestructura y presentación;
 - TypeScript estricto, alias `@/`, ESLint y Prettier;
@@ -190,6 +190,14 @@ src/
     utils/
     errors/
   assets/
+
+tests/
+  application/
+  domain/
+  infrastructure/
+  presentation/
+  support/
+  setup.ts
 ```
 
 Esta estructura representa el destino arquitectónico. No se crean carpetas vacías. Cada directorio aparece cuando contiene una responsabilidad real.
@@ -356,7 +364,9 @@ IndexedDB es la fuente persistente de verdad. React solo conserva la informació
 
 ## Búsqueda
 
-El caso de uso de búsqueda recibe criterios y devuelve resultados ordenados mediante DTO. La preparación del índice o el acceso optimizado a datos pertenece a infraestructura. Las reglas de normalización compartidas con la composición pertenecen al dominio.
+La implementación actual mantiene dos consultas visuales, una para cada idioma. Ambas se aplican mediante intersección sobre el mismo conjunto de DTO de catálogo. El resultado se representa en filas bilingües, cada una identificada por un único `SemordnilapId`, y utiliza un solo contenedor de desplazamiento.
+
+El filtrado sencillo pertenece a presentación porque solo adapta un catálogo ya cargado a la vista actual. Las reglas de normalización compartidas con la composición permanecen en el dominio. Si la búsqueda incorpora relevancia, indexación u otras reglas reutilizables, esa coordinación se trasladará a un caso de uso y el índice optimizado permanecerá en infraestructura.
 
 La implementación actual busca en memoria. Si las mediciones muestran bloqueos con conjuntos mayores, un adaptador de infraestructura trasladará el trabajo a un Web Worker sin cambiar el contrato utilizado por la aplicación.
 
@@ -432,6 +442,8 @@ Vitest organiza la cobertura en este orden:
 6. Hooks y componentes con comportamiento relevante.
 
 Los casos de uso se prueban con repositorios en memoria. Las pruebas de dominio y aplicación no necesitan React, Dexie ni un navegador real.
+
+Todo el código exclusivo de pruebas vive en `tests/`, fuera de `src`. La estructura de tests refleja las capas que verifica y `tests/support` contiene únicamente fixtures y utilidades compartidas entre pruebas. El código de producción no importa ningún módulo de esa carpeta.
 
 Los límites entre capas se comprobarán mediante convenciones de imports y reglas estáticas cuando exista código suficiente. Los requisitos mínimos de cada cambio serán formateo, lint, pruebas y compilación.
 

@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { StaticTsvSemordnilapDatasetSource } from './static-tsv-semordnilap-dataset-source'
+import { StaticTsvSemordnilapDatasetSource } from '@/infrastructure/datasets'
 
 const expectedSizes = {
   'es-es': 6642,

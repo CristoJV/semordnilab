@@ -13,8 +13,6 @@
 }
 
 .catalog {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   min-height: 0;
   overflow: hidden;
 }
@@ -109,8 +107,6 @@
   }
 
   .catalog {
-    grid-template-columns: 1fr;
-    gap: 1rem;
     padding: 1rem;
     overflow: visible;
   }

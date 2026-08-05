@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { StaticTsvSemordnilapDatasetSource } from './static-tsv-semordnilap-dataset-source'
+import { StaticTsvSemordnilapDatasetSource } from '@/infrastructure/datasets'
 
 const validTsv = [
   'source_lang\tsource_corpus\tsource_text\tsource_n\tsource_count\tsource_norm_key\ttarget_lang\ttarget_corpus\ttarget_text\ttarget_n\ttarget_count\ttarget_norm_key\tpair_score',

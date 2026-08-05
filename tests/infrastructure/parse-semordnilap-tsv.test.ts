@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
-import { DatasetLoadError } from './errors'
-import { parseSemordnilapTsv } from './parse-semordnilap-tsv'
+import {
+  DatasetLoadError,
+  parseSemordnilapTsv,
+} from '@/infrastructure/datasets'
 
 const header =
   'source_lang\tsource_corpus\tsource_text\tsource_n\tsource_count\tsource_norm_key\ttarget_lang\ttarget_corpus\ttarget_text\ttarget_n\ttarget_count\ttarget_norm_key\tpair_score'
