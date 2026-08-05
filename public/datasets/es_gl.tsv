@@ -1,0 +1,1092 @@
+source_lang	source_corpus	source_text	source_n	source_count	source_norm_key	target_lang	target_corpus	target_text	target_n	target_count	target_norm_key	pair_score
+es	wikisource	ella	1	76529	ella	gl	wikisource	a lle	2	5	alle	13.037198
+es	wikisource	no se	2	57928	nose	gl	wikisource	e son	2	65	eson	15.156628
+es	wikisource	nada	1	44447	nada	gl	wikisource	adán	1	29	adan	14.103273
+es	wikisource	años	1	40450	anos	gl	wikisource	son a	2	28	sona	13.975142
+es	wikisource	años	1	40450	anos	gl	wikisource	sona	1	12	sona	13.172796
+es	wikisource	años	1	40450	anos	gl	wikisource	soña	1	10	sona	13.005742
+es	wikisource	años	1	40450	anos	gl	wikisource	só na	2	6	sona	12.553757
+es	wikisource	allí	1	35430	alli	gl	wikisource	illa	1	53	illa	14.464326
+es	wikisource	será	1	31528	sera	gl	wikisource	ares	1	17	ares	13.249035
+es	wikisource	amor	1	29700	amor	gl	wikisource	roma	1	48	roma	14.190756
+es	wikisource	se le	2	25141	sele	gl	wikisource	eles	1	1091	eles	17.128061
+es	wikisource	agua	1	17404	agua	gl	wikisource	auga	1	219	auga	15.15814
+es	wikisource	esos	1	16962	esos	gl	wikisource	só se	2	33	sose	13.26515
+es	wikisource	sería	1	13905	seria	gl	wikisource	aires	1	53	aires	13.52906
+es	wikisource	aire	1	11866	aire	gl	wikisource	ería	1	5	eria	11.173276
+es	wikisource	sola	1	11442	sola	gl	wikisource	á los	2	40	alos	13.058706
+es	wikisource	sola	1	11442	sola	gl	wikisource	a los	2	8	alos	11.542358
+es	wikisource	seis	1	10647	seis	gl	wikisource	si es	2	5	sies	11.064887
+es	wikisource	si el	2	10122	siel	gl	wikisource	leis	1	435	leis	15.300208
+es	wikisource	edad	1	10423	edad	gl	wikisource	dade	1	15	dade	12.024455
+es	wikisource	no sé	2	9570	nose	gl	wikisource	e son	2	65	eson	13.356148
+es	wikisource	daba	1	8963	daba	gl	wikisource	abad	1	6	abad	11.046882
+es	wikisource	eres	1	8648	eres	gl	wikisource	sere	1	8	sere	11.262424
+es	wikisource	oído	1	8051	oido	gl	wikisource	odio	1	23	odio	12.17173
+es	wikisource	sala	1	6405	sala	gl	wikisource	alas	1	25	alas	12.023087
+es	wikisource	aires	1	6325	aires	gl	wikisource	sería	1	99	seria	13.357594
+es	wikisource	sala	1	6405	sala	gl	wikisource	á las	2	12	alas	11.32994
+es	wikisource	aires	1	6325	aires	gl	wikisource	seria	1	27	seria	12.084628
+es	wikisource	si es	2	5863	sies	gl	wikisource	seis	1	169	seis	13.812386
+es	wikisource	a ella	2	5878	aella	gl	wikisource	allea	1	14	allea	11.387192
+es	wikisource	yo me	2	5767	yome	gl	wikisource	é moy	2	5	emoy	10.45184
+es	wikisource	sale	1	4609	sale	gl	wikisource	elas	1	205	elas	13.763859
+es	wikisource	roma	1	4449	roma	gl	wikisource	amor	1	354	amor	14.272777
+es	wikisource	ni de	2	4467	nide	gl	wikisource	e din	2	10	edin	10.802591
+es	wikisource	azul	1	4408	azul	gl	wikisource	luz a	2	7	luza	10.470845
+es	wikisource	alas	1	4106	alas	gl	wikisource	sala	1	46	sala	12.170596
+es	wikisource	no no	2	3878	nono	gl	wikisource	o non	2	15	onon	11.035921
+es	wikisource	se ve	2	3737	seve	gl	wikisource	e ves	2	5	eves	10.018065
+es	wikisource	raza	1	3675	raza	gl	wikisource	azar	1	14	azar	10.917631
+es	wikisource	odio	1	3422	odio	gl	wikisource	oído	1	65	oido	12.327927
+es	wikisource	es en	2	3423	esen	gl	wikisource	nese	1	42	nese	11.899765
+es	wikisource	odio	1	3422	odio	gl	wikisource	oido	1	13	oido	10.77733
+es	wikisource	sois	1	3210	sois	gl	wikisource	si os	2	40	sios	11.78791
+es	wikisource	nota	1	3089	nota	gl	wikisource	atón	1	8	aton	10.233151
+es	wikisource	no de	2	2978	node	gl	wikisource	e don	2	5	edon	9.791102
+es	wikisource	ni se	2	2857	nise	gl	wikisource	e sin	2	75	esin	12.288611
+es	wikisource	se va	2	2865	seva	gl	wikisource	aves	1	19	aves	10.956405
+es	wikisource	ni se	2	2857	nise	gl	wikisource	é sin	2	5	esin	9.749637
+es	wikisource	su es	2	10	sues	gl	wikisource	seus	1	2757	seus	10.320156
+es	wikisource	salen	1	2485	salen	gl	wikisource	nelas	1	42	nelas	11.57963
+es	wikisource	más a	2	2430	masa	gl	wikisource	a sam	2	6	asam	9.741968
+es	wikisource	masa	1	2397	masa	gl	wikisource	a sam	2	6	asam	9.7283
+es	wikisource	siam	1	25	siam	gl	wikisource	máis	1	2330	mais	11.012149
+es	wikisource	amar	1	2286	amar	gl	wikisource	rama	1	28	rama	11.102292
+es	wikisource	ramón	1	2173	ramon	gl	wikisource	no mar	2	30	nomar	11.118311
+es	wikisource	olor	1	2095	olor	gl	wikisource	rolo	1	7	rolo	9.727228
+es	wikisource	ramo	1	1847	ramo	gl	wikisource	o mar	2	109	omar	12.22234
+es	wikisource	roca	1	1890	roca	gl	wikisource	a cor	2	6	acor	9.490771
+es	wikisource	levin	1	1753	levin	gl	wikisource	nivel	1	122	nivel	12.281839
+es	wikisource	ramo	1	1847	ramo	gl	wikisource	ó mar	2	13	omar	10.160917
+es	wikisource	siam	1	25	siam	gl	wikisource	mais	1	1786	mais	10.74639
+es	wikisource	a tal	2	1781	atal	gl	wikisource	la ta	2	5	lata	9.277251
+es	wikisource	naves	1	1768	naves	gl	wikisource	se van	2	13	sevan	10.117227
+es	wikisource	lope	1	1681	lope	gl	wikisource	e pol	2	25	epol	10.685835
+es	wikisource	seria	1	1617	seria	gl	wikisource	aires	1	53	aires	11.37793
+es	wikisource	raro	1	1582	raro	gl	wikisource	orar	1	27	orar	10.699282
+es	wikisource	rama	1	1503	rama	gl	wikisource	amar	1	55	amar	11.341235
+es	wikisource	seré	1	1515	sere	gl	wikisource	eres	1	38	eres	10.987392
+es	wikisource	sé si	2	1543	sesi	gl	wikisource	ises	1	8	ises	9.539356
+es	wikisource	rama	1	1503	rama	gl	wikisource	á mar	2	5	amar	9.107643
+es	wikisource	si él	2	992	siel	gl	wikisource	leis	1	435	leis	12.978373
+es	wikisource	ella le	2	1387	ellale	gl	wikisource	ela lle	2	6	elalle	9.181529
+es	wikisource	no el	2	1359	noel	gl	wikisource	león	1	29	leon	10.616437
+es	wikisource	et se	2	44	etse	gl	wikisource	este	1	1335	este	11.004098
+es	wikisource	sede	1	1363	sede	gl	wikisource	e des	2	9	edes	9.520762
+es	wikisource	adán	1	917	adan	gl	wikisource	nada	1	452	nada	12.93809
+es	wikisource	no el	2	1359	noel	gl	wikisource	leon	1	8	leon	9.412465
+es	wikisource	allí a	2	1277	allia	gl	wikisource	a illa	2	16	ailla	9.986265
+es	wikisource	él es	2	1261	eles	gl	wikisource	se le	2	9	sele	9.443038
+es	wikisource	se van	2	1166	sevan	gl	wikisource	naves	1	22	naves	10.197686
+es	wikisource	sí el	2	744	siel	gl	wikisource	leis	1	435	leis	12.691026
+es	wikisource	ánima	1	805	anima	gl	wikisource	a miña	2	365	amina	12.594717
+es	wikisource	sé le	2	24	sele	gl	wikisource	eles	1	1091	eles	10.214642
+es	wikisource	a dot	2	20	adot	gl	wikisource	toda	1	1092	toda	10.041204
+es	wikisource	sele	1	17	sele	gl	wikisource	eles	1	1091	eles	9.886138
+es	wikisource	aura	1	1097	aura	gl	wikisource	a rúa	2	8	arua	9.19847
+es	wikisource	son en	2	829	sonen	gl	wikisource	nenos	1	236	nenos	12.189486
+es	wikisource	azar	1	975	azar	gl	wikisource	raza	1	45	raza	10.712104
+es	wikisource	amos	1	964	amos	gl	wikisource	soma	1	5	soma	8.663888
+es	wikisource	son a	2	300	sona	gl	wikisource	anos	1	666	anos	12.2099
+es	wikisource	notó	1	886	noto	gl	wikisource	o ton	2	7	oton	8.867287
+es	wikisource	anima	1	526	anima	gl	wikisource	a miña	2	365	amina	12.169834
+es	wikisource	ánima	1	805	anima	gl	wikisource	á miña	2	70	amina	10.954764
+es	wikisource	aroma	1	866	aroma	gl	wikisource	amor á	2	7	amora	8.844481
+es	wikisource	aroma	1	866	aroma	gl	wikisource	amor a	2	5	amora	8.556798
+es	wikisource	ares	1	32	ares	gl	wikisource	será	1	834	sera	10.223939
+es	wikisource	fila	1	848	fila	gl	wikisource	alif	1	8	alif	8.941284
+es	wikisource	a res	2	9	ares	gl	wikisource	será	1	834	sera	9.030017
+es	wikisource	salta	1	828	salta	gl	wikisource	atlas	1	6	atlas	8.66613
+es	wikisource	se daba	2	797	sedaba	gl	wikisource	abades	1	18	abades	9.626548
+es	wikisource	ánima	1	805	anima	gl	wikisource	a min a	3	8	amina	8.889308
+es	wikisource	ánima	1	805	anima	gl	wikisource	à miña	2	6	amina	8.637994
+es	wikisource	ánima	1	805	anima	gl	wikisource	amiña	1	5	amina	8.483843
+es	wikisource	a roma	2	785	aroma	gl	wikisource	amor á	2	7	amora	8.746398
+es	wikisource	a roma	2	785	aroma	gl	wikisource	amor a	2	5	amora	8.458716
+es	wikisource	abad	1	711	abad	gl	wikisource	daba	1	79	daba	10.950105
+es	wikisource	le es	2	780	lees	gl	wikisource	se el	2	10	seel	9.05847
+es	wikisource	non e	2	11	none	gl	wikisource	e non	2	763	enon	9.123474
+es	wikisource	non è	2	7	none	gl	wikisource	e non	2	763	enon	8.718009
+es	wikisource	non é	2	7	none	gl	wikisource	e non	2	763	enon	8.718009
+es	wikisource	sí es	2	584	sies	gl	wikisource	seis	1	169	seis	11.50741
+es	wikisource	raúl	1	705	raul	gl	wikisource	luar	1	36	luar	10.170533
+es	wikisource	son á	2	30	sona	gl	wikisource	anos	1	666	anos	9.936777
+es	wikisource	mete	1	685	mete	gl	wikisource	etem	1	5	etem	8.322637
+es	wikisource	o son	2	162	oson	gl	wikisource	noso	1	521	noso	11.351418
+es	wikisource	sona	1	9	sona	gl	wikisource	anos	1	666	anos	8.805375
+es	wikisource	o sin	2	652	osin	gl	wikisource	niso	1	9	niso	8.784162
+es	wikisource	nones	1	150	nones	gl	wikisource	senón	1	506	senon	11.245791
+es	wikisource	non es	2	141	nones	gl	wikisource	senón	1	506	senon	11.184338
+es	wikisource	a son	2	51	ason	gl	wikisource	nosa	1	586	nosa	10.326269
+es	wikisource	sanos	1	519	sanos	gl	wikisource	son as	2	106	sonas	10.926658
+es	wikisource	eco de	2	606	ecode	gl	wikisource	e doce	2	10	edoce	8.806424
+es	wikisource	eco de	2	606	ecode	gl	wikisource	é doce	2	5	edoce	8.200288
+es	wikisource	a mil	2	602	amil	gl	wikisource	lima	1	5	lima	8.193677
+es	wikisource	said	1	104	said	gl	wikisource	días	1	503	dias	10.876537
+es	wikisource	ruso	1	600	ruso	gl	wikisource	o sur	2	5	osur	8.190354
+es	wikisource	anima	1	526	anima	gl	wikisource	á miña	2	70	amina	10.52988
+es	wikisource	ágil	1	578	agil	gl	wikisource	liga	1	7	liga	8.440744
+es	wikisource	oírle	1	564	oirle	gl	wikisource	el rio	2	11	elrio	8.821732
+es	wikisource	etna	1	82	etna	gl	wikisource	ante	1	470	ante	10.573699
+es	wikisource	saúl	1	543	saul	gl	wikisource	lúas	1	5	luas	8.090709
+es	wikisource	arias	1	531	arias	gl	wikisource	sairá	1	14	saira	8.984694
+es	wikisource	arias	1	531	arias	gl	wikisource	saíra	1	11	saira	8.76155
+es	wikisource	arias	1	531	arias	gl	wikisource	saír a	2	7	saira	8.356085
+es	wikisource	anima	1	526	anima	gl	wikisource	a min a	3	8	amina	8.464425
+es	wikisource	ó son	2	13	oson	gl	wikisource	noso	1	521	noso	8.896725
+es	wikisource	anima	1	526	anima	gl	wikisource	à miña	2	6	amina	8.213111
+es	wikisource	anima	1	526	anima	gl	wikisource	amiña	1	5	amina	8.05896
+es	wikisource	nudo	1	521	nudo	gl	wikisource	o dun	2	5	odun	8.049427
+es	wikisource	él les	2	332	elles	gl	wikisource	se lle	2	184	selle	11.028498
+es	wikisource	e non	2	263	enon	gl	wikisource	non é	2	252	none	11.109339
+es	wikisource	laicos	1	64	laicos	gl	wikisource	social	1	451	social	10.288069
+es	wikisource	argos	1	506	argos	gl	wikisource	sogra	1	7	sogra	8.307953
+es	wikisource	omar	1	483	omar	gl	wikisource	ramo	1	13	ramo	8.821142
+es	wikisource	sí él	2	57	siel	gl	wikisource	leis	1	435	leis	10.138085
+es	wikisource	nise	1	409	nise	gl	wikisource	e sin	2	75	esin	10.34689
+es	wikisource	adan	1	30	adan	gl	wikisource	nada	1	452	nada	9.549879
+es	wikisource	sosón	1	5	soson	gl	wikisource	nosos	1	473	nosos	7.952967
+es	wikisource	remo	1	460	remo	gl	wikisource	omer	1	13	omer	8.772455
+es	wikisource	olla	1	445	olla	gl	wikisource	allo	1	22	allo	9.235813
+es	wikisource	ser a	2	448	sera	gl	wikisource	ares	1	17	ares	8.997395
+es	wikisource	a dan	2	5	adan	gl	wikisource	nada	1	452	nada	7.907652
+es	wikisource	asoma	1	447	asoma	gl	wikisource	amosa	1	8	amosa	8.302018
+es	wikisource	a seis	2	440	aseis	gl	wikisource	si esa	2	7	siesa	8.168486
+es	wikisource	la era	2	434	laera	gl	wikisource	a real	2	7	areal	8.154788
+es	wikisource	nos es	2	424	noses	gl	wikisource	se son	2	15	seson	8.824678
+es	wikisource	oír el	2	434	oirel	gl	wikisource	lerio	1	5	lerio	7.867106
+es	wikisource	luz a	2	409	luza	gl	wikisource	azul	1	28	azul	9.383453
+es	wikisource	sol lo	2	41	sollo	gl	wikisource	ollos	1	384	ollos	9.690913
+es	wikisource	reto	1	415	reto	gl	wikisource	o ter	2	5	oter	7.822445
+es	wikisource	nise	1	409	nise	gl	wikisource	é sin	2	5	esin	7.807917
+es	wikisource	si ese	2	359	siese	gl	wikisource	e seis	2	39	eseis	9.574983
+es	wikisource	sollo	1	13	sollo	gl	wikisource	ollos	1	384	ollos	8.592301
+es	wikisource	nones	1	150	nones	gl	wikisource	se non	2	244	senon	10.518538
+es	wikisource	mas a	2	387	masa	gl	wikisource	a sam	2	6	asam	7.906915
+es	wikisource	non es	2	141	nones	gl	wikisource	se non	2	244	senon	10.457085
+es	wikisource	alli	1	329	alli	gl	wikisource	illa	1	53	illa	9.788077
+es	wikisource	rada	1	335	rada	gl	wikisource	a dar	2	30	adar	9.251098
+es	wikisource	nela	1	341	nela	gl	wikisource	alén	1	23	alen	9.012865
+es	wikisource	si ese	2	359	siese	gl	wikisource	é seis	2	5	eseis	7.677864
+es	wikisource	á ella	2	349	aella	gl	wikisource	allea	1	14	allea	8.565983
+es	wikisource	se lee	2	325	selee	gl	wikisource	e eles	2	37	eeles	9.424484
+es	wikisource	agua a	2	318	aguaa	gl	wikisource	a auga	2	40	aauga	9.478763
+es	wikisource	a mal	2	328	amal	gl	wikisource	lama	1	28	lama	9.163354
+es	wikisource	sol a	2	308	sola	gl	wikisource	á los	2	40	alos	9.446913
+es	wikisource	rada	1	335	rada	gl	wikisource	á dar	2	9	adar	8.119696
+es	wikisource	sara	1	338	sara	gl	wikisource	aras	1	6	aras	7.77191
+es	wikisource	se lee	2	325	selee	gl	wikisource	è eles	2	6	eeles	7.732808
+es	wikisource	nata	1	317	nata	gl	wikisource	atan	1	13	atan	8.401109
+es	wikisource	robos	1	315	robos	gl	wikisource	sobor	1	11	sobor	8.240649
+es	wikisource	lata	1	242	lata	gl	wikisource	a tal	2	81	atal	9.899781
+es	wikisource	ésos	1	289	esos	gl	wikisource	só se	2	33	sose	9.196241
+es	wikisource	robos	1	315	robos	gl	wikisource	sóbor	1	6	sobor	7.701652
+es	wikisource	son a	2	300	sona	gl	wikisource	años	1	21	anos	8.798153
+es	wikisource	la mina	2	312	lamina	gl	wikisource	animal	1	8	animal	7.943428
+es	wikisource	a ir a	3	313	aira	gl	wikisource	a ría	2	6	aria	7.695303
+es	wikisource	noto	1	311	noto	gl	wikisource	o ton	2	7	oton	7.822445
+es	wikisource	sol a	2	308	sola	gl	wikisource	a los	2	8	alos	7.930566
+es	wikisource	año la	2	301	anola	gl	wikisource	aló na	2	6	alona	7.656337
+es	wikisource	atada	1	264	atada	gl	wikisource	a data	2	41	adata	9.317399
+es	wikisource	aula	1	274	aula	gl	wikisource	a lúa	2	29	alua	9.017968
+es	wikisource	et non	2	205	etnon	gl	wikisource	non te	2	98	nonte	9.922996
+es	wikisource	orar	1	287	orar	gl	wikisource	raro	1	13	raro	8.302018
+es	wikisource	sale a	2	280	salea	gl	wikisource	a elas	2	20	aelas	8.682877
+es	wikisource	ebed	1	12	ebed	gl	wikisource	debe	1	287	debe	8.22791
+es	wikisource	neto	1	294	neto	gl	wikisource	o ten	2	5	oten	7.478735
+es	wikisource	sabias	1	293	sabias	gl	wikisource	saibas	1	5	saibas	7.475339
+es	wikisource	aula	1	274	aula	gl	wikisource	a lua	2	21	alua	8.707814
+es	wikisource	a ido	2	18	aido	gl	wikisource	o día	2	275	odia	8.56484
+es	wikisource	o no se	3	286	onose	gl	wikisource	e son o	3	5	esono	7.451242
+es	wikisource	odiel	1	5	odiel	gl	wikisource	lei do	2	285	leido	7.447751
+es	wikisource	da de	2	281	dade	gl	wikisource	edad	1	6	edad	7.587817
+es	wikisource	ni fa	2	11	nifa	gl	wikisource	a fin	2	273	afin	8.098035
+es	wikisource	atada	1	264	atada	gl	wikisource	á data	2	18	adata	8.524169
+es	wikisource	repuse	1	276	repuse	gl	wikisource	e super	2	5	esuper	7.415777
+es	wikisource	e non	2	263	enon	gl	wikisource	non e	2	5	none	7.367709
+es	wikisource	sol la	2	260	solla	gl	wikisource	allos	1	8	allos	7.761745
+es	wikisource	soñé	1	255	sone	gl	wikisource	enós	1	11	enos	8.030084
+es	wikisource	la er	2	6	laer	gl	wikisource	real	1	259	real	7.506592
+es	wikisource	a poca	2	257	apoca	gl	wikisource	a copa	2	6	acopa	7.49887
+es	wikisource	saeta	1	253	saeta	gl	wikisource	até as	2	7	ateas	7.616776
+es	wikisource	lata	1	242	lata	gl	wikisource	atal	1	17	atal	8.383433
+es	wikisource	riva	1	249	riva	gl	wikisource	a vir	2	10	avir	7.919356
+es	wikisource	anís	1	244	anis	gl	wikisource	si na	2	12	sina	8.066208
+es	wikisource	anís	1	244	anis	gl	wikisource	siña	1	10	sina	7.899153
+es	wikisource	anís	1	244	anis	gl	wikisource	sin a	2	8	sina	7.698483
+es	wikisource	arcas	1	242	arcas	gl	wikisource	sacra	1	10	sacra	7.890957
+es	wikisource	odia	1	234	odia	gl	wikisource	ai do	2	17	aido	8.349957
+es	wikisource	ni sé	2	172	nise	gl	wikisource	e sin	2	75	esin	9.484025
+es	wikisource	sé ni	2	113	seni	gl	wikisource	inés	1	130	ines	9.611396
+es	wikisource	o no la	3	222	onola	gl	wikisource	aló no	2	14	alono	8.115222
+es	wikisource	avión	1	221	avion	gl	wikisource	noiva	1	10	noiva	7.800573
+es	wikisource	late	1	211	late	gl	wikisource	e tal	2	11	etal	7.841493
+es	wikisource	su sed	2	194	sused	gl	wikisource	de sus	2	27	desus	8.605204
+es	wikisource	el les	2	35	elles	gl	wikisource	se lle	2	184	selle	8.803875
+es	wikisource	salé	1	14	sale	gl	wikisource	elas	1	205	elas	8.035926
+es	wikisource	sera	1	201	sera	gl	wikisource	ares	1	17	ares	8.198639
+es	wikisource	late	1	211	late	gl	wikisource	é tal	2	6	etal	7.302496
+es	wikisource	le vino	2	196	levino	gl	wikisource	o nivel	2	20	onivel	8.327726
+es	wikisource	os la	2	207	osla	gl	wikisource	also	1	6	also	7.283448
+es	wikisource	o nos	2	154	onos	gl	wikisource	son o	2	57	sono	9.103868
+es	wikisource	o nos	2	154	onos	gl	wikisource	sono	1	57	sono	9.103868
+es	wikisource	eso fue	2	203	esofue	gl	wikisource	eu fose	2	7	eufose	7.397562
+es	wikisource	rías	1	127	rias	gl	wikisource	saír	1	83	sair	9.282847
+es	wikisource	oso no	2	9	osono	gl	wikisource	o noso	2	197	onoso	7.590852
+es	wikisource	animan	1	146	animan	gl	wikisource	na miña	2	59	namina	9.084777
+es	wikisource	elles	1	20	elles	gl	wikisource	se lle	2	184	selle	8.264878
+es	wikisource	o non	2	36	onon	gl	wikisource	non o	2	167	nono	8.734882
+es	wikisource	oido	1	180	oido	gl	wikisource	odio	1	23	odio	8.376551
+es	wikisource	nones	1	150	nones	gl	wikisource	senon	1	52	senon	8.987572
+es	wikisource	y ana	2	195	yana	gl	wikisource	a nay	2	6	anay	7.224025
+es	wikisource	y ana	2	195	yana	gl	wikisource	á nay	2	5	anay	7.069874
+es	wikisource	osa con	2	5	osacon	gl	wikisource	no caso	2	190	nocaso	7.044033
+es	wikisource	non es	2	141	nones	gl	wikisource	senon	1	52	senon	8.926119
+es	wikisource	la co	2	23	laco	gl	wikisource	o cal	2	166	ocal	8.296048
+es	wikisource	o nos	2	154	onos	gl	wikisource	soño	1	35	sono	8.626944
+es	wikisource	sarta	1	121	sarta	gl	wikisource	atrás	1	64	atras	8.978408
+es	wikisource	el es	2	174	eles	gl	wikisource	se le	2	9	sele	7.467371
+es	wikisource	lavó	1	174	lavo	gl	wikisource	o val	2	9	oval	7.467371
+es	wikisource	síes	1	13	sies	gl	wikisource	seis	1	169	seis	7.774856
+es	wikisource	anos	1	151	anos	gl	wikisource	son a	2	28	sona	8.391176
+es	wikisource	añil	1	112	anil	gl	wikisource	liña	1	67	lina	8.946896
+es	wikisource	ramon	1	149	ramon	gl	wikisource	no mar	2	30	nomar	8.444622
+es	wikisource	aire se	2	173	airese	gl	wikisource	e sería	2	5	eseria	6.950815
+es	wikisource	ni sé	2	172	nise	gl	wikisource	é sin	2	5	esin	6.945051
+es	wikisource	said	1	104	said	gl	wikisource	dias	1	73	dias	8.958025
+es	wikisource	sagua	1	7	sagua	gl	wikisource	augas	1	169	augas	7.21524
+es	wikisource	se ría	2	123	seria	gl	wikisource	aires	1	53	aires	8.809266
+es	wikisource	a días	2	147	adias	gl	wikisource	saída	1	28	saida	8.364508
+es	wikisource	no lleva	2	162	nolleva	gl	wikisource	avellon	1	10	avellon	7.491645
+es	wikisource	lámina	1	163	lamina	gl	wikisource	animal	1	8	animal	7.297091
+es	wikisource	res a	2	11	resa	gl	wikisource	a ser	2	160	aser	7.566311
+es	wikisource	sumar	1	158	sumar	gl	wikisource	ramus	1	11	ramus	7.553811
+es	wikisource	et es	2	69	etes	gl	wikisource	sete	1	97	sete	8.833463
+es	wikisource	anos	1	151	anos	gl	wikisource	sona	1	12	sona	7.58883
+es	wikisource	mas á	2	157	masa	gl	wikisource	a sam	2	6	asam	7.008505
+es	wikisource	lene	1	19	lene	gl	wikisource	en el	2	143	enel	7.965546
+es	wikisource	non le	2	118	nonle	gl	wikisource	el non	2	44	elnon	8.585786
+es	wikisource	anos	1	151	anos	gl	wikisource	soña	1	10	sona	7.421776
+es	wikisource	o nos	2	154	onos	gl	wikisource	só no	2	6	sono	6.989335
+es	wikisource	anos	1	151	anos	gl	wikisource	só na	2	6	sona	6.969791
+es	wikisource	atad	1	8	atad	gl	wikisource	data	1	146	data	7.187657
+es	wikisource	ser obra	2	102	serobra	gl	wikisource	árbores	1	52	arbores	8.605021
+es	wikisource	a sor	2	42	asor	gl	wikisource	rosa	1	111	rosa	8.479699
+es	wikisource	leñe	1	10	lene	gl	wikisource	en el	2	143	enel	7.367709
+es	wikisource	selim	1	107	selim	gl	wikisource	miles	1	46	miles	8.532279
+es	wikisource	atlas	1	143	atlas	gl	wikisource	salta	1	9	salta	7.272398
+es	wikisource	ariel	1	126	ariel	gl	wikisource	leira	1	25	leira	8.102284
+es	wikisource	enim	1	87	enim	gl	wikisource	min e	2	63	mine	8.63622
+es	wikisource	illa	1	140	illa	gl	wikisource	allí	1	10	alli	7.346655
+es	wikisource	alero	1	143	alero	gl	wikisource	orela	1	6	orela	6.915723
+es	wikisource	rías	1	127	rias	gl	wikisource	sair	1	22	sair	7.987524
+es	wikisource	odian	1	139	odian	gl	wikisource	nai do	2	9	naido	7.244228
+es	wikisource	a nos	2	118	anos	gl	wikisource	son a	2	28	sona	8.146419
+es	wikisource	se vé	2	140	seve	gl	wikisource	e ves	2	5	eves	6.740519
+es	wikisource	si ana	2	12	siana	gl	wikisource	anais	1	133	anais	7.462789
+es	wikisource	ser al	2	136	seral	gl	wikisource	lares	1	8	lares	7.117206
+es	wikisource	se lea	2	49	selea	gl	wikisource	a eles	2	94	aeles	8.4659
+es	wikisource	seda de	2	136	sedade	gl	wikisource	edades	1	7	edades	6.999422
+es	wikisource	leed	1	84	leed	gl	wikisource	de el	2	58	deel	8.520189
+es	wikisource	oirás	1	134	oiras	gl	wikisource	sario	1	7	sario	6.984716
+es	wikisource	sabías	1	136	sabias	gl	wikisource	saibas	1	5	saibas	6.71174
+es	wikisource	asir	1	112	asir	gl	wikisource	risa	1	25	risa	7.985484
+es	wikisource	nona	1	65	nona	gl	wikisource	a non	2	71	anon	8.466321
+es	wikisource	o les	2	121	oles	gl	wikisource	selo	1	15	selo	7.57661
+es	wikisource	lees	1	125	lees	gl	wikisource	se el	2	10	seel	7.234177
+es	wikisource	se ni	2	5	seni	gl	wikisource	inés	1	130	ines	6.666957
+es	wikisource	zapa	1	74	zapa	gl	wikisource	a paz	2	61	apaz	8.444622
+es	wikisource	es los	2	125	eslos	gl	wikisource	sol se	2	7	solse	6.915723
+es	wikisource	no dé	2	127	node	gl	wikisource	e don	2	5	edon	6.64379
+es	wikisource	o se le	3	110	osele	gl	wikisource	eles o	2	22	eleso	7.845024
+es	wikisource	ocaña	1	102	ocana	gl	wikisource	anaco	1	30	anaco	8.068716
+es	wikisource	a nos	2	118	anos	gl	wikisource	sona	1	12	sona	7.344073
+es	wikisource	naos	1	123	naos	gl	wikisource	soan	1	7	soan	6.899723
+es	wikisource	no no se	3	102	nonose	gl	wikisource	eso non	2	27	esonon	7.966933
+es	wikisource	él os	2	115	elos	gl	wikisource	sol e	2	14	sole	7.46164
+es	wikisource	a nos	2	118	anos	gl	wikisource	soña	1	10	sona	7.177019
+es	wikisource	ese le	2	19	esele	gl	wikisource	eles e	2	109	elese	7.696213
+es	wikisource	naos	1	123	naos	gl	wikisource	soán	1	5	soan	6.612041
+es	wikisource	non le	2	118	nonle	gl	wikisource	él non	2	10	elnon	7.177019
+es	wikisource	samos	1	123	samos	gl	wikisource	somas	1	5	somas	6.612041
+es	wikisource	allá van	2	121	allavan	gl	wikisource	navalla	1	6	navalla	6.749931
+es	wikisource	o les	2	121	oles	gl	wikisource	se lo	2	6	selo	6.749931
+es	wikisource	al iv	2	6	aliv	gl	wikisource	vila	1	120	vila	6.741701
+es	wikisource	issa	1	30	issa	gl	wikisource	assi	1	96	assi	8.008698
+es	wikisource	neta	1	120	neta	gl	wikisource	a ten	2	6	aten	6.741701
+es	wikisource	arte la	2	118	artela	gl	wikisource	a letra	2	7	aletra	6.858565
+es	wikisource	a nos	2	118	anos	gl	wikisource	só na	2	6	sona	6.725034
+es	wikisource	la col	2	16	lacol	gl	wikisource	local	1	108	local	7.524561
+es	wikisource	et si	2	84	etsi	gl	wikisource	iste	1	39	iste	8.131531
+es	wikisource	o suo	2	5	osuo	gl	wikisource	o uso	2	118	ouso	6.570883
+es	wikisource	la tan	2	114	latan	gl	wikisource	natal	1	8	natal	6.942157
+es	wikisource	laca	1	46	laca	gl	wikisource	a cal	2	76	acal	8.193953
+es	wikisource	agis	1	106	agis	gl	wikisource	siga	1	15	siga	7.445418
+es	wikisource	asor	1	10	asor	gl	wikisource	rosa	1	111	rosa	7.116394
+es	wikisource	ése le	2	12	esele	gl	wikisource	eles e	2	109	elese	7.26543
+es	wikisource	no ned	2	6	noned	gl	wikisource	de non	2	113	denon	6.682109
+es	wikisource	osar	1	114	osar	gl	wikisource	raso	1	5	raso	6.536692
+es	wikisource	alas a	2	104	alasa	gl	wikisource	a sala	2	14	asala	7.362011
+es	wikisource	nate	1	5	nate	gl	wikisource	e tan	2	113	etan	6.527958
+es	wikisource	o tío	2	5	otio	gl	wikisource	oito	1	113	oito	6.527958
+es	wikisource	sese	1	10	sese	gl	wikisource	eses	1	108	eses	7.089243
+es	wikisource	iv el	2	112	ivel	gl	wikisource	leví	1	5	levi	6.519147
+es	wikisource	sesé	1	8	sese	gl	wikisource	eses	1	108	eses	6.888572
+es	wikisource	ni ve	2	41	nive	gl	wikisource	e vin	2	74	evin	8.055158
+es	wikisource	émulo	1	89	emulo	gl	wikisource	o lume	2	26	olume	7.795647
+es	wikisource	a sir	2	88	asir	gl	wikisource	risa	1	25	risa	7.746733
+es	wikisource	anam	1	24	anam	gl	wikisource	mañá	1	88	mana	7.707512
+es	wikisource	arar	1	103	arar	gl	wikisource	rara	1	9	rara	6.946976
+es	wikisource	aria	1	88	aria	gl	wikisource	á ira	2	24	aira	7.707512
+es	wikisource	non a	2	41	nona	gl	wikisource	a non	2	71	anon	8.014336
+es	wikisource	y poca	2	102	ypoca	gl	wikisource	a copy	2	9	acopy	6.937314
+es	wikisource	esa era	2	101	esaera	gl	wikisource	áreas e	2	9	arease	6.927558
+es	wikisource	salero	1	105	salero	gl	wikisource	orelas	1	5	orelas	6.455199
+es	wikisource	serte	1	71	serte	gl	wikisource	e tres	2	39	etres	7.965546
+es	wikisource	no él	2	80	noel	gl	wikisource	león	1	29	leon	7.795647
+es	wikisource	sal en	2	66	salen	gl	wikisource	nelas	1	42	nelas	7.965893
+es	wikisource	la dan	2	93	ladan	gl	wikisource	nadal	1	13	nadal	7.182352
+es	wikisource	aria	1	88	aria	gl	wikisource	a ira	2	17	aira	7.379008
+es	wikisource	rias	1	21	rias	gl	wikisource	saír	1	83	sair	7.521859
+es	wikisource	sanen	1	6	sanen	gl	wikisource	nenas	1	98	nenas	6.54103
+es	wikisource	êtes	1	6	etes	gl	wikisource	sete	1	97	sete	6.530878
+es	wikisource	adel	1	71	adel	gl	wikisource	leda	1	31	leda	7.742402
+es	wikisource	emes	1	7	emes	gl	wikisource	se me	2	95	seme	6.64379
+es	wikisource	norias	1	21	norias	gl	wikisource	saíron	1	81	sairon	7.497762
+es	wikisource	otium	1	6	otium	gl	wikisource	muito	1	96	muito	6.520621
+es	wikisource	so la	2	61	sola	gl	wikisource	á los	2	40	alos	7.840706
+es	wikisource	al ama	2	93	alama	gl	wikisource	a mala	2	7	amala	6.622736
+es	wikisource	alen	1	8	alen	gl	wikisource	nela	1	92	nela	6.729824
+es	wikisource	limar	1	21	limar	gl	wikisource	ramil	1	79	ramil	7.473069
+es	wikisource	á tal	2	95	atal	gl	wikisource	la ta	2	5	lata	6.356108
+es	wikisource	aera	1	11	aera	gl	wikisource	área	1	88	area	6.973543
+es	wikisource	más á	2	93	masa	gl	wikisource	a sam	2	6	asam	6.489205
+es	wikisource	eder	1	6	eder	gl	wikisource	rede	1	92	rede	6.47851
+es	wikisource	la ca	2	22	laca	gl	wikisource	a cal	2	76	acal	7.4793
+es	wikisource	iii a	2	92	iiia	gl	wikisource	a iii	2	5	aiii	6.324359
+es	wikisource	lavan	1	90	lavan	gl	wikisource	naval	1	7	naval	6.590301
+es	wikisource	nos non	2	8	nosnon	gl	wikisource	non son	2	89	nonson	6.697034
+es	wikisource	serones	1	29	serones	gl	wikisource	señores	1	68	senores	7.635304
+es	wikisource	émulo	1	89	emulo	gl	wikisource	ó lume	2	7	olume	6.579251
+es	wikisource	ayar	1	76	ayar	gl	wikisource	raya	1	19	raya	7.339538
+es	wikisource	nebo	1	17	nebo	gl	wikisource	o ben	2	78	oben	7.25982
+es	wikisource	sol le	2	70	solle	gl	wikisource	ellos	1	25	ellos	7.520776
+es	wikisource	a lope	2	34	alope	gl	wikisource	e pola	2	60	epola	7.666222
+es	wikisource	al art	2	88	alart	gl	wikisource	trala	1	6	trala	6.434547
+es	wikisource	la ta	2	13	lata	gl	wikisource	a tal	2	81	atal	7.045777
+es	wikisource	o no sé	3	89	onose	gl	wikisource	e son o	3	5	esono	6.291569
+es	wikisource	riñe	1	89	rine	gl	wikisource	en ir	2	5	enir	6.291569
+es	wikisource	el aro	2	74	elaro	gl	wikisource	oral e	2	18	orale	7.261927
+es	wikisource	al ne	2	6	alne	gl	wikisource	en la	2	85	enla	6.400257
+es	wikisource	alua	1	17	alua	gl	wikisource	aula	1	74	aula	7.20786
+es	wikisource	lame	1	78	lame	gl	wikisource	e mal	2	13	emal	7.008505
+es	wikisource	nos e	2	26	nose	gl	wikisource	e son	2	65	eson	7.485492
+es	wikisource	saut	1	6	saut	gl	wikisource	túas	1	85	tuas	6.400257
+es	wikisource	seco de	2	85	secode	gl	wikisource	e doces	2	6	edoces	6.400257
+es	wikisource	es le	2	69	esle	gl	wikisource	el se	2	20	else	7.293018
+es	wikisource	la roma	2	82	laroma	gl	wikisource	a moral	2	7	amoral	6.498282
+es	wikisource	leed	1	84	leed	gl	wikisource	de él	2	5	deel	6.234411
+es	wikisource	si amo	2	10	siamo	gl	wikisource	o máis	2	79	omais	6.779922
+es	wikisource	soso	1	70	soso	gl	wikisource	ósos	1	19	osos	7.258412
+es	wikisource	lame	1	78	lame	gl	wikisource	é mal	2	10	emal	6.767343
+es	wikisource	no él	2	80	noel	gl	wikisource	leon	1	8	leon	6.591674
+es	wikisource	eso su	2	72	esosu	gl	wikisource	usos e	2	15	usose	7.063048
+es	wikisource	nona	1	65	nona	gl	wikisource	añón	1	22	anon	7.325149
+es	wikisource	etra	1	14	etra	gl	wikisource	arte	1	72	arte	6.99851
+es	wikisource	no rías	2	5	norias	gl	wikisource	saíron	1	81	sairon	6.198479
+es	wikisource	ab ad	2	6	abad	gl	wikisource	daba	1	79	daba	6.327937
+es	wikisource	siamo	1	6	siamo	gl	wikisource	o máis	2	79	omais	6.327937
+es	wikisource	allí á	2	68	allia	gl	wikisource	a illa	2	16	ailla	7.06732
+es	wikisource	nono	1	69	nono	gl	wikisource	o non	2	15	onon	7.021084
+es	wikisource	oí la	2	73	oila	gl	wikisource	alí o	2	11	alio	6.788972
+es	wikisource	odió	1	17	odio	gl	wikisource	oído	1	65	oido	7.080026
+es	wikisource	omita	1	77	omita	gl	wikisource	átimo	1	5	atimo	6.148468
+es	wikisource	ores	1	11	ores	gl	wikisource	ser o	2	71	sero	6.761573
+es	wikisource	oí el	2	61	oiel	gl	wikisource	lei o	2	21	leio	7.218177
+es	wikisource	ódio	1	17	odio	gl	wikisource	oído	1	65	oido	7.080026
+es	wikisource	nodo	1	69	nodo	gl	wikisource	o don	2	12	odon	6.813445
+es	wikisource	ñudo	1	76	nudo	gl	wikisource	o dun	2	5	odun	6.135565
+es	wikisource	oí la	2	73	oila	gl	wikisource	ali o	2	7	alio	6.383507
+es	wikisource	so su	2	7	sosu	gl	wikisource	usos	1	73	usos	6.383507
+es	wikisource	orto	1	29	orto	gl	wikisource	otro	1	50	otro	7.333023
+es	wikisource	soso	1	70	soso	gl	wikisource	osos	1	9	osos	6.565265
+es	wikisource	ñoña	1	8	nona	gl	wikisource	a non	2	71	anon	6.473891
+es	wikisource	es le	2	69	esle	gl	wikisource	él se	2	9	else	6.55108
+es	wikisource	o ella	2	67	oella	gl	wikisource	alleo	1	11	alleo	6.704414
+es	wikisource	nona	1	65	nona	gl	wikisource	añon	1	12	anon	6.754604
+es	wikisource	aviv	1	12	aviv	gl	wikisource	viva	1	64	viva	6.739337
+es	wikisource	e más	2	58	emas	gl	wikisource	same	1	18	same	7.021976
+es	wikisource	es a su	3	61	esasu	gl	wikisource	úsase	1	15	usase	6.899723
+es	wikisource	art el	2	5	artel	gl	wikisource	letra	1	70	letra	6.054439
+es	wikisource	rebasa	1	52	rebasa	gl	wikisource	a saber	2	23	asaber	7.148346
+es	wikisource	siem	1	61	siem	gl	wikisource	meis	1	14	meis	6.835185
+es	wikisource	e si el	3	42	esiel	gl	wikisource	leis e	2	31	leise	7.226936
+es	wikisource	o dama	2	6	odama	gl	wikisource	amado	1	67	amado	6.165418
+es	wikisource	susa	1	61	susa	gl	wikisource	á sus	2	12	asus	6.692084
+es	wikisource	a non	2	10	anon	gl	wikisource	non a	2	62	nona	6.54103
+es	wikisource	a tais	2	41	atais	gl	wikisource	si ata	2	31	siata	7.203406
+es	wikisource	alos	1	50	alos	gl	wikisource	sola	1	22	sola	7.06732
+es	wikisource	nabal	1	26	nabal	gl	wikisource	labán	1	46	laban	7.145984
+es	wikisource	ana le	2	64	anale	gl	wikisource	ela na	2	7	elana	6.253829
+es	wikisource	lavo	1	62	lavo	gl	wikisource	o val	2	9	oval	6.44572
+es	wikisource	sonad	1	12	sonad	gl	wikisource	danos	1	59	danos	6.659294
+es	wikisource	aarp	1	8	aarp	gl	wikisource	pra a	2	62	praa	6.340359
+es	wikisource	amad	1	62	amad	gl	wikisource	dama	1	8	dama	6.340359
+es	wikisource	ara de	2	65	arade	gl	wikisource	e dará	2	5	edara	5.981414
+es	wikisource	o dio	2	5	odio	gl	wikisource	oído	1	65	oido	5.981414
+es	wikisource	sí ese	2	31	siese	gl	wikisource	e seis	2	39	eseis	7.154615
+es	wikisource	a mar	2	41	amar	gl	wikisource	rama	1	28	rama	7.104965
+es	wikisource	ah es	2	47	ahes	gl	wikisource	se ha	2	22	seha	7.006695
+es	wikisource	aval	1	63	aval	gl	wikisource	lava	1	6	lava	6.104793
+es	wikisource	so la	2	61	sola	gl	wikisource	a los	2	8	alos	6.324359
+es	wikisource	á roma	2	62	aroma	gl	wikisource	amor á	2	7	amora	6.222576
+es	wikisource	agua á	2	28	aguaa	gl	wikisource	a auga	2	40	aauga	7.080868
+es	wikisource	asen	1	24	asen	gl	wikisource	nesa	1	44	nesa	7.025538
+es	wikisource	obed	1	39	obed	gl	wikisource	debo	1	29	debo	7.090077
+es	wikisource	roma o	2	32	romao	gl	wikisource	o amor	2	36	oamor	7.107425
+es	wikisource	adad	1	39	adad	gl	wikisource	dada	1	28	dada	7.056175
+es	wikisource	as en	2	23	asen	gl	wikisource	nesa	1	44	nesa	6.984716
+es	wikisource	et se	2	44	etse	gl	wikisource	éste	1	23	este	6.984716
+es	wikisource	robas	1	24	robas	gl	wikisource	sabor	1	43	sabor	7.003065
+es	wikisource	susa	1	61	susa	gl	wikisource	asús	1	6	asus	6.073045
+es	wikisource	á lope	2	7	alope	gl	wikisource	e pola	2	60	epola	6.190315
+es	wikisource	á roma	2	62	aroma	gl	wikisource	amor a	2	5	amora	5.934894
+es	wikisource	la van	2	59	lavan	gl	wikisource	naval	1	7	naval	6.173786
+es	wikisource	ni tal	2	54	nital	gl	wikisource	latín	1	12	latin	6.572283
+es	wikisource	roda	1	56	roda	gl	wikisource	a dor	2	10	ador	6.440947
+es	wikisource	sola su	2	61	solasu	gl	wikisource	usalos	1	5	usalos	5.918894
+es	wikisource	ne se	2	5	nese	gl	wikisource	e sen	2	60	esen	5.902633
+es	wikisource	ajes	1	10	ajes	gl	wikisource	seja	1	54	seja	6.405228
+es	wikisource	medo	1	59	medo	gl	wikisource	o dem	2	5	odem	5.886104
+es	wikisource	su mar	2	53	sumar	gl	wikisource	ramus	1	11	ramus	6.473891
+es	wikisource	a adán	2	54	aadan	gl	wikisource	nada a	2	9	nadaa	6.309918
+es	wikisource	ares	1	32	ares	gl	wikisource	ser a	2	31	sera	6.962243
+es	wikisource	dar o	2	58	daro	gl	wikisource	orad	1	5	orad	5.869297
+es	wikisource	e más	2	58	emas	gl	wikisource	sam e	2	5	same	5.869297
+es	wikisource	eso fué	2	56	esofue	gl	wikisource	eu fose	2	7	eufose	6.122493
+es	wikisource	non a	2	41	nona	gl	wikisource	añón	1	22	anon	6.873164
+es	wikisource	rebasa	1	52	rebasa	gl	wikisource	á saber	2	11	asaber	6.455199
+es	wikisource	si ama	2	14	siama	gl	wikisource	a máis	2	49	amais	6.620073
+es	wikisource	a lam	2	6	alam	gl	wikisource	mala	1	56	mala	5.988961
+es	wikisource	e nos	2	46	enos	gl	wikisource	son e	2	16	sone	6.683361
+es	wikisource	et se	2	44	etse	gl	wikisource	esté	1	18	este	6.751101
+es	wikisource	ii iv	2	30	iiiv	gl	wikisource	viii	1	32	viii	6.930495
+es	wikisource	ó nos	2	5	onos	gl	wikisource	son o	2	57	sono	5.852202
+es	wikisource	ó nos	2	5	onos	gl	wikisource	sono	1	57	sono	5.852202
+es	wikisource	allì	1	8	alli	gl	wikisource	illa	1	53	illa	6.186209
+es	wikisource	raul	1	25	raul	gl	wikisource	luar	1	36	luar	6.869014
+es	wikisource	sais	1	35	sais	gl	wikisource	si as	2	26	sias	6.879356
+es	wikisource	sala la	2	52	salala	gl	wikisource	alalás	1	9	alalas	6.272877
+es	wikisource	sodio	1	32	sodio	gl	wikisource	oídos	1	29	oidos	6.897705
+es	wikisource	soñaré	1	10	sonare	gl	wikisource	eran os	2	51	eranos	6.349139
+es	wikisource	a gil	2	53	agil	gl	wikisource	liga	1	7	liga	6.068426
+es	wikisource	a tirones	2	30	atirones	gl	wikisource	señorita	1	30	senorita	6.867974
+es	wikisource	ni tal	2	54	nital	gl	wikisource	latin	1	6	latin	5.953243
+es	wikisource	ramá	1	5	rama	gl	wikisource	amar	1	55	amar	5.817111
+es	wikisource	alea	1	14	alea	gl	wikisource	a ela	2	45	aela	6.536692
+es	wikisource	amós	1	54	amos	gl	wikisource	soma	1	5	soma	5.799093
+es	wikisource	asoc	1	16	asoc	gl	wikisource	cosa	1	43	cosa	6.617403
+es	wikisource	ese a	2	28	esea	gl	wikisource	a ese	2	31	aese	6.833032
+es	wikisource	luz á	2	31	luza	gl	wikisource	azul	1	28	azul	6.833032
+es	wikisource	olot	1	26	olot	gl	wikisource	tolo	1	33	tolo	6.822197
+es	wikisource	soba	1	52	soba	gl	wikisource	abós	1	7	abos	6.049733
+es	wikisource	subes	1	52	subes	gl	wikisource	sebús	1	7	sebus	6.049733
+es	wikisource	aisa	1	8	aisa	gl	wikisource	así a	2	50	asia	6.12905
+es	wikisource	alos	1	50	alos	gl	wikisource	sol a	2	8	sola	6.12905
+es	wikisource	sal a	2	33	sala	gl	wikisource	alas	1	25	alas	6.784457
+es	wikisource	sol á	2	18	sola	gl	wikisource	á los	2	40	alos	6.658011
+es	wikisource	ayos	1	35	ayos	gl	wikisource	soya	1	22	soya	6.719013
+es	wikisource	oír o	2	19	oiro	gl	wikisource	o río	2	38	orio	6.659294
+es	wikisource	reta	1	31	reta	gl	wikisource	a ter	2	26	ater	6.761573
+es	wikisource	ieres	1	19	ieres	gl	wikisource	serei	1	37	serei	6.633318
+es	wikisource	lamo	1	9	lamo	gl	wikisource	o mal	2	47	omal	6.173786
+es	wikisource	sedet	1	6	sedet	gl	wikisource	tedes	1	50	tedes	5.877736
+es	wikisource	solá	1	16	sola	gl	wikisource	á los	2	40	alos	6.546785
+es	wikisource	et no	2	19	etno	gl	wikisource	onte	1	36	onte	6.60665
+es	wikisource	noel	1	26	noel	gl	wikisource	león	1	29	leon	6.697034
+es	wikisource	se lea	2	49	selea	gl	wikisource	à eles	2	6	aeles	5.857933
+es	wikisource	álas	1	9	alas	gl	wikisource	sala	1	46	sala	6.152733
+es	wikisource	oios	1	25	oios	gl	wikisource	soio	1	29	soio	6.659294
+es	wikisource	ser te	2	15	serte	gl	wikisource	e tres	2	39	etres	6.461468
+es	wikisource	suam	1	25	suam	gl	wikisource	maus	1	29	maus	6.659294
+es	wikisource	sí ama	2	5	siama	gl	wikisource	a máis	2	49	amais	5.703782
+es	wikisource	á lea	2	9	alea	gl	wikisource	a ela	2	45	aela	6.131226
+es	wikisource	a lea	2	8	alea	gl	wikisource	a ela	2	45	aela	6.025866
+es	wikisource	a río	2	40	ario	gl	wikisource	oír a	2	13	oira	6.352629
+es	wikisource	anota	1	40	anota	gl	wikisource	átona	1	13	atona	6.352629
+es	wikisource	et su	2	43	etsu	gl	wikisource	usté	1	10	uste	6.182085
+es	wikisource	non a	2	41	nona	gl	wikisource	añon	1	12	anon	6.302619
+es	wikisource	salam	1	10	salam	gl	wikisource	malas	1	43	malas	6.182085
+es	wikisource	si ése	2	14	siese	gl	wikisource	e seis	2	39	eseis	6.39693
+es	wikisource	sé si el	3	43	sesiel	gl	wikisource	leises	1	10	leises	6.182085
+es	wikisource	á mal	2	25	amal	gl	wikisource	lama	1	28	lama	6.625392
+es	wikisource	açor	1	11	acor	gl	wikisource	roca	1	41	roca	6.222576
+es	wikisource	e dos	2	43	edos	gl	wikisource	só de	2	9	sode	6.086775
+es	wikisource	e mas	2	34	emas	gl	wikisource	same	1	18	same	6.499787
+es	wikisource	e si el	3	42	esiel	gl	wikisource	lei se	2	10	leise	6.159095
+es	wikisource	esa su	2	37	esasu	gl	wikisource	úsase	1	15	usase	6.410175
+es	wikisource	se re	2	14	sere	gl	wikisource	eres	1	38	eres	6.371612
+es	wikisource	sóla	1	12	sola	gl	wikisource	á los	2	40	alos	6.278521
+es	wikisource	a des	2	23	ades	gl	wikisource	seda	1	28	seda	6.54535
+es	wikisource	a remar	2	44	aremar	gl	wikisource	ramera	1	7	ramera	5.886104
+es	wikisource	a río	2	40	ario	gl	wikisource	oira	1	11	oira	6.198479
+es	wikisource	a saco	2	40	asaco	gl	wikisource	ó casa	2	11	ocasa	6.198479
+es	wikisource	arad	1	9	arad	gl	wikisource	dar a	2	42	dara	6.063785
+es	wikisource	laca	1	46	laca	gl	wikisource	á cal	2	5	acal	5.641907
+es	wikisource	odie	1	20	odie	gl	wikisource	eido	1	31	eido	6.510258
+es	wikisource	son á	2	30	sona	gl	wikisource	años	1	21	anos	6.52503
+es	wikisource	a iii	2	39	aiii	gl	wikisource	iii a	2	11	iiia	6.173786
+es	wikisource	abaca	1	26	abaca	gl	wikisource	acaba	1	24	acaba	6.514713
+es	wikisource	animae	1	13	animae	gl	wikisource	e a miña	3	37	eamina	6.276643
+es	wikisource	aram	1	45	aram	gl	wikisource	mar a	2	5	mara	5.620401
+es	wikisource	ario	1	37	ario	gl	wikisource	oír a	2	13	oira	6.276643
+es	wikisource	aued	1	27	aued	gl	wikisource	deu a	2	23	deua	6.510258
+es	wikisource	e doña	2	12	edona	gl	wikisource	ano de	2	38	anode	6.228511
+es	wikisource	no no sé	3	23	nonose	gl	wikisource	eso non	2	27	esonon	6.510258
+es	wikisource	orad	1	36	orad	gl	wikisource	dar o	2	14	daro	6.318968
+es	wikisource	abed	1	30	abed	gl	wikisource	deba	1	19	deba	6.429719
+es	wikisource	acies	1	8	acies	gl	wikisource	seica	1	41	seica	5.934894
+es	wikisource	al oso	2	42	aloso	gl	wikisource	o sol a	3	7	osola	5.840642
+es	wikisource	apoc	1	31	apoc	gl	wikisource	copa	1	18	copa	6.410175
+es	wikisource	edit	1	41	edit	gl	wikisource	ti de	2	8	tide	5.934894
+es	wikisource	iese	1	29	iese	gl	wikisource	e sei	2	20	esei	6.44572
+es	wikisource	o non	2	36	onon	gl	wikisource	nono	1	13	nono	6.249975
+es	wikisource	o trece	2	28	otrece	gl	wikisource	é certo	2	21	ecerto	6.458338
+es	wikisource	sula	1	40	sula	gl	wikisource	a lus	2	9	alus	6.016157
+es	wikisource	a lope	2	34	alope	gl	wikisource	é pola	2	14	epola	6.263398
+es	wikisource	ades	1	20	ades	gl	wikisource	seda	1	28	seda	6.411818
+es	wikisource	amal	1	20	amal	gl	wikisource	lama	1	28	lama	6.411818
+es	wikisource	ario	1	37	ario	gl	wikisource	oira	1	11	oira	6.122493
+es	wikisource	e dis	2	28	edis	gl	wikisource	si de	2	20	side	6.411818
+es	wikisource	e doña	2	12	edona	gl	wikisource	año de	2	36	anode	6.175867
+es	wikisource	e les	2	39	eles	gl	wikisource	se le	2	9	sele	5.991465
+es	wikisource	etsi	1	9	etsi	gl	wikisource	iste	1	39	iste	5.991465
+es	wikisource	obed	1	39	obed	gl	wikisource	de bo	2	9	debo	5.991465
+es	wikisource	olaf	1	8	olaf	gl	wikisource	falo	1	40	falo	5.910797
+es	wikisource	ser e	2	10	sere	gl	wikisource	eres	1	38	eres	6.061457
+es	wikisource	sole	1	34	sole	gl	wikisource	el os	2	14	elos	6.263398
+es	wikisource	ó sin	2	39	osin	gl	wikisource	niso	1	9	niso	5.991465
+es	wikisource	amet	1	6	amet	gl	wikisource	tema	1	41	tema	5.68358
+es	wikisource	ayas	1	41	ayas	gl	wikisource	saya	1	6	saya	5.68358
+es	wikisource	eram	1	14	eram	gl	wikisource	mar e	2	33	mare	6.234411
+es	wikisource	eíla	1	34	eila	gl	wikisource	alí e	2	13	alie	6.194405
+es	wikisource	ralo	1	41	ralo	gl	wikisource	o lar	2	6	olar	5.68358
+es	wikisource	salén	1	5	salen	gl	wikisource	nelas	1	42	nelas	5.55296
+es	wikisource	ací es	2	5	acies	gl	wikisource	seica	1	41	seica	5.529429
+es	wikisource	ellis	1	31	ellis	gl	wikisource	si lle	2	15	sille	6.238325
+es	wikisource	rebase	1	39	rebase	gl	wikisource	e saber	2	7	esaber	5.768321
+es	wikisource	a río	2	40	ario	gl	wikisource	oíra	1	5	oira	5.505332
+es	wikisource	a val	2	39	aval	gl	wikisource	lava	1	6	lava	5.63479
+es	wikisource	arad	1	9	arad	gl	wikisource	dará	1	36	dara	5.913503
+es	wikisource	atraca	1	16	atraca	gl	wikisource	a carta	2	29	acarta	6.234411
+es	wikisource	sal a	2	33	sala	gl	wikisource	á las	2	12	alas	6.09131
+es	wikisource	sale á	2	25	salea	gl	wikisource	a elas	2	20	aelas	6.302619
+es	wikisource	aten	1	35	aten	gl	wikisource	neta	1	9	neta	5.886104
+es	wikisource	es agua	2	35	esagua	gl	wikisource	augas e	2	9	augase	5.886104
+es	wikisource	nema	1	9	nema	gl	wikisource	amén	1	35	amen	5.886104
+es	wikisource	aias	1	17	aias	gl	wikisource	saía	1	26	saia	6.186209
+es	wikisource	arto	1	16	arto	gl	wikisource	otra	1	27	otra	6.165418
+es	wikisource	e dia	2	26	edia	gl	wikisource	ai de	2	17	aide	6.186209
+es	wikisource	nos o	2	17	noso	gl	wikisource	o son	2	26	oson	6.186209
+es	wikisource	rias	1	21	rias	gl	wikisource	sair	1	22	sair	6.226537
+es	wikisource	samet	1	5	samet	gl	wikisource	temas	1	38	temas	5.455321
+es	wikisource	ario	1	37	ario	gl	wikisource	oíra	1	5	oira	5.429346
+es	wikisource	odié	1	11	odie	gl	wikisource	eido	1	31	eido	5.950643
+es	wikisource	rallo	1	21	rallo	gl	wikisource	ollar	1	21	ollar	6.182085
+es	wikisource	ser á	2	25	sera	gl	wikisource	ares	1	17	ares	6.148468
+es	wikisource	sol nos	2	36	solnos	gl	wikisource	son los	2	6	sonlos	5.556828
+es	wikisource	solam	1	7	solam	gl	wikisource	malos	1	35	malos	5.66296
+es	wikisource	á nos	2	14	anos	gl	wikisource	son a	2	28	sona	6.075346
+es	wikisource	ése a	2	11	esea	gl	wikisource	a ese	2	31	aese	5.950643
+es	wikisource	ac es	2	10	aces	gl	wikisource	seca	1	31	seca	5.863631
+es	wikisource	adargas	1	25	adargas	gl	wikisource	sagrada	1	16	sagrada	6.09131
+es	wikisource	adobar	1	27	adobar	gl	wikisource	rabo da	2	14	raboda	6.040255
+es	wikisource	anav	1	34	anav	gl	wikisource	van a	2	7	vana	5.63479
+es	wikisource	e sea	2	10	esea	gl	wikisource	a ese	2	31	aese	5.863631
+es	wikisource	levin a	2	27	levina	gl	wikisource	a nivel	2	14	anivel	6.040255
+es	wikisource	non los	2	35	nonlos	gl	wikisource	sol non	2	6	solnon	5.529429
+es	wikisource	non son	2	30	nonson	gl	wikisource	nós non	2	11	nosnon	5.918894
+es	wikisource	o non	2	36	onon	gl	wikisource	non ó	2	5	nono	5.402677
+es	wikisource	sama	1	31	sama	gl	wikisource	amas	1	10	amas	5.863631
+es	wikisource	saut	1	6	saut	gl	wikisource	tuas	1	35	tuas	5.529429
+es	wikisource	se non	2	36	senon	gl	wikisource	non es	2	5	nones	5.402677
+es	wikisource	ésa era	2	32	esaera	gl	wikisource	áreas e	2	9	arease	5.799093
+es	wikisource	a res	2	9	ares	gl	wikisource	ser a	2	31	sera	5.768321
+es	wikisource	abías	1	23	abias	gl	wikisource	saiba	1	17	saiba	6.068426
+es	wikisource	allo	1	28	allo	gl	wikisource	olla	1	12	olla	5.932245
+es	wikisource	atón	1	9	aton	gl	wikisource	nota	1	31	nota	5.768321
+es	wikisource	eliab	1	25	eliab	gl	wikisource	baile	1	15	baile	6.030685
+es	wikisource	napo	1	20	napo	gl	wikisource	o pan	2	20	opan	6.089045
+es	wikisource	nemrod	1	28	nemrod	gl	wikisource	dormen	1	12	dormen	5.932245
+es	wikisource	serà	1	23	sera	gl	wikisource	ares	1	17	ares	6.068426
+es	wikisource	sois a	2	12	soisa	gl	wikisource	así os	2	28	asios	5.932245
+es	wikisource	ó nos	2	5	onos	gl	wikisource	soño	1	35	sono	5.375278
+es	wikisource	a ido	2	18	aido	gl	wikisource	ó día	2	21	odia	6.035481
+es	wikisource	adama	1	14	adama	gl	wikisource	amada	1	25	amada	5.966147
+es	wikisource	amos a	2	33	amosa	gl	wikisource	asoma	1	6	asoma	5.472271
+es	wikisource	arada	1	34	arada	gl	wikisource	a dar a	3	5	adara	5.347108
+es	wikisource	e mas	2	34	emas	gl	wikisource	sam e	2	5	same	5.347108
+es	wikisource	rete	1	14	rete	gl	wikisource	éter	1	25	eter	5.966147
+es	wikisource	se da de	3	32	sedade	gl	wikisource	edades	1	7	edades	5.575949
+es	wikisource	sodio	1	32	sodio	gl	wikisource	oidos	1	7	oidos	5.575949
+es	wikisource	a ido	2	18	aido	gl	wikisource	o dia	2	20	odia	5.988961
+es	wikisource	agio	1	32	agio	gl	wikisource	oiga	1	6	oiga	5.442418
+es	wikisource	ares	1	32	ares	gl	wikisource	sera	1	6	sera	5.442418
+es	wikisource	enos	1	22	enos	gl	wikisource	son e	2	16	sone	5.968708
+es	wikisource	es os	2	5	esos	gl	wikisource	só se	2	33	sose	5.31812
+es	wikisource	moça	1	33	moca	gl	wikisource	a com	2	5	acom	5.31812
+es	wikisource	o trece	2	28	otrece	gl	wikisource	e certo	2	10	ecerto	5.765191
+es	wikisource	oir el	2	33	oirel	gl	wikisource	lerio	1	5	lerio	5.31812
+es	wikisource	a dot	2	20	adot	gl	wikisource	tod á	2	17	toda	5.934894
+es	wikisource	a lot	2	20	alot	gl	wikisource	tola	1	17	tola	5.934894
+es	wikisource	al afán	2	19	alafan	gl	wikisource	na fala	2	18	nafala	5.940171
+es	wikisource	atal	1	32	atal	gl	wikisource	la ta	2	5	lata	5.288267
+es	wikisource	elam	1	25	elam	gl	wikisource	mal e	2	12	male	5.823046
+es	wikisource	o días	2	25	odias	gl	wikisource	saído	1	12	saido	5.823046
+es	wikisource	oirle	1	26	oirle	gl	wikisource	el rio	2	11	elrio	5.780744
+es	wikisource	onís	1	11	onis	gl	wikisource	si no	2	26	sino	5.780744
+es	wikisource	ralos	1	30	ralos	gl	wikisource	solar	1	7	solar	5.513429
+es	wikisource	ramo a	2	21	ramoa	gl	wikisource	ao mar	2	16	aomar	5.924256
+es	wikisource	rapa	1	30	rapa	gl	wikisource	á par	2	7	apar	5.513429
+es	wikisource	sanaré	1	15	sanare	gl	wikisource	eran as	2	22	eranas	5.908083
+es	wikisource	ues a	2	5	uesa	gl	wikisource	a seu	2	32	aseu	5.288267
+es	wikisource	viuo	1	31	viuo	gl	wikisource	ou iv	2	6	ouiv	5.411646
+es	wikisource	a iba	2	5	aiba	gl	wikisource	abia	1	31	abia	5.257495
+es	wikisource	ab la	2	12	abla	gl	wikisource	alba	1	24	alba	5.783825
+es	wikisource	na da	2	7	nada	gl	wikisource	adán	1	29	adan	5.480639
+es	wikisource	no bebas	2	21	nobebas	gl	wikisource	sabe bon	2	15	sabebon	5.863631
+es	wikisource	noso	1	10	noso	gl	wikisource	o son	2	26	oson	5.693732
+es	wikisource	o caña	2	6	ocana	gl	wikisource	anaco	1	30	anaco	5.379897
+es	wikisource	ocas	1	13	ocas	gl	wikisource	saco	1	23	saco	5.817111
+es	wikisource	oler a	2	28	olera	gl	wikisource	arelo	1	8	arelo	5.56452
+es	wikisource	sí ese	2	31	siese	gl	wikisource	é seis	2	5	eseis	5.257495
+es	wikisource	záparo	1	28	zaparo	gl	wikisource	o rapaz	2	8	orapaz	5.56452
+es	wikisource	á ira	2	30	aira	gl	wikisource	a ría	2	6	aria	5.379897
+es	wikisource	ad es	2	7	ades	gl	wikisource	seda	1	28	seda	5.446737
+es	wikisource	alle	1	8	alle	gl	wikisource	ella	1	27	ella	5.529429
+es	wikisource	e si la	3	19	esila	gl	wikisource	alí se	2	16	alise	5.828946
+es	wikisource	odias	1	23	odias	gl	wikisource	saído	1	12	saido	5.743003
+es	wikisource	rapa	1	30	rapa	gl	wikisource	a par	2	5	apar	5.225747
+es	wikisource	retó	1	30	reto	gl	wikisource	o ter	2	5	oter	5.225747
+es	wikisource	se si	2	27	sesi	gl	wikisource	ises	1	8	ises	5.529429
+es	wikisource	soir	1	13	soir	gl	wikisource	ríos	1	22	rios	5.774552
+es	wikisource	soma	1	25	soma	gl	wikisource	amos	1	10	amos	5.655992
+es	wikisource	á mar	2	7	amar	gl	wikisource	rama	1	28	rama	5.446737
+es	wikisource	adam a	2	9	adama	gl	wikisource	amada	1	25	amada	5.560682
+es	wikisource	amri	1	24	amri	gl	wikisource	irmá	1	10	irma	5.616771
+es	wikisource	anam	1	24	anam	gl	wikisource	maña	1	10	mana	5.616771
+es	wikisource	e mis	2	15	emis	gl	wikisource	si me	2	19	sime	5.768321
+es	wikisource	elea	1	25	elea	gl	wikisource	a el e	3	9	aele	5.560682
+es	wikisource	ese a	2	28	esea	gl	wikisource	á ese	2	6	aese	5.313206
+es	wikisource	noel	1	26	noel	gl	wikisource	leon	1	8	leon	5.493061
+es	wikisource	noël	1	5	noel	gl	wikisource	león	1	29	leon	5.192957
+es	wikisource	se vá	2	15	seva	gl	wikisource	aves	1	19	aves	5.768321
+es	wikisource	si ama	2	14	siama	gl	wikisource	a mais	2	20	amais	5.752573
+es	wikisource	sian	1	5	sian	gl	wikisource	nais	1	29	nais	5.192957
+es	wikisource	áura	1	26	aura	gl	wikisource	a rúa	2	8	arua	5.493061
+es	wikisource	afro	1	25	afro	gl	wikisource	orfa	1	8	orfa	5.455321
+es	wikisource	es a él	3	26	esael	gl	wikisource	léase	1	7	lease	5.375278
+es	wikisource	itis	1	24	itis	gl	wikisource	si ti	2	9	siti	5.521461
+es	wikisource	nate	1	5	nate	gl	wikisource	é tan	2	28	etan	5.159055
+es	wikisource	nerones	1	20	nerones	gl	wikisource	señor en	2	13	senoren	5.68358
+es	wikisource	o doña	2	11	odona	gl	wikisource	ano do	2	22	anodo	5.620401
+es	wikisource	trop	1	24	trop	gl	wikisource	port	1	9	port	5.521461
+es	wikisource	á dias	2	5	adias	gl	wikisource	saída	1	28	saida	5.159055
+es	wikisource	á obed	2	8	aobed	gl	wikisource	de boa	2	25	deboa	5.455321
+es	wikisource	a baños	2	25	abanos	gl	wikisource	soñaba	1	7	sonaba	5.337538
+es	wikisource	a sea	2	13	asea	gl	wikisource	a esa	2	19	aesa	5.63479
+es	wikisource	a toca	2	18	atoca	gl	wikisource	a cota	2	14	acota	5.652489
+es	wikisource	amo te	2	27	amote	gl	wikisource	e toma	2	5	etoma	5.123964
+es	wikisource	ne la	2	9	nela	gl	wikisource	alén	1	23	alen	5.480639
+es	wikisource	nema	1	9	nema	gl	wikisource	amen	1	23	amen	5.480639
+es	wikisource	no so	2	6	noso	gl	wikisource	o son	2	26	oson	5.241747
+es	wikisource	o loco	2	23	oloco	gl	wikisource	o colo	2	9	ocolo	5.480639
+es	wikisource	oír es	2	18	oires	gl	wikisource	serio	1	14	serio	5.652489
+es	wikisource	si amo	2	10	siamo	gl	wikisource	o mais	2	22	omais	5.533389
+es	wikisource	su oda	2	16	suoda	gl	wikisource	a dous	2	16	adous	5.666427
+es	wikisource	á mil	2	27	amil	gl	wikisource	lima	1	5	lima	5.123964
+es	wikisource	á seis	2	25	aseis	gl	wikisource	si esa	2	7	siesa	5.337538
+es	wikisource	a dama	2	6	adama	gl	wikisource	amada	1	25	amada	5.204007
+es	wikisource	aera	1	11	aera	gl	wikisource	area	1	20	area	5.529429
+es	wikisource	aias	1	17	aias	gl	wikisource	saia	1	14	saia	5.598422
+es	wikisource	alios	1	10	alios	gl	wikisource	soila	1	21	soila	5.488938
+es	wikisource	anam	1	24	anam	gl	wikisource	man a	2	7	mana	5.298317
+es	wikisource	el birrete	2	14	elbirrete	gl	wikisource	e terrible	2	17	eterrible	5.598422
+es	wikisource	emos	1	22	emos	gl	wikisource	some	1	9	some	5.438079
+es	wikisource	emulo	1	5	emulo	gl	wikisource	o lume	2	26	olume	5.087596
+es	wikisource	isac	1	5	isac	gl	wikisource	casi	1	26	casi	5.087596
+es	wikisource	nasa	1	20	nasa	gl	wikisource	a san	2	11	asan	5.529429
+es	wikisource	oios	1	25	oios	gl	wikisource	sóio	1	6	soio	5.204007
+es	wikisource	sal o	2	12	salo	gl	wikisource	olas	1	19	olas	5.560682
+es	wikisource	saude	1	6	saude	gl	wikisource	e dúas	2	25	eduas	5.204007
+es	wikisource	seit	1	8	seit	gl	wikisource	ti es	2	23	ties	5.375278
+es	wikisource	ó se le	3	9	osele	gl	wikisource	eles o	2	22	eleso	5.438079
+es	wikisource	airones	1	22	airones	gl	wikisource	señoría	1	8	senoria	5.332719
+es	wikisource	aleb	1	17	aleb	gl	wikisource	bela	1	13	bela	5.529429
+es	wikisource	animae	1	13	animae	gl	wikisource	é a miña	3	17	eamina	5.529429
+es	wikisource	la ta	2	13	lata	gl	wikisource	atal	1	17	atal	5.529429
+es	wikisource	neve	1	24	neve	gl	wikisource	e ven	2	6	even	5.164786
+es	wikisource	neve	1	24	neve	gl	wikisource	e vén	2	6	even	5.164786
+es	wikisource	nuila	1	21	nuila	gl	wikisource	alí un	2	9	aliun	5.393628
+es	wikisource	o si a	3	23	osia	gl	wikisource	a iso	2	7	aiso	5.257495
+es	wikisource	o sur	2	24	osur	gl	wikisource	ruso	1	6	ruso	5.164786
+es	wikisource	odió	1	17	odio	gl	wikisource	oido	1	13	oido	5.529429
+es	wikisource	salá	1	5	sala	gl	wikisource	alas	1	25	alas	5.049856
+es	wikisource	selle	1	16	selle	gl	wikisource	e lles	2	14	elles	5.541264
+es	wikisource	soma	1	25	soma	gl	wikisource	amós	1	5	amos	5.049856
+es	wikisource	sona	1	9	sona	gl	wikisource	años	1	21	anos	5.393628
+es	wikisource	ñoña	1	8	nona	gl	wikisource	añón	1	22	anon	5.332719
+es	wikisource	ódio	1	17	odio	gl	wikisource	oido	1	13	oido	5.529429
+es	wikisource	alea	1	14	alea	gl	wikisource	á ela	2	15	aela	5.480639
+es	wikisource	aliam	1	9	aliam	gl	wikisource	maila	1	20	maila	5.347108
+es	wikisource	el as	2	21	elas	gl	wikisource	sale	1	8	sale	5.288267
+es	wikisource	el os	2	15	elos	gl	wikisource	sol e	2	14	sole	5.480639
+es	wikisource	elli	1	23	elli	gl	wikisource	ille	1	6	ille	5.123964
+es	wikisource	lene	1	19	lene	gl	wikisource	en él	2	10	enel	5.393628
+es	wikisource	sarto	1	8	sarto	gl	wikisource	otras	1	21	otras	5.288267
+es	wikisource	si a una	3	20	siauna	gl	wikisource	anuais	1	9	anuais	5.347108
+es	wikisource	á lot	2	12	alot	gl	wikisource	tola	1	17	tola	5.455321
+es	wikisource	ó días	2	17	odias	gl	wikisource	saído	1	12	saido	5.455321
+es	wikisource	alli a	2	12	allia	gl	wikisource	a illa	2	16	ailla	5.398163
+es	wikisource	el ed	2	5	eled	gl	wikisource	del e	2	23	dele	4.969813
+es	wikisource	esle	1	8	esle	gl	wikisource	el se	2	20	else	5.241747
+es	wikisource	neue	1	19	neue	gl	wikisource	eu en	2	9	euen	5.298317
+es	wikisource	neves	1	5	neves	gl	wikisource	se ven	2	23	seven	4.969813
+es	wikisource	o dan	2	9	odan	gl	wikisource	nado	1	19	nado	5.298317
+es	wikisource	sanare	1	6	sanare	gl	wikisource	eran as	2	22	eranas	5.081404
+es	wikisource	siamo	1	6	siamo	gl	wikisource	o mais	2	22	omais	5.081404
+es	wikisource	soit	1	22	soit	gl	wikisource	tíos	1	6	tios	5.081404
+es	wikisource	ñoño	1	13	nono	gl	wikisource	o non	2	15	onon	5.411646
+es	wikisource	ó no la	3	14	onola	gl	wikisource	aló no	2	14	alono	5.4161
+es	wikisource	al os	2	5	alos	gl	wikisource	sola	1	22	sola	4.927254
+es	wikisource	e seis	2	16	eseis	gl	wikisource	si ese	2	11	siese	5.31812
+es	wikisource	la ca	2	22	laca	gl	wikisource	á cal	2	5	acal	4.927254
+es	wikisource	lacón	1	9	lacon	gl	wikisource	no cal	2	18	nocal	5.247024
+es	wikisource	lene	1	19	lene	gl	wikisource	e nel	2	8	enel	5.192957
+es	wikisource	neos	1	21	neos	gl	wikisource	soen	1	6	soen	5.036953
+es	wikisource	neos	1	21	neos	gl	wikisource	só en	2	6	soen	5.036953
+es	wikisource	rebasó	1	16	rebaso	gl	wikisource	o saber	2	11	osaber	5.31812
+es	wikisource	sanes	1	22	sanes	gl	wikisource	sen as	2	5	senas	4.927254
+es	wikisource	sanes	1	22	sanes	gl	wikisource	señas	1	5	senas	4.927254
+es	wikisource	saul	1	22	saul	gl	wikisource	lúas	1	5	luas	4.927254
+es	wikisource	álos	1	5	alos	gl	wikisource	sola	1	22	sola	4.927254
+es	wikisource	a delos	2	17	adelos	gl	wikisource	soledá	1	9	soleda	5.192957
+es	wikisource	e medio	2	21	emedio	gl	wikisource	oídeme	1	5	oideme	4.882802
+es	wikisource	el anís	2	15	elanis	gl	wikisource	sinale	1	11	sinale	5.257495
+es	wikisource	eram	1	14	eram	gl	wikisource	mare	1	12	mare	5.273
+es	wikisource	mase	1	21	mase	gl	wikisource	e sam	2	5	esam	4.882802
+es	wikisource	non e	2	11	none	gl	wikisource	é non	2	15	enon	5.257495
+es	wikisource	nos o	2	17	noso	gl	wikisource	ó son	2	9	oson	5.192957
+es	wikisource	onís	1	11	onis	gl	wikisource	sino	1	15	sino	5.257495
+es	wikisource	reso	1	16	reso	gl	wikisource	o ser	2	10	oser	5.231109
+es	wikisource	soir	1	13	soir	gl	wikisource	rios	1	13	rios	5.278115
+es	wikisource	sol á	2	18	sola	gl	wikisource	a los	2	8	alos	5.141664
+es	wikisource	á nos	2	14	anos	gl	wikisource	sona	1	12	sona	5.273
+es	wikisource	a paca	2	20	apaca	gl	wikisource	a capa	2	5	acapa	4.836282
+es	wikisource	ador	1	7	ador	gl	wikisource	roda	1	18	roda	5.023881
+es	wikisource	apoca	1	19	apoca	gl	wikisource	a copa	2	6	acopa	4.941642
+es	wikisource	arad	1	9	arad	gl	wikisource	dar á	2	16	dara	5.135798
+es	wikisource	arga	1	15	arga	gl	wikisource	agra	1	10	agra	5.170484
+es	wikisource	aííi	1	14	aiii	gl	wikisource	iii a	2	11	iiia	5.192957
+es	wikisource	lacan	1	5	lacan	gl	wikisource	na cal	2	20	nacal	4.836282
+es	wikisource	le vi no	3	5	levino	gl	wikisource	o nivel	2	20	onivel	4.836282
+es	wikisource	levino	1	5	levino	gl	wikisource	o nivel	2	20	onivel	4.836282
+es	wikisource	oír a las	3	14	oiralas	gl	wikisource	salario	1	11	salario	5.192957
+es	wikisource	oír o	2	19	oiro	gl	wikisource	o rio	2	6	orio	4.941642
+es	wikisource	oír o	2	19	oiro	gl	wikisource	ò rio	2	6	orio	4.941642
+es	wikisource	revo	1	7	revo	gl	wikisource	o ver	2	18	over	5.023881
+es	wikisource	salo	1	6	salo	gl	wikisource	olas	1	19	olas	4.941642
+es	wikisource	sol e	2	11	sole	gl	wikisource	el os	2	14	elos	5.192957
+es	wikisource	sí ama	2	5	siama	gl	wikisource	a mais	2	20	amais	4.836282
+es	wikisource	a ido	2	18	aido	gl	wikisource	ó dia	2	6	odia	4.890349
+es	wikisource	a irán	2	19	airan	gl	wikisource	na ría	2	5	naria	4.787492
+es	wikisource	a loa	2	9	aloa	gl	wikisource	á ola	2	15	aola	5.075174
+es	wikisource	a non	2	10	anon	gl	wikisource	non á	2	14	nona	5.105945
+es	wikisource	aída	1	19	aida	gl	wikisource	a día	2	5	adia	4.787492
+es	wikisource	e dio	2	15	edio	gl	wikisource	oíde	1	9	oide	5.075174
+es	wikisource	e día	2	7	edia	gl	wikisource	ai de	2	17	aide	4.969813
+es	wikisource	enós	1	8	enos	gl	wikisource	son e	2	16	sone	5.030438
+es	wikisource	la ce	2	12	lace	gl	wikisource	e cal	2	12	ecal	5.129899
+es	wikisource	la me	2	11	lame	gl	wikisource	e mal	2	13	emal	5.123964
+es	wikisource	la unam	2	14	launam	gl	wikisource	manual	1	10	manual	5.105945
+es	wikisource	maleh	1	7	maleh	gl	wikisource	helam	1	17	helam	4.969813
+es	wikisource	o día	2	7	odia	gl	wikisource	ai do	2	17	aido	4.969813
+es	wikisource	remó	1	11	remo	gl	wikisource	omer	1	13	omer	5.123964
+es	wikisource	rete	1	14	rete	gl	wikisource	e ter	2	10	eter	5.105945
+es	wikisource	seva	1	5	seva	gl	wikisource	aves	1	19	aves	4.787492
+es	wikisource	sol a su	3	19	solasu	gl	wikisource	usalos	1	5	usalos	4.787492
+es	wikisource	solá	1	16	sola	gl	wikisource	a los	2	8	alos	5.030438
+es	wikisource	á lea	2	9	alea	gl	wikisource	á ela	2	15	aela	5.075174
+es	wikisource	á nos	2	14	anos	gl	wikisource	soña	1	10	sona	5.105945
+es	wikisource	a lea	2	8	alea	gl	wikisource	á ela	2	15	aela	4.969813
+es	wikisource	areo	1	18	areo	gl	wikisource	o era	2	5	oera	4.736198
+es	wikisource	et ne	2	8	etne	gl	wikisource	ente	1	15	ente	4.969813
+es	wikisource	lacon	1	5	lacon	gl	wikisource	no cal	2	18	nocal	4.736198
+es	wikisource	más e	2	18	mase	gl	wikisource	e sam	2	5	esam	4.736198
+es	wikisource	o mar	2	10	omar	gl	wikisource	ramo	1	13	ramo	5.036953
+es	wikisource	o nones	2	5	onones	gl	wikisource	senón o	2	18	senono	4.736198
+es	wikisource	odian a	2	18	odiana	gl	wikisource	a nai do	3	5	anaido	4.736198
+es	wikisource	sara su	2	13	sarasu	gl	wikisource	usar as	2	10	usaras	5.036953
+es	wikisource	son e	2	12	sone	gl	wikisource	enós	1	11	enos	5.049856
+es	wikisource	sér á	2	6	sera	gl	wikisource	ares	1	17	ares	4.836282
+es	wikisource	adem	1	6	adem	gl	wikisource	me dá	2	16	meda	4.779123
+es	wikisource	en os	2	6	enos	gl	wikisource	son e	2	16	sone	4.779123
+es	wikisource	nisa	1	10	nisa	gl	wikisource	asín	1	12	asin	4.962845
+es	wikisource	nobo	1	12	nobo	gl	wikisource	o bon	2	10	obon	4.962845
+es	wikisource	non è	2	7	none	gl	wikisource	é non	2	15	enon	4.85203
+es	wikisource	non é	2	7	none	gl	wikisource	é non	2	15	enon	4.85203
+es	wikisource	ra de	2	14	rade	gl	wikisource	e dar	2	8	edar	4.905275
+es	wikisource	revo	1	7	revo	gl	wikisource	ó ver	2	15	over	4.85203
+es	wikisource	sario	1	7	sario	gl	wikisource	oír as	2	15	oiras	4.85203
+es	wikisource	soñar es	2	7	sonares	gl	wikisource	serán os	2	15	seranos	4.85203
+es	wikisource	su oda	2	16	suoda	gl	wikisource	á dous	2	6	adous	4.779123
+es	wikisource	á poca	2	16	apoca	gl	wikisource	a copa	2	6	acopa	4.779123
+es	wikisource	apra	1	8	apra	gl	wikisource	arpa	1	13	arpa	4.836282
+es	wikisource	edesa	1	14	edesa	gl	wikisource	a sede	2	7	asede	4.787492
+es	wikisource	el anís	2	15	elanis	gl	wikisource	sinal e	2	6	sinale	4.718499
+es	wikisource	es á su	3	6	esasu	gl	wikisource	úsase	1	15	usase	4.718499
+es	wikisource	la me	2	11	lame	gl	wikisource	é mal	2	10	emal	4.882802
+es	wikisource	naco	1	11	naco	gl	wikisource	o can	2	10	ocan	4.882802
+es	wikisource	neñín	1	5	nenin	gl	wikisource	nin en	2	16	ninen	4.624973
+es	wikisource	olés	1	6	oles	gl	wikisource	selo	1	15	selo	4.718499
+es	wikisource	orda	1	14	orda	gl	wikisource	adro	1	7	adro	4.787492
+es	wikisource	os son	2	14	osson	gl	wikisource	nosso	1	7	nosso	4.787492
+es	wikisource	saue	1	15	saue	gl	wikisource	eu as	2	6	euas	4.718499
+es	wikisource	sores	1	9	sores	gl	wikisource	ser os	2	12	seros	4.867534
+es	wikisource	á balac	2	10	abalac	gl	wikisource	calaba	1	11	calaba	4.882802
+es	wikisource	á lope	2	7	alope	gl	wikisource	é pola	2	14	epola	4.787492
+es	wikisource	ésa su	2	6	esasu	gl	wikisource	úsase	1	15	usase	4.718499
+es	wikisource	ése ni	2	8	eseni	gl	wikisource	inés e	2	13	inese	4.836282
+es	wikisource	ñata	1	8	nata	gl	wikisource	atan	1	13	atan	4.836282
+es	wikisource	a ira	2	14	aira	gl	wikisource	a ría	2	6	aria	4.65396
+es	wikisource	alanís	1	5	alanis	gl	wikisource	sinala	1	15	sinala	4.564348
+es	wikisource	alas á	2	6	alasa	gl	wikisource	a sala	2	14	asala	4.65396
+es	wikisource	atem	1	6	atem	gl	wikisource	metá	1	14	meta	4.65396
+es	wikisource	esa le	2	6	esale	gl	wikisource	ela se	2	14	elase	4.65396
+es	wikisource	lamed	1	6	lamed	gl	wikisource	de mal	2	14	demal	4.65396
+es	wikisource	leñe	1	10	lene	gl	wikisource	en él	2	10	enel	4.795791
+es	wikisource	ni fa	2	11	nifa	gl	wikisource	á fin	2	9	afin	4.787492
+es	wikisource	oso no	2	9	osono	gl	wikisource	ó noso	2	11	onoso	4.787492
+es	wikisource	retal	1	15	retal	gl	wikisource	later	1	5	later	4.564348
+es	wikisource	se sea	2	11	sesea	gl	wikisource	a eses	2	9	aeses	4.787492
+es	wikisource	ser a los	3	15	seralos	gl	wikisource	solares	1	5	solares	4.564348
+es	wikisource	serias o	2	6	seriaso	gl	wikisource	os aires	2	14	osaires	4.65396
+es	wikisource	si ama	2	14	siama	gl	wikisource	á mais	2	6	amais	4.65396
+es	wikisource	soñares	1	5	sonares	gl	wikisource	serán os	2	15	seranos	4.564348
+es	wikisource	sóla	1	12	sola	gl	wikisource	a los	2	8	alos	4.762174
+es	wikisource	ue me	2	5	ueme	gl	wikisource	e meu	2	15	emeu	4.564348
+es	wikisource	á nos	2	14	anos	gl	wikisource	só na	2	6	sona	4.65396
+es	wikisource	á saco	2	9	asaco	gl	wikisource	ó casa	2	11	ocasa	4.787492
+es	wikisource	ñoña	1	8	nona	gl	wikisource	añon	1	12	anon	4.762174
+es	wikisource	ó les	2	5	oles	gl	wikisource	selo	1	15	selo	4.564348
+es	wikisource	ó no se	3	15	onose	gl	wikisource	e son o	3	5	esono	4.564348
+es	wikisource	a ios	2	5	aios	gl	wikisource	soia	1	14	soia	4.49981
+es	wikisource	a lam	2	6	alam	gl	wikisource	mal a	2	13	mala	4.584967
+es	wikisource	abarim	1	7	abarim	gl	wikisource	miraba	1	12	miraba	4.644391
+es	wikisource	adell	1	5	adell	gl	wikisource	lle dá	2	14	lleda	4.49981
+es	wikisource	aida	1	14	aida	gl	wikisource	a día	2	5	adia	4.49981
+es	wikisource	alea	1	14	alea	gl	wikisource	a el a	3	5	aela	4.49981
+es	wikisource	allí ves	2	6	allives	gl	wikisource	sevilla	1	13	sevilla	4.584967
+es	wikisource	an el	2	6	anel	gl	wikisource	leña	1	13	lena	4.584967
+es	wikisource	anac	1	8	anac	gl	wikisource	cana	1	11	cana	4.682131
+es	wikisource	arete	1	11	arete	gl	wikisource	e terá	2	8	etera	4.682131
+es	wikisource	eles	1	10	eles	gl	wikisource	se le	2	9	sele	4.70048
+es	wikisource	elos	1	5	elos	gl	wikisource	sol e	2	14	sole	4.49981
+es	wikisource	la te	2	8	late	gl	wikisource	e tal	2	11	etal	4.682131
+es	wikisource	ladán	1	6	ladan	gl	wikisource	nadal	1	13	nadal	4.584967
+es	wikisource	lles	1	6	lles	gl	wikisource	se ll	2	13	sell	4.584967
+es	wikisource	na se	2	7	nase	gl	wikisource	e san	2	12	esan	4.644391
+es	wikisource	noso	1	10	noso	gl	wikisource	ó son	2	9	oson	4.70048
+es	wikisource	olet	1	6	olet	gl	wikisource	telo	1	13	telo	4.584967
+es	wikisource	os se	2	5	osse	gl	wikisource	esso	1	14	esso	4.49981
+es	wikisource	os sé	2	5	osse	gl	wikisource	esso	1	14	esso	4.49981
+es	wikisource	sal a la	3	10	salala	gl	wikisource	alalás	1	9	alalas	4.70048
+es	wikisource	salle	1	5	salle	gl	wikisource	ellas	1	14	ellas	4.49981
+es	wikisource	sano la	2	8	sanola	gl	wikisource	aló nas	2	11	alonas	4.682131
+es	wikisource	si amo	2	10	siamo	gl	wikisource	ó mais	2	9	omais	4.70048
+es	wikisource	si ése	2	14	siese	gl	wikisource	é seis	2	5	eseis	4.49981
+es	wikisource	sonad	1	12	sonad	gl	wikisource	dános	1	7	danos	4.644391
+es	wikisource	sí a una	3	10	siauna	gl	wikisource	anuais	1	9	anuais	4.70048
+es	wikisource	ue me	2	5	ueme	gl	wikisource	é meu	2	14	emeu	4.49981
+es	wikisource	ue se	2	12	uese	gl	wikisource	e seu	2	7	eseu	4.644391
+es	wikisource	a sam	2	6	asam	gl	wikisource	mas a	2	12	masa	4.51086
+es	wikisource	a sam	2	6	asam	gl	wikisource	masa	1	12	masa	4.51086
+es	wikisource	ai de	2	8	aide	gl	wikisource	e dia	2	10	edia	4.59512
+es	wikisource	el am	2	6	elam	gl	wikisource	mal e	2	12	male	4.51086
+es	wikisource	el lah	2	13	ellah	gl	wikisource	halle	1	5	halle	4.430817
+es	wikisource	ese ni	2	5	eseni	gl	wikisource	inés e	2	13	inese	4.430817
+es	wikisource	it is	2	9	itis	gl	wikisource	si ti	2	9	siti	4.60517
+es	wikisource	leñe	1	10	lene	gl	wikisource	e nel	2	8	enel	4.59512
+es	wikisource	napé	1	13	nape	gl	wikisource	e pan	2	5	epan	4.430817
+es	wikisource	nario	1	10	nario	gl	wikisource	oirán	1	8	oiran	4.59512
+es	wikisource	no no si	3	8	nonosi	gl	wikisource	iso non	2	10	isonon	4.59512
+es	wikisource	o dio	2	5	odio	gl	wikisource	oido	1	13	oido	4.430817
+es	wikisource	o vive	2	12	ovive	gl	wikisource	e vivo	2	6	evivo	4.51086
+es	wikisource	oeta	1	6	oeta	gl	wikisource	até o	2	12	ateo	4.51086
+es	wikisource	osen	1	11	osen	gl	wikisource	neso	1	7	neso	4.564348
+es	wikisource	otor	1	12	otor	gl	wikisource	roto	1	6	roto	4.51086
+es	wikisource	res a	2	11	resa	gl	wikisource	á ser	2	7	aser	4.564348
+es	wikisource	roma e	2	7	romae	gl	wikisource	e amor	2	11	eamor	4.564348
+es	wikisource	ropa le	2	13	ropale	gl	wikisource	ela por	2	5	elapor	4.430817
+es	wikisource	salas a	2	13	salasa	gl	wikisource	as alas	2	5	asalas	4.430817
+es	wikisource	se vè	2	13	seve	gl	wikisource	e ves	2	5	eves	4.430817
+es	wikisource	á río	2	5	ario	gl	wikisource	oír a	2	13	oira	4.430817
+es	wikisource	a ida	2	12	aida	gl	wikisource	a día	2	5	adia	4.356709
+es	wikisource	a ios	2	5	aios	gl	wikisource	soía	1	12	soia	4.356709
+es	wikisource	aide	1	7	aide	gl	wikisource	e dia	2	10	edia	4.477337
+es	wikisource	anis	1	5	anis	gl	wikisource	si na	2	12	sina	4.356709
+es	wikisource	atracan	1	8	atracan	gl	wikisource	na carta	2	9	nacarta	4.49981
+es	wikisource	azúl	1	10	azul	gl	wikisource	luz a	2	7	luza	4.477337
+es	wikisource	el bon	2	8	elbon	gl	wikisource	noble	1	9	noble	4.49981
+es	wikisource	en ama	2	5	enama	gl	wikisource	a man e	3	12	amane	4.356709
+es	wikisource	esle	1	8	esle	gl	wikisource	él se	2	9	else	4.49981
+es	wikisource	et ne	2	8	etne	gl	wikisource	en te	2	9	ente	4.49981
+es	wikisource	onís	1	11	onis	gl	wikisource	sin o	2	6	sino	4.430817
+es	wikisource	oír le	2	6	oirle	gl	wikisource	el rio	2	11	elrio	4.430817
+es	wikisource	reme	1	8	reme	gl	wikisource	emer	1	9	emer	4.49981
+es	wikisource	saces	1	5	saces	gl	wikisource	secas	1	12	secas	4.356709
+es	wikisource	salá	1	5	sala	gl	wikisource	á las	2	12	alas	4.356709
+es	wikisource	sé sí	2	9	sesi	gl	wikisource	ises	1	8	ises	4.49981
+es	wikisource	usus	1	8	usus	gl	wikisource	susu	1	9	susu	4.49981
+es	wikisource	ése a	2	11	esea	gl	wikisource	á ese	2	6	aese	4.430817
+es	wikisource	a non	2	10	anon	gl	wikisource	nona	1	6	nona	4.343805
+es	wikisource	alen	1	8	alen	gl	wikisource	nel a	2	8	nela	4.394449
+es	wikisource	ave un	2	6	aveun	gl	wikisource	nueva	1	10	nueva	4.343805
+es	wikisource	e sea	2	10	esea	gl	wikisource	á ese	2	6	aese	4.343805
+es	wikisource	esa le	2	6	esale	gl	wikisource	elas e	2	10	elase	4.343805
+es	wikisource	le sé	2	5	lese	gl	wikisource	es el	2	11	esel	4.276666
+es	wikisource	mas e	2	11	mase	gl	wikisource	e sam	2	5	esam	4.276666
+es	wikisource	moca	1	11	moca	gl	wikisource	a com	2	5	acom	4.276666
+es	wikisource	ni dé	2	6	nide	gl	wikisource	e din	2	10	edin	4.343805
+es	wikisource	niet	1	9	niet	gl	wikisource	tein	1	7	tein	4.382027
+es	wikisource	ones	1	5	ones	gl	wikisource	sen o	2	11	seno	4.276666
+es	wikisource	regum	1	8	regum	gl	wikisource	muger	1	8	muger	4.394449
+es	wikisource	romae	1	5	romae	gl	wikisource	e amor	2	11	eamor	4.276666
+es	wikisource	samir	1	8	samir	gl	wikisource	rimas	1	8	rimas	4.394449
+es	wikisource	soi de	2	10	soide	gl	wikisource	e dios	2	6	edios	4.343805
+es	wikisource	á río	2	5	ario	gl	wikisource	oira	1	11	oira	4.276666
+es	wikisource	a ese le	3	8	aesele	gl	wikisource	eles e a	3	7	elesea	4.276666
+es	wikisource	a iris	2	8	airis	gl	wikisource	siria	1	7	siria	4.276666
+es	wikisource	a res	2	9	ares	gl	wikisource	sera	1	6	sera	4.248495
+es	wikisource	acom	1	10	acom	gl	wikisource	moca	1	5	moca	4.189655
+es	wikisource	ages	1	6	ages	gl	wikisource	sega	1	9	sega	4.248495
+es	wikisource	aime	1	10	aime	gl	wikisource	e mia	2	5	emia	4.189655
+es	wikisource	anis	1	5	anis	gl	wikisource	siña	1	10	sina	4.189655
+es	wikisource	anun	1	7	anun	gl	wikisource	nùn a	2	8	nuna	4.276666
+es	wikisource	apam	1	10	apam	gl	wikisource	mapa	1	5	mapa	4.189655
+es	wikisource	açora	1	6	acora	gl	wikisource	a roca	2	9	aroca	4.248495
+es	wikisource	e rio	2	10	erio	gl	wikisource	oír e	2	5	oire	4.189655
+es	wikisource	eaces	1	9	eaces	gl	wikisource	seca e	2	6	secae	4.248495
+es	wikisource	el ea	2	6	elea	gl	wikisource	a el e	3	9	aele	4.248495
+es	wikisource	elón	1	9	elon	gl	wikisource	no le	2	6	nole	4.248495
+es	wikisource	ides	1	6	ides	gl	wikisource	se di	2	9	sedi	4.248495
+es	wikisource	no so	2	6	noso	gl	wikisource	ó son	2	9	oson	4.248495
+es	wikisource	o corto	2	7	ocorto	gl	wikisource	o troco	2	8	otroco	4.276666
+es	wikisource	o demo	2	8	odemo	gl	wikisource	o medo	2	7	omedo	4.276666
+es	wikisource	siamo	1	6	siamo	gl	wikisource	ó mais	2	9	omais	4.248495
+es	wikisource	sé si él	3	5	sesiel	gl	wikisource	leises	1	10	leises	4.189655
+es	wikisource	zeid	1	10	zeid	gl	wikisource	diez	1	5	diez	4.189655
+es	wikisource	á jah	2	10	ajah	gl	wikisource	haja	1	5	haja	4.189655
+es	wikisource	ag es	2	5	ages	gl	wikisource	sega	1	9	sega	4.094345
+es	wikisource	ana me	2	9	aname	gl	wikisource	e mañá	2	5	emana	4.094345
+es	wikisource	anís a	2	5	anisa	gl	wikisource	a siña	2	9	asina	4.094345
+es	wikisource	atem	1	6	atem	gl	wikisource	meta	1	8	meta	4.143135
+es	wikisource	dá de	2	8	dade	gl	wikisource	edad	1	6	edad	4.143135
+es	wikisource	e dió	2	5	edio	gl	wikisource	oíde	1	9	oide	4.094345
+es	wikisource	e med	2	6	emed	gl	wikisource	de me	2	8	deme	4.143135
+es	wikisource	e si es	3	5	esies	gl	wikisource	sei se	2	9	seise	4.094345
+es	wikisource	en as	2	9	enas	gl	wikisource	san e	2	5	sane	4.094345
+es	wikisource	en as	2	9	enas	gl	wikisource	sane	1	5	sane	4.094345
+es	wikisource	en ud	2	6	enud	gl	wikisource	dune	1	8	dune	4.143135
+es	wikisource	es a el	3	7	esael	gl	wikisource	léase	1	7	lease	4.158883
+es	wikisource	et esso	2	9	etesso	gl	wikisource	os sete	2	5	ossete	4.094345
+es	wikisource	la te	2	8	late	gl	wikisource	é tal	2	6	etal	4.143135
+es	wikisource	o seca	2	5	oseca	gl	wikisource	aceso	1	9	aceso	4.094345
+es	wikisource	o sed	2	6	osed	gl	wikisource	deso	1	8	deso	4.143135
+es	wikisource	oso no	2	9	osono	gl	wikisource	ò noso	2	5	onoso	4.094345
+es	wikisource	raro a	2	9	raroa	gl	wikisource	a orar	2	5	aorar	4.094345
+es	wikisource	salíame	1	7	saliame	gl	wikisource	e mailas	2	7	emailas	4.158883
+es	wikisource	sevir	1	8	sevir	gl	wikisource	rivés	1	6	rives	4.143135
+es	wikisource	son le	2	8	sonle	gl	wikisource	el nos	2	6	elnos	4.143135
+es	wikisource	á adán	2	5	aadan	gl	wikisource	nada a	2	9	nadaa	4.094345
+es	wikisource	á lea	2	9	alea	gl	wikisource	a el a	3	5	aela	4.094345
+es	wikisource	élla	1	9	ella	gl	wikisource	a lle	2	5	alle	4.094345
+es	wikisource	a dare	2	5	adare	gl	wikisource	era da	2	8	erada	3.988984
+es	wikisource	a la ma	3	6	alama	gl	wikisource	a mala	2	7	amala	4.025352
+es	wikisource	a lea	2	8	alea	gl	wikisource	a el a	3	5	aela	3.988984
+es	wikisource	a ése le	3	6	aesele	gl	wikisource	eles e a	3	7	elesea	4.025352
+es	wikisource	ah le	2	8	ahle	gl	wikisource	el ha	2	5	elha	3.988984
+es	wikisource	aira	1	7	aira	gl	wikisource	a ría	2	6	aria	4.025352
+es	wikisource	airó	1	7	airo	gl	wikisource	oría	1	6	oria	4.025352
+es	wikisource	al os	2	5	alos	gl	wikisource	sol a	2	8	sola	3.988984
+es	wikisource	animáis	1	8	animais	gl	wikisource	si a miña	3	5	siamina	3.988984
+es	wikisource	anis	1	5	anis	gl	wikisource	sin a	2	8	sina	3.988984
+es	wikisource	argas	1	5	argas	gl	wikisource	sagra	1	8	sagra	3.988984
+es	wikisource	el bed	2	8	elbed	gl	wikisource	deble	1	5	deble	3.988984
+es	wikisource	en ud	2	6	enud	gl	wikisource	dun e	2	7	dune	4.025352
+es	wikisource	eva el	2	8	evael	gl	wikisource	leave	1	5	leave	3.988984
+es	wikisource	iram	1	8	iram	gl	wikisource	mari	1	5	mari	3.988984
+es	wikisource	nodier	1	7	nodier	gl	wikisource	rei don	2	6	reidon	4.025352
+es	wikisource	nonne	1	8	nonne	gl	wikisource	en non	2	5	ennon	3.988984
+es	wikisource	noël	1	5	noel	gl	wikisource	leon	1	8	leon	3.988984
+es	wikisource	o dar a	3	7	odara	gl	wikisource	arado	1	6	arado	4.025352
+es	wikisource	o dará	2	7	odara	gl	wikisource	arado	1	6	arado	4.025352
+es	wikisource	o nones	2	5	onones	gl	wikisource	se non o	3	8	senono	3.988984
+es	wikisource	otos	1	7	otos	gl	wikisource	soto	1	6	soto	4.025352
+es	wikisource	revé	1	5	reve	gl	wikisource	e ver	2	8	ever	3.988984
+es	wikisource	rêve	1	5	reve	gl	wikisource	e ver	2	8	ever	3.988984
+es	wikisource	solla	1	5	solla	gl	wikisource	allos	1	8	allos	3.988984
+es	wikisource	tión	1	6	tion	gl	wikisource	noit	1	7	noit	4.025352
+es	wikisource	á rama	2	8	arama	gl	wikisource	amar a	2	5	amara	3.988984
+es	wikisource	álos	1	5	alos	gl	wikisource	sol a	2	8	sola	3.988984
+es	wikisource	a mí et	3	6	amiet	gl	wikisource	teima	1	6	teima	3.89182
+es	wikisource	adaías	1	7	adaias	gl	wikisource	saía da	2	5	saiada	3.871201
+es	wikisource	adem	1	6	adem	gl	wikisource	meda	1	6	meda	3.89182
+es	wikisource	amica	1	7	amica	gl	wikisource	a cima	2	5	acima	3.871201
+es	wikisource	emulo	1	5	emulo	gl	wikisource	ó lume	2	7	olume	3.871201
+es	wikisource	es o fue	3	5	esofue	gl	wikisource	eu fose	2	7	eufose	3.871201
+es	wikisource	eíta	1	5	eita	gl	wikisource	a ti e	3	7	atie	3.871201
+es	wikisource	latae	1	6	latae	gl	wikisource	e a tal	3	6	eatal	3.89182
+es	wikisource	ne de	2	5	nede	gl	wikisource	edén	1	7	eden	3.871201
+es	wikisource	o lago	2	5	olago	gl	wikisource	o galo	2	7	ogalo	3.871201
+es	wikisource	olés	1	6	oles	gl	wikisource	se lo	2	6	selo	3.89182
+es	wikisource	oro nos	2	6	oronos	gl	wikisource	sonoro	1	6	sonoro	3.89182
+es	wikisource	os en	2	5	osen	gl	wikisource	neso	1	7	neso	3.871201
+es	wikisource	revo	1	7	revo	gl	wikisource	ò ver	2	5	over	3.871201
+es	wikisource	roma e	2	7	romae	gl	wikisource	é amor	2	5	eamor	3.871201
+es	wikisource	selene	1	7	selene	gl	wikisource	e neles	2	5	eneles	3.871201
+es	wikisource	a la san	3	6	alasan	gl	wikisource	na sala	2	5	nasala	3.73767
+es	wikisource	adem	1	6	adem	gl	wikisource	me da	2	5	meda	3.73767
+es	wikisource	atemos	1	6	atemos	gl	wikisource	someta	1	5	someta	3.73767
+es	wikisource	folla	1	6	folla	gl	wikisource	all of	2	5	allof	3.73767
+es	wikisource	ites	1	5	ites	gl	wikisource	se ti	2	6	seti	3.73767
+es	wikisource	kroc	1	6	kroc	gl	wikisource	cork	1	5	cork	3.73767
+es	wikisource	lates	1	6	lates	gl	wikisource	se tal	2	5	setal	3.73767
+es	wikisource	me te	2	6	mete	gl	wikisource	etem	1	5	etem	3.73767
+es	wikisource	ones	1	5	ones	gl	wikisource	seno	1	6	seno	3.73767
+es	wikisource	or el	2	5	orel	gl	wikisource	ler o	2	6	lero	3.73767
+es	wikisource	some	1	6	some	gl	wikisource	emos	1	5	emos	3.73767
+es	wikisource	soter	1	5	soter	gl	wikisource	retos	1	6	retos	3.73767
+es	wikisource	sí ama	2	5	siama	gl	wikisource	á mais	2	6	amais	3.73767
+es	wikisource	ues a	2	5	uesa	gl	wikisource	á seu	2	6	aseu	3.73767
+es	wikisource	yered	1	5	yered	gl	wikisource	de rey	2	6	derey	3.73767
+es	wikisource	á ir á	3	5	aira	gl	wikisource	a ría	2	6	aria	3.73767
+es	wikisource	ó les	2	5	oles	gl	wikisource	se lo	2	6	selo	3.73767
+es	wikisource	ó nos	2	5	onos	gl	wikisource	só no	2	6	sono	3.73767
+es	wikisource	abade	1	5	abade	gl	wikisource	e daba	2	5	edaba	3.583519
+es	wikisource	agapa	1	5	agapa	gl	wikisource	apaga	1	5	apaga	3.583519
+es	wikisource	aimé	1	5	aime	gl	wikisource	e mia	2	5	emia	3.583519
+es	wikisource	alis	1	5	alis	gl	wikisource	si la	2	5	sila	3.583519
+es	wikisource	azán	1	5	azan	gl	wikisource	naza	1	5	naza	3.583519
+es	wikisource	el ed	2	5	eled	gl	wikisource	dele	1	5	dele	3.583519
+es	wikisource	limón a	2	5	limona	gl	wikisource	ano mil	2	5	anomil	3.583519
+es	wikisource	meté	1	5	mete	gl	wikisource	etem	1	5	etem	3.583519
+es	wikisource	nara	1	5	nara	gl	wikisource	arán	1	5	aran	3.583519
+es	wikisource	o duro	2	5	oduro	gl	wikisource	o rudo	2	5	orudo	3.583519
+es	wikisource	o suo	2	5	osuo	gl	wikisource	ouso	1	5	ouso	3.583519
+es	wikisource	oso era	2	5	osoera	gl	wikisource	areoso	1	5	areoso	3.583519
+es	wikisource	ramá	1	5	rama	gl	wikisource	á mar	2	5	amar	3.583519
+es	wikisource	romae	1	5	romae	gl	wikisource	é amor	2	5	eamor	3.583519
+es	wikisource	séis	1	5	seis	gl	wikisource	si es	2	5	sies	3.583519
+es	wikisource	á río	2	5	ario	gl	wikisource	oíra	1	5	oira	3.583519
