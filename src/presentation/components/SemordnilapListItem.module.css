@@ -1,0 +1,88 @@
+.item {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 3.05rem;
+}
+
+.button {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  width: 100%;
+  min-height: 3.05rem;
+  padding: 0.55rem clamp(0.8rem, 2vw, 1.5rem);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 1rem;
+  background: transparent;
+  border: 0;
+  border-radius: 0.65rem;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--motion-easing),
+    transform var(--motion-fast) var(--motion-easing);
+}
+
+.button[data-side='source'] {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.button[data-side='target'] {
+  text-align: left;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button[data-side='source']:hover {
+  color: var(--color-violet-strong);
+  background: var(--color-violet-soft);
+}
+
+.button[data-side='target']:hover {
+  color: var(--color-mustard-dark);
+  background: var(--color-mustard-soft);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+.button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-violet) 35%, transparent);
+  outline-offset: -2px;
+}
+
+.text {
+  overflow-wrap: anywhere;
+}
+
+.count {
+  display: grid;
+  flex: 0 0 auto;
+  min-width: 1.45rem;
+  height: 1.45rem;
+  padding-inline: 0.3rem;
+  color: white;
+  font-size: 0.68rem;
+  font-weight: 800;
+  background: var(--color-violet);
+  border-radius: 999px;
+  place-items: center;
+}
+
+.button[data-side='target'] .count {
+  color: var(--color-text);
+  background: var(--color-mustard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+
+  .button:hover {
+    transform: none;
+  }
+}

@@ -1,75 +1,90 @@
-# React + TypeScript + Vite
+# Semordnilab
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Semordnilab es una aplicación web para explorar y componer semordnilaps bilingües encontrados en corpus lingüísticos.
 
-Currently, two official plugins are available:
+La interfaz combinará dos exploradores de idioma con un constructor central. Al combinar semordnilaps individuales en un lado, la aplicación ordenará sus expresiones correspondientes de forma inversa en el otro. El resultado será un semordnilap compuesto que podrá reutilizarse dentro de otras composiciones.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Estado
 
-## React Compiler
+El proyecto se encuentra en su fase inicial. Actualmente incluye:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- una SPA con React, TypeScript y Vite;
+- una estructura funcional basada en Clean Architecture;
+- datasets de español con español, gallego y portugués en TSV;
+- carga y validación de todos los semordnilaps de un conjunto seleccionado;
+- exploración bilingüe con búsqueda independiente;
+- composición en memoria con actualización inversa automática;
+- una interfaz adaptable con paleta violeta y mostaza;
+- pruebas de dominio, aplicación, infraestructura y presentación;
+- Dexie como dependencia preparada para la persistencia en IndexedDB;
+- configuración de Vite y GitHub Actions para desplegar en GitHub Pages;
+- documentación funcional y técnica.
 
-## Expanding the ESLint configuration
+La persistencia, los semordnilaps compuestos guardados y su anidamiento todavía no están implementados.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Arquitectura
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+El proyecto sigue Clean Architecture con cinco áreas principales:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```text
+Presentation
+     |
+     v
+Application
+     |
+     v
+Domain
+     ^
+     |
+Infrastructure
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+`app` actúa como punto de composición. El dominio no depende de frameworks, los casos de uso solo dependen del dominio y React nunca accede directamente a Dexie o IndexedDB. La [documentación de arquitectura](docs/architecture.md) define las responsabilidades y los límites completos.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Documentación
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- [Guía de la aplicación](docs/application.md)
+- [Arquitectura y diseño de implementación](docs/architecture.md)
+- [ADR 0001: primera interfaz](docs/adr/0001-first-interface.md)
 
+La documentación distingue entre el estado actual y las decisiones previstas. Debe actualizarse junto con la implementación para continuar siendo una referencia del comportamiento real.
+
+## Desarrollo local
+
+Requisitos:
+
+- Node.js;
+- npm.
+
+Instalación e inicio del servidor de desarrollo:
+
+```bash
+npm install
+npm run dev
 ```
+
+Verificaciones disponibles actualmente:
+
+```bash
+npm run format:check
+npm run lint
+npm run typecheck
+npm test
+npm run build
+```
+
+## Datos incluidos
+
+Los conjuntos de referencia están en `public/datasets`:
+
+| Archivo     | Idiomas             | Semordnilaps |
+| ----------- | ------------------- | -----------: |
+| `es_es.tsv` | Español y español   |        6.642 |
+| `es_gl.tsv` | Español y gallego   |        1.091 |
+| `es_pt.tsv` | Español y portugués |        4.513 |
+
+Cada fila incluye el texto y la forma normalizada de ambos idiomas, corpus, frecuencia, número de palabras y una puntuación asociada al semordnilap. El esquema técnico y el comportamiento previsto de importación se explican en la [documentación de arquitectura](docs/architecture.md#carga-de-datasets).
+
+## Licencia
+
+El repositorio todavía no declara una licencia. Hasta que se añada una, no debe asumirse permiso de redistribución o reutilización fuera de sus titulares.

@@ -1,0 +1,46 @@
+.component {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 0.45rem;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0.35rem 0.4rem 0.35rem 0.8rem;
+  font-weight: 680;
+  border: 1px solid transparent;
+  border-radius: 0.8rem;
+}
+
+.component[data-tone='source'] {
+  color: var(--color-violet-strong);
+  background: var(--color-violet-soft);
+  border-color: color-mix(in srgb, var(--color-violet) 30%, transparent);
+}
+
+.component[data-tone='target'] {
+  color: var(--color-mustard-dark);
+  background: var(--color-mustard-soft);
+  border-color: color-mix(in srgb, var(--color-mustard) 45%, transparent);
+}
+
+.remove {
+  display: grid;
+  width: 1.7rem;
+  height: 1.7rem;
+  padding: 0;
+  color: currentColor;
+  font: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  place-items: center;
+}
+
+.remove:hover {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.remove:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}

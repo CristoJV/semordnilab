@@ -1,0 +1,123 @@
+.page {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-height: 100dvh;
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.main {
+  display: grid;
+  grid-template-rows: auto minmax(20rem, 1fr);
+  min-height: 0;
+}
+
+.catalog {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.catalogState {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 0.8rem;
+  align-content: center;
+  justify-items: center;
+  min-height: 16rem;
+  padding: 2rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-violet-soft) 48%, transparent),
+      transparent 35%,
+      transparent 65%,
+      color-mix(in srgb, var(--color-mustard-soft) 55%, transparent)
+    ),
+    var(--color-surface-strong);
+}
+
+.catalogState p {
+  margin: 0;
+}
+
+.stateMark {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  color: var(--color-violet-strong);
+  font-family: var(--font-display);
+  font-weight: 800;
+  background: var(--color-violet-soft);
+  border-radius: 1rem 1rem 1rem 0.3rem;
+  place-items: center;
+}
+
+.loader {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid var(--color-violet-soft);
+  border-top-color: var(--color-violet);
+  border-radius: 50%;
+  animation: rotate 700ms linear infinite;
+}
+
+.error {
+  display: grid;
+  gap: 0.6rem;
+  justify-items: center;
+  max-width: 32rem;
+}
+
+.error strong {
+  color: var(--color-text);
+}
+
+.error button {
+  margin-top: 0.35rem;
+  padding: 0.55rem 0.9rem;
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  background: var(--color-violet);
+  border: 0;
+  border-radius: 0.65rem;
+  cursor: pointer;
+}
+
+.error button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-violet) 35%, transparent);
+  outline-offset: 3px;
+}
+
+@keyframes rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 760px) {
+  .page {
+    display: block;
+  }
+
+  .main {
+    display: block;
+  }
+
+  .catalog {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+    overflow: visible;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader {
+    animation-duration: 1.8s;
+  }
+}
