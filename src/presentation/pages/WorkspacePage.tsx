@@ -7,6 +7,7 @@ import { CompositionWorkspace } from '@/presentation/components/CompositionWorks
 import { PairedSemordnilapCatalog } from '@/presentation/components/PairedSemordnilapCatalog'
 import { useCompositionWorkspace } from '@/presentation/hooks/useCompositionWorkspace'
 import { useSemordnilapCatalog } from '@/presentation/hooks/useSemordnilapCatalog'
+import { useSemordnilapStatuses } from '@/presentation/hooks/useSemordnilapStatuses'
 
 import styles from './WorkspacePage.module.css'
 
@@ -16,6 +17,10 @@ type WorkspacePageProps = {
 
 export function WorkspacePage({ dependencies }: WorkspacePageProps) {
   const catalog = useSemordnilapCatalog(dependencies)
+  const statusState = useSemordnilapStatuses(
+    catalog.selectedDatasetId,
+    dependencies,
+  )
   const composition = useCompositionWorkspace()
   const selectDataset = catalog.selectDataset
   const clearComposition = composition.clear
@@ -69,7 +74,13 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
               dataset={loadedDataset.dataset}
               items={loadedDataset.items}
               selectedCounts={selectedCounts}
+              statuses={statusState.statuses}
+              statusesReady={statusState.ready}
+              statusError={statusState.errorMessage}
               onAdd={addComponent}
+              onAddStatus={statusState.addStatus}
+              onRemoveStatus={statusState.removeStatus}
+              onRemoveAllStatus={statusState.removeAllStatus}
             />
           ) : (
             <div className={styles.catalogState}>

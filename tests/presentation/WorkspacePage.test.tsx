@@ -3,8 +3,12 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
 import {
+  AddSemordnilapStatus,
   ListAvailableDatasets,
+  ListSemordnilapStatuses,
   LoadAtomicSemordnilaps,
+  RemoveAllSemordnilapStatuses,
+  RemoveSemordnilapStatus,
   type LoadedSemordnilapDataset,
   type SemordnilapDatasetSource,
 } from '@/application'
@@ -16,6 +20,7 @@ import {
   createCatalogItem,
   testDataset,
 } from '../support/fixtures'
+import { InMemorySemordnilapStatusRepository } from '../support/in-memory-semordnilap-status-repository'
 
 const ella = createAtomicSemordnilap('ella', 'ella', 'ella', 'a lle', 'alle')
 const noSe = createAtomicSemordnilap('no-se', 'no se', 'nose', 'e son', 'eson')
@@ -32,10 +37,17 @@ function createDependencies(
     load: async () => loadedDataset,
     ...sourceOverrides,
   }
+  const statusRepository = new InMemorySemordnilapStatusRepository()
 
   return {
     listAvailableDatasets: new ListAvailableDatasets(source),
     loadAtomicSemordnilaps: new LoadAtomicSemordnilaps(source),
+    listSemordnilapStatuses: new ListSemordnilapStatuses(statusRepository),
+    addSemordnilapStatus: new AddSemordnilapStatus(statusRepository),
+    removeSemordnilapStatus: new RemoveSemordnilapStatus(statusRepository),
+    removeAllSemordnilapStatuses: new RemoveAllSemordnilapStatuses(
+      statusRepository,
+    ),
   }
 }
 
@@ -174,6 +186,142 @@ describe('WorkspacePage', () => {
       expect(row).toHaveTextContent('a lle')
       expect(row).not.toHaveTextContent('no se')
     })
+  })
+
+  it('prioriza favoritos y mantiene alineado el catálogo descartado', async () => {
+    const user = userEvent.setup()
+    render(<WorkspacePage dependencies={createDependencies()} />)
+
+    await user.selectOptions(
+      screen.getByLabelText('Conjunto lingüístico'),
+      testDataset.id,
+    )
+
+    const catalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
+    const favorite = within(catalog).getByRole('button', {
+      name: 'Añadir a favoritos: no se / e son',
+    })
+    await waitFor(() => expect(favorite).toBeEnabled())
+    await user.click(favorite)
+
+    await waitFor(() => {
+      const rows = within(catalog).getAllByRole('listitem')
+      expect(rows[0]).toHaveTextContent('no se')
+      expect(rows[0]).toHaveTextContent('e son')
+    })
+
+    await user.click(
+      within(catalog).getByRole('button', {
+        name: 'Descartar: ella / a lle',
+      }),
+    )
+
+    await waitFor(() => {
+      const rows = within(catalog).getAllByRole('listitem')
+      expect(rows).toHaveLength(1)
+      expect(rows[0]).toHaveTextContent('no se')
+      expect(rows[0]).toHaveTextContent('e son')
+    })
+
+    await user.click(
+      within(catalog).getByRole('button', {
+        name: 'Ver descartados desde Español',
+      }),
+    )
+
+    const discardedRow = await within(catalog).findByRole('listitem')
+    expect(discardedRow).toHaveTextContent('ella')
+    expect(discardedRow).toHaveTextContent('a lle')
+
+    await user.click(
+      within(catalog).getByRole('button', {
+        name: 'Restaurar: ella / a lle',
+      }),
+    )
+    expect(
+      await within(catalog).findByText(
+        'No hay semordnilaps descartados que coincidan con ambas búsquedas.',
+      ),
+    ).toBeInTheDocument()
+  })
+
+  it('ordena por cada idioma con un control de tres estados', async () => {
+    const user = userEvent.setup()
+    render(<WorkspacePage dependencies={createDependencies()} />)
+
+    await user.selectOptions(
+      screen.getByLabelText('Conjunto lingüístico'),
+      testDataset.id,
+    )
+    const catalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
+
+    const alphabeticalSort = within(catalog).getByRole('button', {
+      name: 'Activar orden alfabético ascendente en Español',
+    })
+    await user.click(alphabeticalSort)
+    await user.click(
+      within(catalog).getByRole('button', {
+        name: 'Cambiar orden alfabético a descendente en Español',
+      }),
+    )
+
+    const rows = within(catalog).getAllByRole('listitem')
+    expect(rows[0]).toHaveTextContent('no se')
+    expect(rows[1]).toHaveTextContent('ella')
+
+    await user.click(
+      within(catalog).getByRole('button', {
+        name: 'Desactivar orden alfabético en Español',
+      }),
+    )
+    const originalRows = within(catalog).getAllByRole('listitem')
+    expect(originalRows[0]).toHaveTextContent('ella')
+    expect(originalRows[1]).toHaveTextContent('no se')
+  })
+
+  it('aplica estados por lotes mediante selección compartida', async () => {
+    const user = userEvent.setup()
+    render(<WorkspacePage dependencies={createDependencies()} />)
+
+    await user.selectOptions(
+      screen.getByLabelText('Conjunto lingüístico'),
+      testDataset.id,
+    )
+    const catalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
+    const selectMany = within(catalog).getByRole('button', {
+      name: 'Seleccionar varios',
+    })
+    await waitFor(() => expect(selectMany).toBeEnabled())
+    await user.click(selectMany)
+    await user.click(
+      within(catalog).getByRole('checkbox', {
+        name: 'Seleccionar ella / a lle',
+      }),
+    )
+    await user.click(
+      within(catalog).getByRole('checkbox', {
+        name: 'Seleccionar no se / e son',
+      }),
+    )
+    await user.click(within(catalog).getByRole('button', { name: 'Descartar' }))
+
+    expect(
+      await within(catalog).findByText(
+        'No hay semordnilaps que coincidan con ambas búsquedas.',
+      ),
+    ).toBeInTheDocument()
+    await user.click(
+      within(catalog).getByRole('button', {
+        name: 'Ver descartados desde Gallego',
+      }),
+    )
+    expect(await within(catalog).findAllByRole('listitem')).toHaveLength(2)
   })
 
   it('muestra un error recuperable y permite reintentar', async () => {

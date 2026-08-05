@@ -2,7 +2,7 @@
 
 Semordnilab es una aplicación web para explorar y componer semordnilaps bilingües encontrados en corpus lingüísticos.
 
-La interfaz combinará dos exploradores de idioma con un constructor central. Al combinar semordnilaps individuales en un lado, la aplicación ordenará sus expresiones correspondientes de forma inversa en el otro. El resultado será un semordnilap compuesto que podrá reutilizarse dentro de otras composiciones.
+La interfaz combina dos exploradores de idioma con un constructor central. Al combinar semordnilaps individuales en un lado, la aplicación ordena sus expresiones correspondientes de forma inversa en el otro.
 
 ## Estado
 
@@ -13,14 +13,16 @@ El proyecto se encuentra en su fase inicial. Actualmente incluye:
 - datasets de español con español, gallego y portugués en TSV;
 - carga y validación de todos los semordnilaps de un conjunto seleccionado;
 - exploración bilingüe con filtros combinados y filas siempre alineadas;
+- favoritos, descarte y restauración persistentes por semordnilap;
+- selección múltiple y ordenación alfabética o por longitud en ambos idiomas;
 - composición en memoria con actualización inversa automática;
 - una interfaz adaptable con paleta violeta y mostaza;
 - pruebas de dominio, aplicación, infraestructura y presentación;
-- Dexie como dependencia preparada para la persistencia en IndexedDB;
+- persistencia de estados del catálogo con Dexie e IndexedDB;
 - configuración de Vite y GitHub Actions para desplegar en GitHub Pages;
 - documentación funcional y técnica.
 
-La persistencia, los semordnilaps compuestos guardados y su anidamiento todavía no están implementados.
+El guardado de semordnilaps compuestos, su anidamiento y la persistencia de preferencias distintas a los estados del catálogo todavía no están implementados.
 
 ## Arquitectura
 
@@ -46,6 +48,7 @@ Infrastructure
 - [Guía de la aplicación](docs/application.md)
 - [Arquitectura y diseño de implementación](docs/architecture.md)
 - [ADR 0001: primera interfaz](docs/adr/0001-first-interface.md)
+- [ADR 0002: estados del catálogo](docs/adr/0002-catalog-statuses.md)
 
 La documentación distingue entre el estado actual y las decisiones previstas. Debe actualizarse junto con la implementación para continuar siendo una referencia del comportamiento real.
 

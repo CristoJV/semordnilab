@@ -13,14 +13,17 @@ El repositorio contiene actualmente:
 - casos de uso para listar conjuntos y cargar `AtomicSemordnilap`;
 - un área de composición en memoria con inversión derivada;
 - un catálogo bilingüe con filas alineadas y filtros combinados;
+- estados genéricos de catálogo persistidos con Dexie e IndexedDB;
+- favoritos prioritarios, vista de descartados, restauración y selección múltiple;
+- ordenación alfabética o por longitud desde cualquiera de los idiomas;
 - CSS Modules y estilos globales basados en tokens;
 - pruebas con Vitest para dominio, aplicación, infraestructura y presentación;
 - TypeScript estricto, alias `@/`, ESLint y Prettier;
-- Dexie como dependencia preparada para trabajar con IndexedDB;
+- un repositorio Dexie conectado mediante casos de uso y un puerto de aplicación;
 - la ruta base de Vite para publicar en `/semordnilab/`;
 - un workflow de GitHub Actions para desplegar en GitHub Pages.
 
-La persistencia local todavía no está conectada. Tampoco están implementados el guardado, el anidamiento de `CompositeSemordnilap`, la importación externa ni la exportación.
+La persistencia local está conectada para los estados del catálogo. Todavía no están implementados el guardado, el anidamiento de `CompositeSemordnilap`, la importación externa ni la exportación.
 
 ## Stack y política de dependencias
 
@@ -97,7 +100,7 @@ Coordina los casos de uso de la aplicación:
 - buscar y filtrar semordnilaps;
 - crear y modificar un semordnilap compuesto;
 - guardar y recuperar semordnilaps compuestos;
-- marcar favoritos;
+- consultar, añadir y retirar estados genéricos del catálogo;
 - exportar e importar una colección personal;
 - eliminar o recuperar datos locales.
 
@@ -302,6 +305,7 @@ El modelo de dominio no reproduce las columnas del TSV ni el esquema de IndexedD
 - `TsvSemordnilapRecord` pertenece a infraestructura y representa una fila completa del archivo externo;
 - `AtomicSemordnilap` pertenece al dominio y conserva únicamente los datos necesarios para identificar y validar el semordnilap;
 - `SemordnilapCatalogItem` es un DTO de aplicación que añade los metadatos necesarios para búsqueda, filtros y presentación;
+- `SemordnilapStatusRecord` es un DTO de aplicación que identifica un estado mediante dataset, semordnilap y nombre de estado;
 - los registros Dexie pertenecen a infraestructura y responden al esquema de persistencia local.
 
 Frecuencia, corpus, número de palabras y puntuación no forman parte automáticamente de la entidad de dominio. Se mantienen en el DTO de catálogo cuando exista una función que los utilice.
@@ -368,16 +372,29 @@ La implementación actual mantiene dos consultas visuales, una para cada idioma.
 
 El filtrado sencillo pertenece a presentación porque solo adapta un catálogo ya cargado a la vista actual. Las reglas de normalización compartidas con la composición permanecen en el dominio. Si la búsqueda incorpora relevancia, indexación u otras reglas reutilizables, esa coordinación se trasladará a un caso de uso y el índice optimizado permanecerá en infraestructura.
 
-La implementación actual busca en memoria. Si las mediciones muestran bloqueos con conjuntos mayores, un adaptador de infraestructura trasladará el trabajo a un Web Worker sin cambiar el contrato utilizado por la aplicación.
+La implementación actual busca y ordena en memoria. La ordenación puede comparar el texto o la longitud de la expresión de cualquiera de los idiomas, pero siempre mueve la fila bilingüe completa. Los favoritos forman un grupo prioritario y el criterio elegido se aplica dentro de los grupos favorito y ordinario. Si las mediciones muestran bloqueos con conjuntos mayores, un adaptador de infraestructura trasladará el trabajo a un Web Worker sin cambiar el contrato utilizado por la aplicación.
 
 No se añadirá inicialmente una librería de búsqueda. Una dependencia solo se evaluará cuando el comportamiento requerido y las mediciones demuestren que la implementación propia no es suficiente.
 
 ## Persistencia local
 
-Dexie implementa repositorios internos sobre IndexedDB. La base local almacenará únicamente aquello que no pueda reconstruirse de forma fiable:
+Dexie implementa repositorios internos sobre IndexedDB. La primera versión del esquema contiene `semordnilapStatuses`, con la clave compuesta:
+
+```text
+[datasetId + semordnilapId + status]
+```
+
+El registro no contiene `source` ni `target`. Un `SemordnilapId` dentro de su dataset representa las dos expresiones de la unidad. La clave permite que varios estados independientes coexistan sobre el mismo semordnilap y dispone de un índice `[datasetId + status]` para operaciones por colección.
+
+El puerto `SemordnilapStatusRepository` y los casos de uso de consulta, alta, retirada y retirada por estado mantienen Dexie fuera de presentación. `useSemordnilapStatuses` conserva una instantánea para renderizar, aplica cambios optimistas y vuelve a consultar el repositorio si una escritura falla.
+
+La base local almacena únicamente aquello que no pueda reconstruirse de forma fiable. Actualmente persiste:
+
+- estados genéricos del catálogo mediante referencias estables.
+
+El diseño contempla más adelante:
 
 - preferencias y último dataset utilizado;
-- favoritos mediante referencias estables;
 - `CompositeSemordnilap` y su secuencia ordenada de componentes;
 - datasets externos que deban restaurarse entre sesiones;
 - versión del esquema local.

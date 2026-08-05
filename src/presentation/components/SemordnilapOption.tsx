@@ -6,14 +6,20 @@ type SemordnilapOptionProps = {
   item: SemordnilapCatalogItem
   side: 'source' | 'target'
   selectedCount: number
+  selectionMode: boolean
+  selected: boolean
   onAdd: (item: SemordnilapCatalogItem) => void
+  onToggleSelection: () => void
 }
 
 export function SemordnilapOption({
   item,
   side,
   selectedCount,
+  selectionMode,
+  selected,
   onAdd,
+  onToggleSelection,
 }: SemordnilapOptionProps) {
   const expression = item.semordnilap[side]
   const frequency =
@@ -25,10 +31,15 @@ export function SemordnilapOption({
     <button
       className={styles.button}
       data-side={side}
+      data-selected={selected}
       type="button"
-      onClick={() => onAdd(item)}
+      onClick={() => (selectionMode ? onToggleSelection() : onAdd(item))}
       title={`Frecuencia en el corpus: ${frequency.toLocaleString('es-ES')}`}
-      aria-label={`Añadir ${expression.text} a la composición`}
+      aria-label={
+        selectionMode
+          ? `${selected ? 'Deseleccionar' : 'Seleccionar'} ${expression.text}`
+          : `Añadir ${expression.text} a la composición`
+      }
     >
       <span className={styles.text}>{expression.text}</span>
       {selectedCount > 0 && (
