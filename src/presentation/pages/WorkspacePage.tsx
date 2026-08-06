@@ -102,6 +102,11 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
           snapshot={composition.snapshot}
           onRemove={removeComponent}
           onMove={composition.move}
+          onMoveTo={composition.moveTo}
+          onRestoreRemoved={composition.restoreRemoved}
+          canRestoreRemoved={(semordnilapId) =>
+            library.some(({ id }) => id === semordnilapId)
+          }
           insertionIndex={composition.insertionIndex}
           onSelectInsertion={composition.selectInsertion}
           onClear={clearComposition}

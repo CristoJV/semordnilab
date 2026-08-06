@@ -1,0 +1,80 @@
+.viewport {
+  position: fixed;
+  bottom: 2.55rem;
+  left: 50%;
+  z-index: 30;
+  display: grid;
+  gap: 0.4rem;
+  width: min(28rem, calc(100vw - 1.5rem));
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.notification {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  max-width: 100%;
+  padding: 0.55rem 0.65rem 0.55rem 0.8rem;
+  color: var(--color-text);
+  font-size: 0.75rem;
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-border);
+  border-radius: 0.7rem;
+  box-shadow: 0 0.65rem 1.8rem rgb(39 35 47 / 16%);
+  pointer-events: auto;
+}
+
+.notification[data-tone='warning'] {
+  background: color-mix(in srgb, #f2a65a 20%, var(--color-surface-strong));
+  border-color: color-mix(in srgb, #d87927 48%, var(--color-border));
+}
+
+.notification[data-tone='success'] {
+  background: color-mix(in srgb, #70b88a 20%, var(--color-surface-strong));
+  border-color: color-mix(in srgb, #368658 48%, var(--color-border));
+}
+
+.notification[data-tone='error'] {
+  background: color-mix(in srgb, #cf5261 14%, var(--color-surface-strong));
+  border-color: color-mix(in srgb, #a72e3d 45%, var(--color-border));
+}
+
+.notification[data-tone='info'] {
+  background: var(--color-violet-soft);
+  border-color: color-mix(
+    in srgb,
+    var(--color-violet) 40%,
+    var(--color-border)
+  );
+}
+
+.notification button {
+  padding: 0.15rem 0.3rem;
+  color: currentColor;
+  font: inherit;
+  font-weight: 800;
+  background: transparent;
+  border: 0;
+  border-radius: 0.35rem;
+  cursor: pointer;
+}
+
+.notification button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+.notification .close {
+  font-size: 0.95rem;
+  font-weight: 500;
+  opacity: 0.6;
+}
+
+@media (max-width: 560px) {
+  .viewport {
+    bottom: 2.2rem;
+  }
+}

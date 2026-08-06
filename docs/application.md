@@ -58,7 +58,11 @@ Cada explorador dispone de búsqueda y ordenación propias. Los controles de ord
 
 Los espacios situados antes, después y entre componentes permiten elegir la posición de la siguiente inserción. El espacio final está activo inicialmente y el cursor avanza después de cada incorporación. Seleccionar un espacio en el idioma de destino activa su posición canónica equivalente en origen.
 
-Cada componente se puede mover hacia la izquierda o la derecha, retirar o recuperar mediante el historial. Deshacer y rehacer cubren inserciones, movimientos, retiradas y vaciado. Cada cambio actualiza simultáneamente los dos idiomas y conserva automáticamente el borrador del dataset activo. El encabezado del área distingue entre recuperación, guardado en curso, guardado correcto y error de persistencia.
+Los componentes se presentan como fragmentos de texto compactos. No muestran flechas ni un botón de cierre permanente. Con ratón, una pulsación breve retira el componente y un movimiento intencionado inicia el arrastre. En una pantalla táctil, un toque breve lo retira y una pulsación prolongada inicia el arrastre, de modo que un desplazamiento normal de la página no reorganiza la frase accidentalmente. Al acercar el puntero a un extremo durante el arrastre, la secuencia se desplaza horizontalmente para alcanzar posiciones que no están visibles.
+
+Retirar una pieza muestra un aviso temporal de color naranja claro con la acción `Deshacer`. Guardar correctamente muestra un aviso verde claro. Los avisos aparecen en la zona inferior, no cambian la distribución del contenido y desaparecen después de unos segundos. Si el conjunto activo ha cambiado y la pieza ya no puede recuperarse con seguridad, la aplicación lo comunica sin insertar una referencia incompatible.
+
+El teclado ofrece la misma funcionalidad sin depender de los gestos: `Intro`, espacio, Suprimir o Retroceso retiran la pieza, mientras que `Mayús` con las flechas laterales la desplaza. Deshacer y rehacer cubren inserciones, movimientos, retiradas y vaciado. Cada cambio actualiza simultáneamente los dos idiomas y conserva automáticamente el borrador del dataset activo. El encabezado del área distingue entre recuperación, guardado en curso, guardado correcto y error de persistencia.
 
 La correspondencia visual entre componentes debe permanecer visible para que se entienda cómo se forma el resultado.
 
@@ -126,7 +130,7 @@ La búsqueda sigue funcionando dentro de la vista activa o descartada y continú
 
 ## Validación de una composición
 
-El constructor informa de su estado sin interrumpir la exploración. Un semordnilap compuesto guardable debe cumplir al menos estas condiciones:
+El dominio valida la composición sin añadir ruido permanente al constructor. La interfaz habilita el guardado cuando el borrador puede formar un composite, pero no muestra continuamente la concatenación normalizada ni un mensaje de éxito. Un semordnilap compuesto guardable debe cumplir al menos estas condiciones:
 
 - contiene dos o más componentes;
 - todos los componentes hacen referencia a un semordnilap válido;
@@ -137,10 +141,10 @@ La repetición de un componente no se considera inválida por defecto: puede ser
 
 ## Guardado y reutilización
 
-Un semordnilap compuesto válido se guarda con:
+Un semordnilap compuesto válido se guarda desde una acción compacta en el encabezado del área. La creación no solicita un nombre. El título es un metadato opcional que puede cambiarse posteriormente desde la gestión del composite. El registro conserva:
 
 - la lista ordenada de referencias a sus componentes;
-- un título opcional;
+- un título opcional generado o editado después del guardado;
 - la fecha de creación y de última modificación.
 
 Las expresiones resultantes se derivan de los componentes y no constituyen una fuente de verdad independiente.

@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type {
   AvailableDataset,
@@ -6,9 +6,11 @@ import type {
 } from '@/application'
 import type { CompositionSnapshot } from '@/domain/semordnilap'
 import type { DraftSemordnilapComponent } from '@/presentation/hooks/useCompositionWorkspace'
+import { useCompositionPointerInteraction } from '@/presentation/hooks/useCompositionPointerInteraction'
+import { useTransientNotifications } from '@/presentation/hooks/useTransientNotifications'
 
-import { CompositionInsertionPoint } from './CompositionInsertionPoint'
-import { SemordnilapComponent } from './SemordnilapComponent'
+import { CompositionLane } from './CompositionLane'
+import { NotificationViewport } from './NotificationViewport'
 import styles from './CompositionWorkspace.module.css'
 
 type CompositionWorkspaceProps = {
@@ -17,6 +19,12 @@ type CompositionWorkspaceProps = {
   snapshot: CompositionSnapshot
   onRemove: (instanceId: number) => void
   onMove: (instanceId: number, offset: -1 | 1) => void
+  onMoveTo: (instanceId: number, dropIndex: number) => void
+  onRestoreRemoved: (
+    component: DraftSemordnilapComponent,
+    canonicalIndex: number,
+  ) => void
+  canRestoreRemoved: (semordnilapId: string) => boolean
   insertionIndex: number
   onSelectInsertion: (index: number) => void
   onClear: () => void
@@ -38,6 +46,9 @@ export function CompositionWorkspace({
   snapshot,
   onRemove,
   onMove,
+  onMoveTo,
+  onRestoreRemoved,
+  canRestoreRemoved,
   insertionIndex,
   onSelectInsertion,
   onClear,
@@ -52,9 +63,11 @@ export function CompositionWorkspace({
   onDiscardIncompatibleDraft,
   onSave,
 }: CompositionWorkspaceProps) {
-  const [title, setTitle] = useState('')
   const [saving, setSaving] = useState(false)
-  const [saveMessage, setSaveMessage] = useState<string | null>(null)
+  const sourceLane = useRef<HTMLOListElement>(null)
+  const targetLane = useRef<HTMLOListElement>(null)
+  const canRestoreRemovedRef = useRef(canRestoreRemoved)
+  const { notifications, notify, dismiss } = useTransientNotifications()
   const [collapsed, setCollapsed] = useState(
     () =>
       initialCollapsed ||
@@ -64,12 +77,10 @@ export function CompositionWorkspace({
   )
   const sourceLabel = dataset?.sourceLanguage.label ?? 'Origen'
   const targetLabel = dataset?.targetLanguage.label ?? 'Destino'
-  const statusMessage =
-    components.length === 0
-      ? 'Selecciona semordnilaps de las listas para empezar a componer.'
-      : snapshot.isComposite
-        ? 'La composición forma un semordnilap válido.'
-        : 'Añade al menos otro semordnilap para formar una composición.'
+
+  useEffect(() => {
+    canRestoreRemovedRef.current = canRestoreRemoved
+  }, [canRestoreRemoved])
   const persistenceLabel =
     persistenceStatus === 'loading'
       ? 'Recuperando borrador'
@@ -87,23 +98,68 @@ export function CompositionWorkspace({
     })
   }
 
+  const removeWithNotification = useCallback(
+    (instanceId: number, canonicalIndex: number, text: string) => {
+      const component = components.find(
+        (candidate) => candidate.instanceId === instanceId,
+      )
+      if (!component) return
+      onRemove(instanceId)
+      notify({
+        tone: 'warning',
+        message: `Se ha retirado «${text}» de la composición.`,
+        action: {
+          label: 'Deshacer',
+          run: () => {
+            if (canRestoreRemovedRef.current(component.semordnilap.id)) {
+              onRestoreRemoved(component, canonicalIndex)
+              return
+            }
+            notify({
+              tone: 'warning',
+              message: 'El semordnilap ya no está disponible en este conjunto.',
+            })
+          },
+        },
+      })
+    },
+    [components, notify, onRemove, onRestoreRemoved],
+  )
+  const getLane = useCallback(
+    (side: 'source' | 'target') =>
+      side === 'source' ? sourceLane.current : targetLane.current,
+    [],
+  )
+  const pointerInteraction = useCompositionPointerInteraction({
+    getLane,
+    onRemove: (target) =>
+      removeWithNotification(
+        target.instanceId,
+        target.canonicalIndex,
+        target.text,
+      ),
+    onDrop: onMoveTo,
+  })
+
   const handleSave = async () => {
     setSaving(true)
-    setSaveMessage(null)
     try {
-      const result = await onSave(title.trim() || undefined)
-      setSaveMessage(
-        result.created
+      const result = await onSave()
+      notify({
+        tone: result.created ? 'success' : 'warning',
+        message: result.created
           ? 'Composite guardado y añadido al catálogo.'
           : 'Esta composición ya estaba guardada.',
-      )
-      if (result.created) setTitle('')
+      })
     } catch (error) {
-      setSaveMessage(
-        error instanceof Error
-          ? error.message
-          : 'No se ha podido guardar el composite.',
-      )
+      notify({
+        tone: 'error',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'No se ha podido guardar el composite.',
+        lifetime: 4500,
+      })
     } finally {
       setSaving(false)
     }
@@ -133,6 +189,25 @@ export function CompositionWorkspace({
             Rehacer
           </button>
           {components.length > 0 && (
+            <button
+              className={styles.saveButton}
+              type="button"
+              disabled={!snapshot.isComposite || saving}
+              onClick={() => void handleSave()}
+              aria-label="Guardar composite"
+              title={
+                snapshot.isComposite
+                  ? 'Guardar composite'
+                  : 'Añade al menos dos componentes para guardar'
+              }
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M5 4h12l2 2v14H5V4Zm3 0v6h8V4M8 20v-6h8v6" />
+              </svg>
+              {saving ? 'Guardando...' : 'Guardar'}
+            </button>
+          )}
+          {components.length > 0 && (
             <button className={styles.clear} type="button" onClick={onClear}>
               Vaciar
             </button>
@@ -154,113 +229,51 @@ export function CompositionWorkspace({
             <span className={styles.emptyMark} aria-hidden="true">
               ↔
             </span>
-            <p>{statusMessage}</p>
+            <p>
+              Selecciona semordnilaps de las listas para empezar a componer.
+            </p>
           </div>
         ) : (
           <div className={styles.lanes}>
-            <div className={styles.lane} data-tone="source">
-              <span className={styles.language}>{sourceLabel}</span>
-              <ol
-                className={styles.components}
-                aria-label={`Composición en ${sourceLabel}`}
-              >
-                {components.map(({ instanceId, semordnilap }, index) => (
-                  <Fragment key={instanceId}>
-                    <CompositionInsertionPoint
-                      index={index}
-                      active={insertionIndex === index}
-                      languageLabel={sourceLabel}
-                      onSelect={onSelectInsertion}
-                    />
-                    <SemordnilapComponent
-                      instanceId={instanceId}
-                      text={semordnilap.source.text}
-                      tone="source"
-                      onRemove={onRemove}
-                      canMoveLeft={index > 0}
-                      canMoveRight={index < components.length - 1}
-                      onMoveLeft={() => onMove(instanceId, -1)}
-                      onMoveRight={() => onMove(instanceId, 1)}
-                    />
-                  </Fragment>
-                ))}
-                <CompositionInsertionPoint
-                  index={components.length}
-                  active={insertionIndex === components.length}
-                  languageLabel={sourceLabel}
-                  onSelect={onSelectInsertion}
-                />
-              </ol>
-            </div>
-
-            <div className={styles.lane} data-tone="target">
-              <span className={styles.language}>{targetLabel}</span>
-              <ol
-                className={styles.components}
-                aria-label={`Composición en ${targetLabel}`}
-              >
-                {components
-                  .toReversed()
-                  .map(({ instanceId, semordnilap }, visualIndex) => (
-                    <Fragment key={instanceId}>
-                      <CompositionInsertionPoint
-                        index={components.length - visualIndex}
-                        active={
-                          insertionIndex === components.length - visualIndex
-                        }
-                        languageLabel={targetLabel}
-                        onSelect={onSelectInsertion}
-                      />
-                      <SemordnilapComponent
-                        instanceId={instanceId}
-                        text={semordnilap.target.text}
-                        tone="target"
-                        onRemove={onRemove}
-                        canMoveLeft={visualIndex > 0}
-                        canMoveRight={visualIndex < components.length - 1}
-                        onMoveLeft={() => onMove(instanceId, 1)}
-                        onMoveRight={() => onMove(instanceId, -1)}
-                      />
-                    </Fragment>
-                  ))}
-                <CompositionInsertionPoint
-                  index={0}
-                  active={insertionIndex === 0}
-                  languageLabel={targetLabel}
-                  onSelect={onSelectInsertion}
-                />
-              </ol>
-            </div>
+            <CompositionLane
+              side="source"
+              languageLabel={sourceLabel}
+              components={components}
+              insertionIndex={insertionIndex}
+              dragging={pointerInteraction.dragging}
+              laneRef={sourceLane}
+              onSelectInsertion={onSelectInsertion}
+              onRemove={removeWithNotification}
+              onMove={onMove}
+              bindPointer={pointerInteraction.bind}
+            />
+            <CompositionLane
+              side="target"
+              languageLabel={targetLabel}
+              components={components}
+              insertionIndex={insertionIndex}
+              dragging={pointerInteraction.dragging}
+              laneRef={targetLane}
+              onSelectInsertion={onSelectInsertion}
+              onRemove={removeWithNotification}
+              onMove={onMove}
+              bindPointer={pointerInteraction.bind}
+            />
           </div>
         ))}
 
-      {!collapsed && components.length > 0 && (
-        <>
-          <div className={styles.validation}>
-            <output aria-live="polite">{statusMessage}</output>
-            <code title="Formas normalizadas">
-              {snapshot.sourceNormalized} ⇄ {snapshot.targetNormalized}
-            </code>
-          </div>
-          <div className={styles.saveRow}>
-            <label>
-              <span>Nombre opcional</span>
-              <input
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                placeholder="Mi composite"
-              />
-            </label>
-            <button
-              type="button"
-              disabled={!snapshot.isComposite || saving}
-              onClick={() => void handleSave()}
-            >
-              {saving ? 'Guardando...' : 'Guardar composite'}
-            </button>
-            {saveMessage && <output aria-live="polite">{saveMessage}</output>}
-          </div>
-        </>
+      {pointerInteraction.dragging && (
+        <div
+          className={styles.dragPreview}
+          data-tone={pointerInteraction.dragging.target.side}
+          style={{
+            left: pointerInteraction.dragging.clientX,
+            top: pointerInteraction.dragging.clientY,
+          }}
+          aria-hidden="true"
+        >
+          {pointerInteraction.dragging.target.text}
+        </div>
       )}
       {persistenceError && (
         <div className={styles.persistenceError} role="alert">
@@ -273,6 +286,7 @@ export function CompositionWorkspace({
           </button>
         </div>
       )}
+      <NotificationViewport notifications={notifications} onDismiss={dismiss} />
     </section>
   )
 }

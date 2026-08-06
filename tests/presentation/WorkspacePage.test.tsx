@@ -1,4 +1,10 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -113,7 +119,7 @@ function createDependencies(
 function getComponentTexts(list: HTMLElement): string[] {
   return within(list)
     .getAllByRole('listitem')
-    .map((item) => item.querySelector('span')?.textContent ?? '')
+    .map((item) => item.textContent?.trim() ?? '')
 }
 
 describe('WorkspacePage', () => {
@@ -171,21 +177,37 @@ describe('WorkspacePage', () => {
     expect(getComponentTexts(sourceComposition)).toEqual(['ella', 'no se'])
     expect(getComponentTexts(targetComposition)).toEqual(['e son', 'a lle'])
     expect(
-      screen.getByText('La composición forma un semordnilap válido.'),
-    ).toBeInTheDocument()
+      within(sourceComposition).queryByRole('button', { name: /^Mover/ }),
+    ).not.toBeInTheDocument()
+    expect(
+      within(sourceComposition).queryByRole('button', { name: /^Retirar/ }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByText('La composición forma un semordnilap válido.'),
+    ).not.toBeInTheDocument()
+    expect(screen.queryByTitle('Formas normalizadas')).not.toBeInTheDocument()
 
     await user.click(
-      within(targetComposition).getByRole('button', {
-        name: 'Retirar a lle de la composición',
+      within(targetComposition).getByRole('listitem', {
+        name: /a lle\. Pulsa Intro para retirar/,
       }),
     )
 
     expect(getComponentTexts(sourceComposition)).toEqual(['no se'])
     expect(
-      screen.getByText(
-        'Añade al menos otro semordnilap para formar una composición.',
-      ),
+      screen.getByText('Se ha retirado «a lle» de la composición.'),
     ).toBeInTheDocument()
+    expect(
+      screen
+        .getByText('Se ha retirado «a lle» de la composición.')
+        .closest('[data-tone]'),
+    ).toHaveAttribute('data-tone', 'warning')
+    await user.click(
+      within(screen.getByLabelText('Notificaciones')).getByRole('button', {
+        name: 'Deshacer',
+      }),
+    )
+    expect(getComponentTexts(sourceComposition)).toEqual(['ella', 'no se'])
 
     await user.click(screen.getByRole('button', { name: 'Vaciar' }))
     expect(
@@ -268,12 +290,17 @@ describe('WorkspacePage', () => {
         name: 'Añadir e son a la composición',
       }),
     )
-    await user.type(screen.getByLabelText('Nombre opcional'), 'Hallazgo')
     await user.click(screen.getByRole('button', { name: 'Guardar composite' }))
 
     expect(
       await screen.findByText('Composite guardado y añadido al catálogo.'),
     ).toBeInTheDocument()
+    expect(screen.queryByLabelText('Nombre opcional')).not.toBeInTheDocument()
+    expect(
+      screen
+        .getByText('Composite guardado y añadido al catálogo.')
+        .closest('[data-tone]'),
+    ).toHaveAttribute('data-tone', 'success')
     await waitFor(() =>
       expect(within(catalog).getAllByRole('listitem')).toHaveLength(3),
     )
@@ -481,16 +508,92 @@ describe('WorkspacePage', () => {
       'ella',
       'no se',
     ])
-    await user.click(
-      within(sourceComposition).getByRole('button', {
-        name: 'Mover no se a la izquierda',
+    fireEvent.keyDown(
+      within(sourceComposition).getByRole('listitem', {
+        name: /no se\. Pulsa Intro para retirar/,
       }),
+      { key: 'ArrowLeft', shiftKey: true },
     )
     expect(getComponentTexts(sourceComposition)).toEqual([
       'ella',
       'no se',
       'ella',
     ])
+  })
+
+  it('arrastra con el ratón hasta un espacio canónico', async () => {
+    vi.stubGlobal(
+      'requestAnimationFrame',
+      vi.fn(() => 1),
+    )
+    vi.stubGlobal('cancelAnimationFrame', vi.fn())
+    const user = userEvent.setup()
+    render(<WorkspacePage dependencies={createDependencies()} />)
+    await user.selectOptions(
+      screen.getByLabelText('Conjunto lingüístico'),
+      testDataset.id,
+    )
+    const catalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
+    await user.click(
+      within(catalog).getByRole('button', {
+        name: 'Añadir ella a la composición',
+      }),
+    )
+    await user.click(
+      within(catalog).getByRole('button', {
+        name: 'Añadir no se a la composición',
+      }),
+    )
+    const sourceComposition = screen.getByRole('list', {
+      name: 'Composición en Español',
+    })
+    vi.spyOn(sourceComposition, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      right: 400,
+      top: 0,
+      bottom: 60,
+      width: 400,
+    } as DOMRect)
+    for (const point of sourceComposition.querySelectorAll<HTMLElement>(
+      '[data-composition-index]',
+    )) {
+      const index = Number(point.dataset.compositionIndex)
+      vi.spyOn(point, 'getBoundingClientRect').mockReturnValue({
+        left: index * 150,
+        right: index * 150 + 20,
+        width: 20,
+      } as DOMRect)
+    }
+    const ellaComponent = within(sourceComposition).getByRole('listitem', {
+      name: /ella\. Pulsa Intro para retirar/,
+    })
+
+    fireEvent.pointerDown(ellaComponent, {
+      button: 0,
+      pointerId: 5,
+      pointerType: 'mouse',
+      clientX: 10,
+      clientY: 10,
+    })
+    fireEvent.pointerMove(ellaComponent, {
+      buttons: 1,
+      pointerId: 5,
+      pointerType: 'mouse',
+      clientX: 310,
+      clientY: 10,
+    })
+    fireEvent.pointerUp(ellaComponent, {
+      button: 0,
+      pointerId: 5,
+      pointerType: 'mouse',
+      clientX: 310,
+      clientY: 10,
+    })
+
+    expect(getComponentTexts(sourceComposition)).toEqual(['no se', 'ella'])
+    vi.unstubAllGlobals()
   })
 
   it('recupera automáticamente el borrador y su posición', async () => {

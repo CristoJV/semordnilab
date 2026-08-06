@@ -1,10 +1,15 @@
+import type { KeyboardEvent } from 'react'
+
+import type { CompositionPointerBindings } from '@/presentation/hooks/useCompositionPointerInteraction'
+
 import styles from './SemordnilapComponent.module.css'
 
 type SemordnilapComponentProps = {
   text: string
-  instanceId: number
   tone: 'source' | 'target'
-  onRemove: (instanceId: number) => void
+  dragging: boolean
+  pointerBindings: CompositionPointerBindings
+  onRemove: () => void
   canMoveLeft: boolean
   canMoveRight: boolean
   onMoveLeft: () => void
@@ -13,43 +18,51 @@ type SemordnilapComponentProps = {
 
 export function SemordnilapComponent({
   text,
-  instanceId,
   tone,
+  dragging,
+  pointerBindings,
   onRemove,
   canMoveLeft,
   canMoveRight,
   onMoveLeft,
   onMoveRight,
 }: SemordnilapComponentProps) {
+  const handleKeyDown = (event: KeyboardEvent<HTMLLIElement>) => {
+    if (
+      event.key === 'Delete' ||
+      event.key === 'Backspace' ||
+      event.key === 'Enter' ||
+      event.key === ' '
+    ) {
+      event.preventDefault()
+      onRemove()
+      return
+    }
+    if (!event.shiftKey) return
+    if (event.key === 'ArrowLeft' && canMoveLeft) {
+      event.preventDefault()
+      onMoveLeft()
+    }
+    if (event.key === 'ArrowRight' && canMoveRight) {
+      event.preventDefault()
+      onMoveRight()
+    }
+  }
+
   return (
-    <li className={styles.component} data-tone={tone}>
-      <span>{text}</span>
-      <div className={styles.controls}>
-        <button
-          type="button"
-          disabled={!canMoveLeft}
-          onClick={onMoveLeft}
-          aria-label={`Mover ${text} a la izquierda`}
-        >
-          <span aria-hidden="true">‹</span>
-        </button>
-        <button
-          type="button"
-          disabled={!canMoveRight}
-          onClick={onMoveRight}
-          aria-label={`Mover ${text} a la derecha`}
-        >
-          <span aria-hidden="true">›</span>
-        </button>
-        <button
-          className={styles.remove}
-          type="button"
-          onClick={() => onRemove(instanceId)}
-          aria-label={`Retirar ${text} de la composición`}
-        >
-          <span aria-hidden="true">×</span>
-        </button>
-      </div>
+    <li
+      className={styles.component}
+      data-tone={tone}
+      data-dragging={dragging}
+      tabIndex={0}
+      aria-label={`${text}. Pulsa Intro para retirar, arrastra para mover.`}
+      aria-keyshortcuts="Enter Space Delete Backspace Shift+ArrowLeft Shift+ArrowRight"
+      title="Pulsa para retirar. Arrastra para mover."
+      onKeyDown={handleKeyDown}
+      onContextMenu={(event) => event.preventDefault()}
+      {...pointerBindings}
+    >
+      {text}
     </li>
   )
 }

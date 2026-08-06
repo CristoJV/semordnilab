@@ -1,0 +1,41 @@
+.lane {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.language {
+  overflow: hidden;
+  font-size: 0.75rem;
+  font-weight: 780;
+  letter-spacing: 0.08em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.lane[data-tone='source'] .language {
+  color: var(--color-violet-strong);
+}
+
+.lane[data-tone='target'] .language {
+  color: var(--color-mustard-dark);
+}
+
+.components {
+  display: flex;
+  gap: 0.18rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0.2rem 0 0.35rem;
+  overflow-x: auto;
+  list-style: none;
+}
+
+@media (max-width: 680px) {
+  .lane {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+}

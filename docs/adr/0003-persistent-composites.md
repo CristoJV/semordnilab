@@ -34,7 +34,7 @@ compositionDrafts: datasetId, updatedAt
 
 El borrador conserva una secuencia canónica y un cursor entre componentes. El espacio `i` de origen se refleja como `n - i` en destino. La selección de una pieza la inserta en el cursor y lo avanza.
 
-Los componentes disponen de movimiento y retirada accesibles mediante botones. El historial de sesión permite deshacer y rehacer operaciones que modifican la secuencia. Arrastrar puede añadirse como atajo visual, pero no es necesario para acceder a ninguna operación.
+Los componentes disponen de movimiento y retirada accesibles y el historial de sesión permite deshacer y rehacer operaciones que modifican la secuencia. La decisión visual inicial de utilizar botones fue sustituida por la interacción directa descrita en el ADR 0005. La secuencia canónica y el contrato del historial permanecen sin cambios.
 
 Los composites guardados se muestran en el catálogo antes que los atómicos dentro de cada grupo de estado. Pueden utilizar favoritos y descartes existentes porque comparten `datasetId` y `semordnilapId`.
 

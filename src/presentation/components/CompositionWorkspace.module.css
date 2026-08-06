@@ -1,6 +1,6 @@
 .workspace {
   display: grid;
-  gap: 1rem;
+  gap: 0.7rem;
   min-height: 0;
   max-height: 47dvh;
   padding: clamp(1rem, 2.2vw, 1.75rem) clamp(1rem, 3vw, 2.5rem);
@@ -86,6 +86,24 @@
   opacity: 0.35;
 }
 
+.headingActions .saveButton {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+  color: white;
+  background: var(--color-violet);
+  border-color: var(--color-violet);
+}
+
+.saveButton svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
 .empty {
   display: grid;
   gap: 0.6rem;
@@ -117,108 +135,35 @@
 
 .lanes {
   display: grid;
-  gap: 0.7rem;
+  gap: 0.45rem;
   min-width: 0;
 }
 
-.lane {
-  display: grid;
-  grid-template-columns: 7rem minmax(0, 1fr);
-  gap: 0.8rem;
-  align-items: center;
-}
-
-.language {
+.dragPreview {
+  position: fixed;
+  z-index: 35;
+  max-width: min(18rem, 70vw);
+  padding: 0.3rem 0.6rem;
   overflow: hidden;
-  font-size: 0.75rem;
-  font-weight: 780;
-  letter-spacing: 0.08em;
+  font-size: 0.88rem;
+  font-weight: 720;
   text-overflow: ellipsis;
-  text-transform: uppercase;
   white-space: nowrap;
+  border: 1px solid currentColor;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.7rem 1.5rem rgb(39 35 47 / 20%);
+  pointer-events: none;
+  transform: translate(-50%, -125%);
 }
 
-.lane[data-tone='source'] .language {
+.dragPreview[data-tone='source'] {
   color: var(--color-violet-strong);
+  background: var(--color-violet-soft);
 }
 
-.lane[data-tone='target'] .language {
+.dragPreview[data-tone='target'] {
   color: var(--color-mustard-dark);
-}
-
-.components {
-  display: flex;
-  gap: 0.5rem;
-  min-width: 0;
-  margin: 0;
-  padding: 0.25rem 0 0.45rem;
-  overflow-x: auto;
-  list-style: none;
-}
-
-.validation {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 1.5rem;
-  color: var(--color-text-muted);
-  font-size: 0.78rem;
-}
-
-.validation code {
-  max-width: 50%;
-  overflow: hidden;
-  color: var(--color-text-muted);
-  font-family: var(--font-mono);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.saveRow {
-  display: flex;
-  gap: 0.65rem;
-  align-items: end;
-}
-
-.saveRow label {
-  display: grid;
-  gap: 0.25rem;
-  min-width: min(18rem, 50vw);
-  color: var(--color-text-muted);
-  font-size: 0.68rem;
-  font-weight: 750;
-}
-
-.saveRow input,
-.saveRow button {
-  min-height: 2.35rem;
-  padding: 0.45rem 0.7rem;
-  color: var(--color-text);
-  font: inherit;
-  background: var(--color-surface-strong);
-  border: 1px solid var(--color-border);
-  border-radius: 0.65rem;
-}
-
-.saveRow button {
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 750;
-  background: var(--color-violet);
-  border-color: var(--color-violet);
-  cursor: pointer;
-}
-
-.saveRow button:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
-}
-
-.saveRow output {
-  align-self: center;
-  color: var(--color-text-muted);
-  font-size: 0.72rem;
+  background: var(--color-mustard-soft);
 }
 
 .persistenceError {
@@ -246,22 +191,8 @@
     padding: 0.8rem;
   }
 
-  .lane {
-    grid-template-columns: 1fr;
-    gap: 0.2rem;
-  }
-
-  .validation {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .validation code {
-    max-width: 100%;
-  }
-
-  .saveRow {
-    align-items: stretch;
-    flex-direction: column;
+  .headingActions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 }

@@ -31,6 +31,11 @@ export type CompositionWorkspaceState = {
   add: (semordnilap: Semordnilap) => void
   remove: (instanceId: number) => void
   move: (instanceId: number, offset: -1 | 1) => void
+  moveTo: (instanceId: number, dropIndex: number) => void
+  restoreRemoved: (
+    component: DraftSemordnilapComponent,
+    canonicalIndex: number,
+  ) => void
   selectInsertion: (index: number) => void
   clear: () => void
   undo: () => void
@@ -52,6 +57,25 @@ function commit(
     present,
     future: [],
   }
+}
+
+export function moveComponentToGap(
+  components: readonly DraftSemordnilapComponent[],
+  instanceId: number,
+  requestedDropIndex: number,
+): readonly DraftSemordnilapComponent[] {
+  const from = components.findIndex(
+    (component) => component.instanceId === instanceId,
+  )
+  if (from < 0) return components
+  const dropIndex = Math.max(0, Math.min(requestedDropIndex, components.length))
+  const to = dropIndex > from ? dropIndex - 1 : dropIndex
+  if (to === from) return components
+  const next = [...components]
+  const [component] = next.splice(from, 1)
+  if (!component) return components
+  next.splice(to, 0, component)
+  return next
 }
 
 export function useCompositionWorkspace(): CompositionWorkspaceState {
@@ -112,6 +136,47 @@ export function useCompositionWorkspace(): CompositionWorkspaceState {
       return commit(current, { ...current.present, components })
     })
   }, [])
+
+  const moveTo = useCallback((instanceId: number, dropIndex: number) => {
+    setHistory((current) => {
+      const components = moveComponentToGap(
+        current.present.components,
+        instanceId,
+        dropIndex,
+      )
+      return components === current.present.components
+        ? current
+        : commit(current, { ...current.present, components })
+    })
+  }, [])
+
+  const restoreRemoved = useCallback(
+    (component: DraftSemordnilapComponent, requestedIndex: number): void => {
+      setHistory((current) => {
+        if (
+          current.present.components.some(
+            ({ instanceId }) => instanceId === component.instanceId,
+          )
+        ) {
+          return current
+        }
+        const index = Math.max(
+          0,
+          Math.min(requestedIndex, current.present.components.length),
+        )
+        const components = [...current.present.components]
+        components.splice(index, 0, component)
+        const insertionIndex = Math.min(
+          components.length,
+          current.present.insertionIndex >= index
+            ? current.present.insertionIndex + 1
+            : current.present.insertionIndex,
+        )
+        return commit(current, { components, insertionIndex })
+      })
+    },
+    [],
+  )
 
   const selectInsertion = useCallback((index: number) => {
     setHistory((current) => ({
@@ -195,6 +260,8 @@ export function useCompositionWorkspace(): CompositionWorkspaceState {
     add,
     remove,
     move,
+    moveTo,
+    restoreRemoved,
     selectInsertion,
     clear,
     undo,

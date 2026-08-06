@@ -15,7 +15,9 @@ El proyecto se encuentra en su fase inicial. Actualmente incluye:
 - exploración bilingüe con filtros combinados y filas siempre alineadas;
 - favoritos, descarte y restauración persistentes por semordnilap;
 - selección múltiple y criterios de ordenación combinables en ambos idiomas;
-- cursor de inserción, movimiento, deshacer y rehacer en la composición;
+- cursor de inserción, reordenación directa, deshacer y rehacer en la composición;
+- interacción unificada para ratón, pantalla táctil y teclado;
+- avisos transitorios compactos con confirmación y recuperación de acciones;
 - borradores conservados automáticamente por conjunto lingüístico;
 - guardado, deduplicación y reutilización de composites anidados;
 - vistas específicas para composites guardados, favoritos y descartados;
@@ -58,6 +60,7 @@ Infrastructure
 - [ADR 0002: estados del catálogo](docs/adr/0002-catalog-statuses.md)
 - [ADR 0003: composites y espacio de trabajo persistente](docs/adr/0003-persistent-composites.md)
 - [ADR 0004: copias, preferencias y gestión de composites](docs/adr/0004-personal-data-and-composite-management.md)
+- [ADR 0005: interacción directa en la composición](docs/adr/0005-direct-composition-interaction.md)
 
 La documentación distingue entre el estado actual y las decisiones previstas. Debe actualizarse junto con la implementación para continuar siendo una referencia del comportamiento real.
 

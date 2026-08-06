@@ -348,6 +348,32 @@ Añadir un componente a la derecha del origen coloca su expresión correspondien
 
 La presentación mantiene un índice de inserción canónico entre cero y el número de componentes. El espacio `i` de origen corresponde al espacio `n - i` de destino. Insertar desplaza el cursor a la posición siguiente. Los movimientos intercambian componentes en la secuencia canónica y el destino vuelve a derivarse.
 
+La interacción directa de cada componente pertenece exclusivamente a presentación y utiliza Pointer Events. Una máquina de estados pura modela las transiciones siguientes:
+
+```text
+idle
+  | pulsación de ratón
+  v
+pressed ----------------------> idle + retirar
+  | movimiento intencionado
+  v
+dragging ---------------------> idle + mover o cancelar
+
+idle
+  | contacto táctil
+  v
+waiting-for-long-press -------> idle + retirar
+  | pulsación prolongada
+  v
+dragging ---------------------> idle + mover o cancelar
+```
+
+La máquina recibe eventos semánticos y devuelve el siguiente estado junto con efectos declarativos. No accede al DOM, a React, a temporizadores ni a repositorios. Un hook de presentación interpreta esos efectos, gestiona la captura del puntero y calcula el espacio canónico más cercano. El movimiento del ratón necesita superar un umbral para distinguirse de una pulsación. En entrada táctil, moverse antes de la pulsación prolongada cancela el gesto y deja continuar el desplazamiento natural.
+
+Durante el estado `dragging`, la posición cercana a los extremos produce desplazamiento horizontal mediante `requestAnimationFrame`. El cálculo geométrico y la conversión del espacio visual a índice canónico son funciones puras. El destino utiliza los mismos índices canónicos aunque su orden visual esté invertido. Soltar dentro de la franja aplica un único movimiento al historial; soltar claramente fuera la cancela.
+
+La retirada por pulsación ofrece una recuperación exacta mediante un aviso transitorio. La recuperación conserva la instancia y el índice originales, pero verifica primero que el semordnilap siga disponible en el dataset activo. Esta interacción no cambia los contratos de aplicación ni el modelo de dominio.
+
 El historial conserva hasta cien estados anteriores durante la sesión. Cambiar el cursor no añade una entrada al historial porque no modifica la composición. IndexedDB conserva el último estado y el índice de inserción de cada dataset después de un breve intervalo, además de intentar escribir el último cambio al desmontar o cambiar de conjunto.
 
 Antes de componer, cada referencia se resuelve recursivamente. Los composites anidados se tratan como una única pieza durante la interacción, pero el dominio puede expandirlos hasta sus semordnilaps atómicos para validar el resultado.
@@ -462,7 +488,7 @@ Toda animación debe:
 
 Motion no forma parte del stack inicial. Solo se evaluará si aparecen gestos, reordenaciones o transiciones coordinadas que CSS no pueda mantener de forma razonable. Si se incorpora, permanecerá exclusivamente en presentación.
 
-Arrastrar y soltar será una ayuda, no la única forma de componer. Los estados de selección, validación y error tendrán texto y semántica accesible y no dependerán solo del color.
+Arrastrar es una ayuda y no la única forma de componer. Los componentes admiten retirada con `Intro`, espacio, Suprimir o Retroceso, y movimiento con `Mayús` y las flechas laterales. El foco sigue siendo visible y cada pieza expone una descripción accesible de las acciones. Los estados de selección, error y confirmación tienen texto y semántica accesible y no dependen solo del color.
 
 ## Navegación y GitHub Pages
 

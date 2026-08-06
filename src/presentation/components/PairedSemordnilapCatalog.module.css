@@ -10,23 +10,25 @@
 
 .undoNotice {
   position: absolute;
-  right: 1rem;
-  bottom: 1rem;
+  bottom: 0.75rem;
+  left: 50%;
   z-index: 4;
   display: flex;
   gap: 0.8rem;
   align-items: center;
   padding: 0.7rem 0.85rem;
-  color: white;
+  color: var(--color-text);
   font-size: 0.76rem;
-  background: var(--color-text);
-  border-radius: 0.8rem;
-  box-shadow: 0 0.6rem 1.6rem rgb(39 35 47 / 20%);
+  background: color-mix(in srgb, #f2a65a 20%, var(--color-surface-strong));
+  border: 1px solid color-mix(in srgb, #d87927 48%, var(--color-border));
+  border-radius: 0.7rem;
+  box-shadow: 0 0.6rem 1.6rem rgb(39 35 47 / 14%);
+  transform: translateX(-50%);
 }
 
 .undoNotice button {
   padding: 0;
-  color: var(--color-mustard);
+  color: #97501b;
   font: inherit;
   font-weight: 800;
   background: transparent;

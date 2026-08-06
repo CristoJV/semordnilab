@@ -3,6 +3,8 @@
 - Estado: aceptado
 - Fecha: 2026-08-05
 
+Los controles visibles de movimiento y retirada descritos en esta decisión fueron sustituidos posteriormente por la interacción directa del ADR 0005. La estructura general de la pantalla y su identidad visual permanecen vigentes.
+
 ## Contexto
 
 La primera interfaz debe permitir validar una iteración vertical completa de la aplicación sin introducir todavía persistencia local. La experiencia está pensada para una pantalla más ancha que alta, debe enfrentar visualmente los dos idiomas y reservar un área clara para agrupar semordnilaps.

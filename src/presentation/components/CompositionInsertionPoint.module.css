@@ -6,8 +6,8 @@
 
 .button {
   display: grid;
-  width: 1.25rem;
-  height: 2.25rem;
+  width: 0.75rem;
+  height: 1.85rem;
   padding: 0;
   color: var(--color-text-muted);
   font: inherit;
@@ -21,7 +21,8 @@
 }
 
 .button:hover,
-.button[data-active='true'] {
+.button[data-active='true'],
+.button[data-drop-target='true'] {
   color: var(--color-violet-strong);
   background: var(--color-violet-soft);
   border-color: var(--color-violet);
@@ -29,7 +30,20 @@
 }
 
 .button[data-active='true'] {
-  width: 1.7rem;
+  width: 1.2rem;
+}
+
+.button[data-dragging='true'] {
+  width: 1.8rem;
+  opacity: 0.7;
+}
+
+.button[data-drop-target='true'] {
+  width: 2.2rem;
+  color: white;
+  background: var(--color-violet);
+  border-style: solid;
+  opacity: 1;
 }
 
 .button:focus-visible {
