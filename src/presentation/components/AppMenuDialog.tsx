@@ -55,6 +55,14 @@ function Summary({ summary }: { summary: PersonalDataSummary }) {
         <dt>Borradores</dt>
         <dd>{summary.compositionDrafts}</dd>
       </div>
+      <div>
+        <dt>Etiquetas</dt>
+        <dd>{summary.tags}</dd>
+      </div>
+      <div>
+        <dt>Etiquetados</dt>
+        <dd>{summary.taggedSemordnilaps}</dd>
+      </div>
     </dl>
   )
 }
@@ -208,8 +216,8 @@ export function AppMenuDialog({
           <div>
             <h3>Almacenamiento local</h3>
             <p>
-              La copia incluye estados, composites, borradores y preferencias.
-              Los TSV incluidos no se duplican.
+              La copia incluye estados, composites, borradores, etiquetas y
+              preferencias. Los TSV incluidos no se duplican.
             </p>
             {summary && <Summary summary={summary} />}
           </div>

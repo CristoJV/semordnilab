@@ -1,23 +1,30 @@
 import {
   AddSemordnilapStatus,
+  AddSemordnilapTagAssignments,
   ClearCompositionDraft,
+  CreateSemordnilapTag,
   DeleteSavedComposite,
+  DeleteSemordnilapTag,
   ExportPersonalData,
   ImportPersonalData,
+  InspectSavedCompositeDeletion,
   GetPersonalDataSummary,
   ListAvailableDatasets,
   ListSavedCompositeSemordnilaps,
   ListSemordnilapStatuses,
+  ListSemordnilapTags,
   LoadAtomicSemordnilaps,
   LoadCompositionDraft,
   LoadWorkspacePreferences,
   MigrateSemordnilapStatusReferences,
   RemoveAllSemordnilapStatuses,
   RemoveSemordnilapStatus,
+  RemoveSemordnilapTagAssignments,
   RenameSavedComposite,
   SaveCompositeSemordnilap,
   SaveCompositionDraft,
   SaveWorkspacePreferences,
+  UpdateSemordnilapTag,
   PreviewPersonalDataImport,
   type PersonalDataFileGateway,
 } from '@/application'
@@ -29,6 +36,7 @@ import {
   DexiePersonalDataRepository,
   DexieSavedCompositeSemordnilapRepository,
   DexieSemordnilapStatusRepository,
+  DexieSemordnilapTagRepository,
   DexieWorkspacePreferencesRepository,
 } from '@/infrastructure/repositories'
 
@@ -40,6 +48,12 @@ export type ApplicationDependencies = {
   removeSemordnilapStatus: RemoveSemordnilapStatus
   removeAllSemordnilapStatuses: RemoveAllSemordnilapStatuses
   migrateSemordnilapStatusReferences: MigrateSemordnilapStatusReferences
+  listSemordnilapTags: ListSemordnilapTags
+  createSemordnilapTag: CreateSemordnilapTag
+  updateSemordnilapTag: UpdateSemordnilapTag
+  deleteSemordnilapTag: DeleteSemordnilapTag
+  addSemordnilapTagAssignments: AddSemordnilapTagAssignments
+  removeSemordnilapTagAssignments: RemoveSemordnilapTagAssignments
   listSavedCompositeSemordnilaps: ListSavedCompositeSemordnilaps
   saveCompositeSemordnilap: SaveCompositeSemordnilap
   loadCompositionDraft: LoadCompositionDraft
@@ -49,6 +63,7 @@ export type ApplicationDependencies = {
   saveWorkspacePreferences: SaveWorkspacePreferences
   renameSavedComposite: RenameSavedComposite
   deleteSavedComposite: DeleteSavedComposite
+  inspectSavedCompositeDeletion: InspectSavedCompositeDeletion
   exportPersonalData: ExportPersonalData
   previewPersonalDataImport: PreviewPersonalDataImport
   importPersonalData: ImportPersonalData
@@ -62,6 +77,7 @@ export function createApplicationDependencies(): ApplicationDependencies {
   )
   const database = new SemordnilabDatabase()
   const statusRepository = new DexieSemordnilapStatusRepository(database)
+  const tagRepository = new DexieSemordnilapTagRepository(database)
   const compositeRepository = new DexieSavedCompositeSemordnilapRepository(
     database,
   )
@@ -83,6 +99,16 @@ export function createApplicationDependencies(): ApplicationDependencies {
     migrateSemordnilapStatusReferences: new MigrateSemordnilapStatusReferences(
       statusRepository,
     ),
+    listSemordnilapTags: new ListSemordnilapTags(tagRepository),
+    createSemordnilapTag: new CreateSemordnilapTag(tagRepository),
+    updateSemordnilapTag: new UpdateSemordnilapTag(tagRepository),
+    deleteSemordnilapTag: new DeleteSemordnilapTag(tagRepository),
+    addSemordnilapTagAssignments: new AddSemordnilapTagAssignments(
+      tagRepository,
+    ),
+    removeSemordnilapTagAssignments: new RemoveSemordnilapTagAssignments(
+      tagRepository,
+    ),
     listSavedCompositeSemordnilaps: new ListSavedCompositeSemordnilaps(
       compositeRepository,
     ),
@@ -98,6 +124,9 @@ export function createApplicationDependencies(): ApplicationDependencies {
     ),
     renameSavedComposite: new RenameSavedComposite(personalDataRepository),
     deleteSavedComposite: new DeleteSavedComposite(personalDataRepository),
+    inspectSavedCompositeDeletion: new InspectSavedCompositeDeletion(
+      personalDataRepository,
+    ),
     exportPersonalData: new ExportPersonalData(personalDataRepository),
     previewPersonalDataImport: new PreviewPersonalDataImport(
       personalDataRepository,

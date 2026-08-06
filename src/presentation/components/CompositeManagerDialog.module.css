@@ -159,6 +159,54 @@
   margin-top: 0.8rem;
 }
 
+.deletionPlan {
+  display: grid;
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.deletionPlan > strong {
+  color: var(--color-error, #8c2430);
+}
+
+.deletionPlan p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+}
+
+.dependencies {
+  display: grid;
+  gap: 0.35rem;
+  max-height: 13rem;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.dependencies li {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.55rem;
+}
+
+.dependencies li span,
+.dependencies li small {
+  color: var(--color-text-muted);
+  font-size: 0.66rem;
+}
+
+.blocked {
+  padding: 0.55rem;
+  color: var(--color-error, #8c2430) !important;
+  background: color-mix(in srgb, #cf5261 10%, var(--color-surface));
+  border-radius: 0.55rem;
+}
+
 @media (max-width: 560px) {
   .summary {
     grid-template-columns: 1fr;

@@ -74,10 +74,33 @@ describe('copias de datos personales', () => {
       semordnilapId: saved.record.id,
       status: 'favorite',
     })
+    const originSnapshot = await origin.repository.readAll()
+    await origin.repository.replaceAll({
+      ...originSnapshot,
+      tags: [
+        {
+          id: 'tag:hallazgo',
+          name: 'Hallazgo',
+          normalizedName: 'hallazgo',
+          color: 'violet',
+          createdAt: '2026-08-06T10:30:00.000Z',
+          updatedAt: '2026-08-06T10:30:00.000Z',
+        },
+      ],
+      semordnilapTags: [
+        {
+          datasetId: testDataset.id,
+          semordnilapId: saved.record.id,
+          tagId: 'tag:hallazgo',
+          createdAt: '2026-08-06T10:30:00.000Z',
+        },
+      ],
+    })
     const exported = await new ExportPersonalData(
       origin.repository,
       () => new Date('2026-08-06T12:00:00.000Z'),
     ).execute()
+    expect(JSON.parse(exported.content)).toMatchObject({ version: 2 })
 
     const target = createRepository()
     await target.statuses.add({
@@ -92,6 +115,8 @@ describe('copias de datos personales', () => {
     expect(preview.imported).toMatchObject({
       favorites: 1,
       savedComposites: 1,
+      tags: 1,
+      taggedSemordnilaps: 1,
     })
     expect(preview.resulting.statuses).toBe(2)
 
@@ -102,6 +127,8 @@ describe('copias de datos personales', () => {
     const result = await target.repository.readAll()
     expect(result.statuses).toHaveLength(2)
     expect(result.savedComposites).toEqual([saved.record])
+    expect(result.tags).toHaveLength(1)
+    expect(result.semordnilapTags).toHaveLength(1)
   })
 
   it('rechaza referencias ausentes antes de escribir', async () => {
@@ -151,6 +178,65 @@ describe('copias de datos personales', () => {
       ),
     ).rejects.toThrow('versión')
   })
+
+  it('fusiona etiquetas equivalentes y remapea sus asignaciones', async () => {
+    const base = createRepository()
+    await base.repository.replaceAll({
+      statuses: [],
+      savedComposites: [],
+      compositionDrafts: [],
+      tags: [
+        {
+          id: 'tag:local',
+          name: 'Revisar',
+          normalizedName: 'revisar',
+          color: 'violet',
+          createdAt: '2026-08-06T10:00:00.000Z',
+          updatedAt: '2026-08-06T10:00:00.000Z',
+        },
+      ],
+      semordnilapTags: [],
+    })
+    const imported = JSON.stringify({
+      format: 'semordnilab-personal-data',
+      version: 2,
+      exportedAt: '2026-08-06T12:00:00.000Z',
+      data: {
+        statuses: [],
+        savedComposites: [],
+        compositionDrafts: [],
+        tags: [
+          {
+            id: 'tag:importada',
+            name: 'REVISAR',
+            normalizedName: 'revisar',
+            color: 'mustard',
+            createdAt: '2026-08-06T11:00:00.000Z',
+            updatedAt: '2026-08-06T11:00:00.000Z',
+          },
+        ],
+        semordnilapTags: [
+          {
+            datasetId: testDataset.id,
+            semordnilapId: ella.id,
+            tagId: 'tag:importada',
+            createdAt: '2026-08-06T11:00:00.000Z',
+          },
+        ],
+      },
+    })
+
+    await new ImportPersonalData(base.repository, source).execute(
+      imported,
+      mergeOptions,
+    )
+    const result = await base.repository.readAll()
+    expect(result.tags).toHaveLength(1)
+    expect(result.tags[0]).toMatchObject({ id: 'tag:local', color: 'violet' })
+    expect(result.semordnilapTags).toEqual([
+      expect.objectContaining({ tagId: 'tag:local', semordnilapId: ella.id }),
+    ])
+  })
 })
 
 describe('gestión de composites', () => {
@@ -193,7 +279,7 @@ describe('gestión de composites', () => {
 
     await expect(
       new DeleteSavedComposite(base.repository).execute(saved.record.id),
-    ).rejects.toThrow('1 borrador')
+    ).rejects.toThrow('Retira los composites afectados del borrador')
     expect((await base.repository.readAll()).savedComposites).toHaveLength(1)
   })
 

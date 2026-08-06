@@ -125,6 +125,8 @@ describe('DexieSemordnilapStatusRepository', () => {
     expect(await upgraded.savedComposites.count()).toBe(0)
     expect(await upgraded.compositionDrafts.count()).toBe(0)
     expect(await upgraded.workspacePreferences.count()).toBe(0)
+    expect(await upgraded.tags.count()).toBe(0)
+    expect(await upgraded.semordnilapTags.count()).toBe(0)
   })
 
   it('actualiza una base v2 sin perder composites ni borradores', async () => {
@@ -161,5 +163,45 @@ describe('DexieSemordnilapStatusRepository', () => {
     expect(await upgraded.savedComposites.toArray()).toEqual([composite])
     expect(await upgraded.compositionDrafts.toArray()).toEqual([draft])
     expect(await upgraded.workspacePreferences.count()).toBe(0)
+    expect(await upgraded.tags.count()).toBe(0)
+    expect(await upgraded.semordnilapTags.count()).toBe(0)
+  })
+
+  it('actualiza una base v3 de forma aditiva sin reescribir sus datos', async () => {
+    const databaseName = `semordnilab-v3-${Date.now()}`
+    const legacy = new Dexie(databaseName)
+    legacy.version(3).stores({
+      semordnilapStatuses:
+        '[datasetId+semordnilapId+status], datasetId, semordnilapId, status, [datasetId+status]',
+      savedComposites: 'id, datasetId, createdAt, updatedAt',
+      compositionDrafts: 'datasetId, updatedAt',
+      workspacePreferences: 'id, updatedAt',
+    })
+    const status = {
+      datasetId: 'es-gl',
+      semordnilapId: 'atomic:es-gl:uno',
+      status: 'favorite',
+    }
+    const preferences = {
+      id: 'workspace',
+      rememberCatalogView: false,
+      rememberCompositionCollapsed: false,
+      compositionCollapsed: false,
+      catalogViews: [],
+      updatedAt: '2026-08-06T10:00:00.000Z',
+    }
+    await legacy.table('semordnilapStatuses').put(status)
+    await legacy.table('workspacePreferences').put(preferences)
+    legacy.close()
+
+    const upgraded = new SemordnilabDatabase(databaseName)
+    databases.push(upgraded)
+    await upgraded.open()
+
+    expect(upgraded.verno).toBe(DATABASE_VERSION)
+    expect(await upgraded.semordnilapStatuses.toArray()).toEqual([status])
+    expect(await upgraded.workspacePreferences.toArray()).toEqual([preferences])
+    expect(await upgraded.tags.count()).toBe(0)
+    expect(await upgraded.semordnilapTags.count()).toBe(0)
   })
 })

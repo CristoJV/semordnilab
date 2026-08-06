@@ -1,11 +1,12 @@
 import type { PersonalDataSnapshot } from '@/application/dto/personal-data'
-import type { SemordnilapId } from '@/domain/semordnilap'
+import type { DatasetId, SemordnilapId } from '@/domain/semordnilap'
 
-export type CompositeDeletionResult = {
+export type CompositeDeletionPlan = {
   found: boolean
-  removed: boolean
-  dependentComposites: number
-  dependentDrafts: number
+  rootId: SemordnilapId
+  directDependentIds: readonly SemordnilapId[]
+  dependentIds: readonly SemordnilapId[]
+  dependentDraftDatasetIds: readonly DatasetId[]
 }
 
 export interface PersonalDataRepository {
@@ -16,7 +17,6 @@ export interface PersonalDataRepository {
     title: string | undefined,
     updatedAt: string,
   ): Promise<boolean>
-  deleteCompositeIfUnreferenced(
-    id: SemordnilapId,
-  ): Promise<CompositeDeletionResult>
+  inspectCompositeDeletion(id: SemordnilapId): Promise<CompositeDeletionPlan>
+  deleteCompositePlan(plan: CompositeDeletionPlan): Promise<void>
 }

@@ -6,7 +6,12 @@ import type {
   PersonalDataSummary,
   SemordnilabBackup,
 } from '@/application/dto/personal-data'
+import { TAG_COLORS, type TagColor } from '@/application/dto/semordnilap-tag'
 import type { SemordnilapDatasetSource } from '@/application/ports/semordnilap-dataset-source'
+import {
+  cleanTagName,
+  normalizeTagName,
+} from '@/application/tags/tag-validation'
 import type {
   DatasetId,
   SemordnilapId,
@@ -14,7 +19,8 @@ import type {
 } from '@/domain/semordnilap'
 
 const BACKUP_FORMAT = 'semordnilab-personal-data'
-const BACKUP_VERSION = 1
+const BACKUP_VERSION = 2
+const LEGACY_BACKUP_VERSION = 1
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -64,7 +70,7 @@ function parseReference(value: unknown, context: string): SemordnilapReference {
   }
 }
 
-function parseSnapshot(value: unknown): PersonalDataSnapshot {
+function parseSnapshot(value: unknown, version: 1 | 2): PersonalDataSnapshot {
   if (!isRecord(value)) throw new Error('La copia no contiene datos válidos.')
   const statusesValue = value.statuses
   const compositesValue = value.savedComposites
@@ -75,6 +81,18 @@ function parseSnapshot(value: unknown): PersonalDataSnapshot {
     !Array.isArray(draftsValue)
   ) {
     throw new Error('La copia no contiene todas las colecciones requeridas.')
+  }
+
+  if (
+    version >= 2 &&
+    (!Array.isArray(value.tags) || !Array.isArray(value.semordnilapTags))
+  ) {
+    throw new Error('La copia no contiene las colecciones de etiquetas.')
+  }
+  const tagsValue = value.tags ?? []
+  const semordnilapTagsValue = value.semordnilapTags ?? []
+  if (!Array.isArray(tagsValue) || !Array.isArray(semordnilapTagsValue)) {
+    throw new Error('Las colecciones de etiquetas no son válidas.')
   }
 
   const statuses = statusesValue.map((entry, index) => {
@@ -164,6 +182,48 @@ function parseSnapshot(value: unknown): PersonalDataSnapshot {
     }
   })
 
+  const tags = tagsValue.map((entry, index) => {
+    const context = `Etiqueta ${index + 1}`
+    if (!isRecord(entry)) throw new Error(`${context}: registro no válido.`)
+    const name = cleanTagName(requiredString(entry, 'name', context))
+    const normalizedName = normalizeTagName(name)
+    if (entry.normalizedName !== normalizedName) {
+      throw new Error(`${context}: nombre normalizado no válido.`)
+    }
+    const color = requiredString(entry, 'color', context)
+    if (!TAG_COLORS.includes(color as TagColor)) {
+      throw new Error(`${context}: color desconocido.`)
+    }
+    return {
+      id: requiredString(entry, 'id', context),
+      name,
+      normalizedName,
+      color: color as TagColor,
+      createdAt: timestamp(
+        requiredString(entry, 'createdAt', context),
+        context,
+      ),
+      updatedAt: timestamp(
+        requiredString(entry, 'updatedAt', context),
+        context,
+      ),
+    }
+  })
+
+  const semordnilapTags = semordnilapTagsValue.map((entry, index) => {
+    const context = `Asignación de etiqueta ${index + 1}`
+    if (!isRecord(entry)) throw new Error(`${context}: registro no válido.`)
+    return {
+      datasetId: requiredString(entry, 'datasetId', context),
+      semordnilapId: requiredString(entry, 'semordnilapId', context),
+      tagId: requiredString(entry, 'tagId', context),
+      createdAt: timestamp(
+        requiredString(entry, 'createdAt', context),
+        context,
+      ),
+    }
+  })
+
   let workspacePreferences
   if (value.workspacePreferences !== undefined) {
     const entry = value.workspacePreferences
@@ -242,6 +302,8 @@ function parseSnapshot(value: unknown): PersonalDataSnapshot {
     statuses,
     savedComposites,
     compositionDrafts,
+    tags,
+    semordnilapTags,
     ...(workspacePreferences ? { workspacePreferences } : {}),
   }
 }
@@ -262,14 +324,18 @@ export function parseSemordnilabBackup(input: string): SemordnilabBackup {
   if (!isRecord(value) || value.format !== BACKUP_FORMAT) {
     throw new Error('El archivo no es una copia de SemordniLAB.')
   }
-  if (value.version !== BACKUP_VERSION) {
+  if (
+    value.version !== BACKUP_VERSION &&
+    value.version !== LEGACY_BACKUP_VERSION
+  ) {
     throw new Error('La versión de la copia no es compatible.')
   }
+  const version = value.version as 1 | 2
   const exportedAt = timestamp(
     requiredString(value, 'exportedAt', 'Copia'),
     'Copia',
   )
-  const data = parseSnapshot(value.data)
+  const data = parseSnapshot(value.data, version)
   assertUnique(
     data.statuses.map(
       ({ datasetId, semordnilapId, status }) =>
@@ -290,7 +356,22 @@ export function parseSemordnilabBackup(input: string): SemordnilabBackup {
       [],
     'preferencias de catálogo',
   )
-  return { format: BACKUP_FORMAT, version: BACKUP_VERSION, exportedAt, data }
+  assertUnique(
+    data.tags.map(({ id }) => id),
+    'identificadores de etiquetas',
+  )
+  assertUnique(
+    data.tags.map(({ normalizedName }) => normalizedName),
+    'nombres de etiquetas',
+  )
+  assertUnique(
+    data.semordnilapTags.map(
+      ({ datasetId, semordnilapId, tagId }) =>
+        `${datasetId}\u001f${semordnilapId}\u001f${tagId}`,
+    ),
+    'asignaciones de etiquetas',
+  )
+  return { format: BACKUP_FORMAT, version, exportedAt, data }
 }
 
 export function createSemordnilabBackup(
@@ -311,6 +392,12 @@ export function summarizePersonalData(
       .length,
     savedComposites: data.savedComposites.length,
     compositionDrafts: data.compositionDrafts.length,
+    tags: data.tags.length,
+    taggedSemordnilaps: new Set(
+      data.semordnilapTags.map(
+        ({ datasetId, semordnilapId }) => `${datasetId}\u001f${semordnilapId}`,
+      ),
+    ).size,
     includesPreferences: Boolean(data.workspacePreferences),
   }
 }
@@ -329,6 +416,8 @@ export function buildImportedSnapshot(
       statuses: imported.statuses,
       savedComposites: imported.savedComposites,
       compositionDrafts: imported.compositionDrafts,
+      tags: imported.tags,
+      semordnilapTags: imported.semordnilapTags,
     }
     const preferences = options.importPreferences
       ? imported.workspacePreferences
@@ -363,10 +452,45 @@ export function buildImportedSnapshot(
     }
   }
 
+  const tags = new Map(current.tags.map((tag) => [tag.id, tag]))
+  const tagsByName = new Map(
+    current.tags.map((tag) => [tag.normalizedName, tag.id]),
+  )
+  const importedTagIds = new Map<string, string>()
+  for (const tag of imported.tags) {
+    const existingById = tags.get(tag.id)
+    const existingByName = tagsByName.get(tag.normalizedName)
+    const resultingId = existingById?.id ?? existingByName ?? tag.id
+    importedTagIds.set(tag.id, resultingId)
+    if (!existingById && !existingByName) {
+      tags.set(tag.id, tag)
+      tagsByName.set(tag.normalizedName, tag.id)
+    }
+  }
+
+  const tagAssignments = new Map(
+    current.semordnilapTags.map((assignment) => [
+      `${assignment.datasetId}\u001f${assignment.semordnilapId}\u001f${assignment.tagId}`,
+      assignment,
+    ]),
+  )
+  for (const assignment of imported.semordnilapTags) {
+    const mapped = {
+      ...assignment,
+      tagId: importedTagIds.get(assignment.tagId) ?? assignment.tagId,
+    }
+    tagAssignments.set(
+      `${mapped.datasetId}\u001f${mapped.semordnilapId}\u001f${mapped.tagId}`,
+      mapped,
+    )
+  }
+
   return {
     statuses: [...statuses.values()],
     savedComposites: [...composites.values()],
     compositionDrafts: [...drafts.values()],
+    tags: [...tags.values()],
+    semordnilapTags: [...tagAssignments.values()],
     ...(options.importPreferences && imported.workspacePreferences
       ? { workspacePreferences: imported.workspacePreferences }
       : current.workspacePreferences
@@ -384,10 +508,19 @@ export async function validatePersonalDataSnapshot(
     ...data.statuses.map(({ datasetId }) => datasetId),
     ...data.savedComposites.map(({ datasetId }) => datasetId),
     ...data.compositionDrafts.map(({ datasetId }) => datasetId),
+    ...data.semordnilapTags.map(({ datasetId }) => datasetId),
     ...(data.workspacePreferences?.catalogViews.map(
       ({ datasetId }) => datasetId,
     ) ?? []),
   ])
+  const knownTagIds = new Set(data.tags.map(({ id }) => id))
+  for (const assignment of data.semordnilapTags) {
+    if (!knownTagIds.has(assignment.tagId)) {
+      throw new Error(
+        `La asignación hace referencia a la etiqueta ${assignment.tagId}, que no existe.`,
+      )
+    }
+  }
 
   for (const datasetId of referencedDatasets) {
     if (!knownDatasets.has(datasetId)) {
@@ -417,6 +550,15 @@ export async function validatePersonalDataSnapshot(
       if (!knownIds.has(record.semordnilapId)) {
         throw new Error(
           `El estado hace referencia a ${record.semordnilapId}, que no existe.`,
+        )
+      }
+    }
+    for (const assignment of data.semordnilapTags.filter(
+      (record) => record.datasetId === datasetId,
+    )) {
+      if (!knownIds.has(assignment.semordnilapId)) {
+        throw new Error(
+          `La etiqueta hace referencia a ${assignment.semordnilapId}, que no existe.`,
         )
       }
     }

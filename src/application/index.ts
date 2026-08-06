@@ -7,6 +7,14 @@ export type {
 } from './dto/semordnilap-catalog'
 export type { CompositionDraftRecord } from './dto/composition-draft'
 export type { SavedCompositeSemordnilapRecord } from './dto/saved-composite'
+export {
+  TAG_COLORS,
+  type SemordnilapTag,
+  type SemordnilapTagAssignment,
+  type SemordnilapTagCollection,
+  type TagColor,
+  type TagId,
+} from './dto/semordnilap-tag'
 export type {
   PersonalDataImportOptions,
   PersonalDataImportPreview,
@@ -34,8 +42,9 @@ export type { SemordnilapDatasetSource } from './ports/semordnilap-dataset-sourc
 export type { CompositionDraftRepository } from './ports/composition-draft-repository'
 export type { SavedCompositeSemordnilapRepository } from './ports/saved-composite-semordnilap-repository'
 export type { SemordnilapStatusRepository } from './ports/semordnilap-status-repository'
+export type { SemordnilapTagRepository } from './ports/semordnilap-tag-repository'
 export type {
-  CompositeDeletionResult,
+  CompositeDeletionPlan,
   PersonalDataRepository,
 } from './ports/personal-data-repository'
 export type { WorkspacePreferencesRepository } from './ports/workspace-preferences-repository'
@@ -69,5 +78,19 @@ export { PreviewPersonalDataImport } from './use-cases/preview-personal-data-imp
 export { ImportPersonalData } from './use-cases/import-personal-data'
 export { RenameSavedComposite } from './use-cases/rename-saved-composite'
 export { DeleteSavedComposite } from './use-cases/delete-saved-composite'
+export { InspectSavedCompositeDeletion } from './use-cases/inspect-saved-composite-deletion'
 export { GetPersonalDataSummary } from './use-cases/get-personal-data-summary'
+export { ListSemordnilapTags } from './use-cases/list-semordnilap-tags'
+export {
+  CreateSemordnilapTag,
+  type CreateSemordnilapTagInput,
+} from './use-cases/create-semordnilap-tag'
+export {
+  UpdateSemordnilapTag,
+  DeleteSemordnilapTag,
+} from './use-cases/update-semordnilap-tag'
+export {
+  AddSemordnilapTagAssignments,
+  RemoveSemordnilapTagAssignments,
+} from './use-cases/change-semordnilap-tag-assignments'
 export { createCompositeCatalogItem } from './composites/create-composite-catalog-item'

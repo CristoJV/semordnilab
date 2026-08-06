@@ -134,6 +134,14 @@ Descartar o restaurar una fila actualiza las dos expresiones a la vez. La vista 
 
 La búsqueda sigue funcionando dentro de la vista activa o descartada y continúa aplicando la intersección de ambos idiomas. Restablecer los filtros elimina consultas y ordenación, pero no borra estados persistentes.
 
+## Etiquetas personales
+
+Las etiquetas son clasificaciones creadas por el usuario y se mantienen separadas de los estados funcionales. Cada etiqueta tiene una identidad estable, un nombre único normalizado y un color de la paleta disponible. Las etiquetas son globales para poder reutilizarlas en distintos pares lingüísticos, mientras que cada asignación identifica el dataset y el semordnilap etiquetado.
+
+La asignación se realiza desde la selección múltiple. Una misma etiqueta puede aplicarse a semordnilaps atómicos y composites, siempre sobre la unidad bilingüe completa. Las filas reservan un espacio fijo para mostrar hasta tres puntos de color en ambos idiomas; las etiquetas adicionales se resumen mediante un contador y los nombres permanecen disponibles como información textual.
+
+El control `Etiquetas` filtra por cualquiera de las etiquetas seleccionadas sin romper la alineación de las columnas. Desde el mismo control se abre el gestor para crear, renombrar, recolorear o eliminar etiquetas. Eliminar una etiqueta retira sus asignaciones en todas las colecciones, pero no modifica los semordnilaps.
+
 ## Validación de una composición
 
 El dominio valida la composición sin añadir ruido permanente al constructor. La interfaz habilita el guardado cuando el borrador puede formar un composite, pero no muestra continuamente la concatenación normalizada ni un mensaje de éxito. Un semordnilap compuesto guardable debe cumplir al menos estas condiciones:
@@ -163,7 +171,9 @@ El indicador abre un diálogo de gestión que muestra las dos expresiones, los c
 - abrir sus componentes directos como nuevo borrador, con confirmación si sustituye trabajo existente;
 - cambiar el título sin modificar la identidad ni la estructura;
 - exportar una copia de seguridad;
-- eliminarlo cuando ningún composite ni borrador conserve una referencia.
+- revisar qué composites dependen de él y eliminarlo junto con todos sus derivados.
+
+La eliminación calcula dependencias directas y transitivas. El diálogo enumera los composites afectados y permite exportar una copia antes de confirmar la cascada. Si un borrador utiliza cualquiera de ellos, la operación permanece bloqueada hasta que el usuario retire manualmente esa referencia. La transacción vuelve a calcular el plan antes de escribir y cancela la operación si ha cambiado.
 
 La edición estructural no modifica un composite guardado. Abrirlo como borrador y guardar otra construcción produce una identidad nueva o reutiliza otra ya existente.
 
@@ -171,11 +181,11 @@ La identidad de un composite se deriva de la secuencia expandida de componentes 
 
 ## Persistencia y exportación
 
-La aplicación no requiere cuenta ni servidor. Guarda en el navegador los estados del catálogo, un borrador por dataset y los composites. Los datasets incluidos se sirven como archivos estáticos y no se duplican en la base de datos local.
+La aplicación no requiere cuenta ni servidor. Guarda en el navegador los estados del catálogo, las etiquetas, un borrador por dataset y los composites. Los datasets incluidos se sirven como archivos estáticos y no se duplican en la base de datos local.
 
 La base tiene una versión explícita y las actualizaciones conservan las tablas anteriores mediante migraciones aditivas. Los identificadores atómicos son estables aunque una fila cambie de posición en el TSV. Los estados guardados con los identificadores antiguos se convierten dentro de una transacción cuando se carga cada dataset.
 
-El menú de la barra superior separa `Datos` y `Preferencias`. La sección de datos resume el almacenamiento local y permite exportar una copia JSON versionada. La copia contiene estados, composites, borradores y preferencias, pero no duplica los TSV incluidos.
+El menú de la barra superior separa `Datos` y `Preferencias`. La sección de datos resume el almacenamiento local y permite exportar una copia JSON versionada. La copia contiene estados, composites, borradores, etiquetas, asignaciones y preferencias, pero no duplica los TSV incluidos.
 
 Antes de importar se analiza todo el archivo y se muestra un resumen. El usuario puede combinarlo con los datos actuales o sustituirlos, decidir cómo resolver conflictos de borradores y excluir las preferencias. La validación comprueba formato, versión, datasets, identificadores, referencias, ciclos e integridad de composites. Solo después se reemplazan las tablas dentro de una única transacción. La aplicación descarga automáticamente una copia del estado anterior antes de confirmar la escritura.
 

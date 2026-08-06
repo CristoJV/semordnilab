@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 
+import type { CompositeDeletionPlan } from '@/application'
 import type { CompositeSemordnilap, Semordnilap } from '@/domain/semordnilap'
 
 import { ModalDialog } from './ModalDialog'
@@ -14,7 +15,8 @@ type CompositeManagerDialogProps = {
   onInsert: () => void
   onOpenAsDraft: () => void
   onRename: (title: string) => Promise<void>
-  onDelete: () => Promise<void>
+  onInspectDeletion: () => Promise<CompositeDeletionPlan>
+  onDelete: (plan: CompositeDeletionPlan) => Promise<void>
   onExportBackup: () => Promise<void>
 }
 
@@ -27,6 +29,7 @@ export function CompositeManagerDialog({
   onInsert,
   onOpenAsDraft,
   onRename,
+  onInspectDeletion,
   onDelete,
   onExportBackup,
 }: CompositeManagerDialogProps) {
@@ -34,7 +37,8 @@ export function CompositeManagerDialog({
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [confirmingDraft, setConfirmingDraft] = useState(false)
-  const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [deletionPlan, setDeletionPlan] =
+    useState<CompositeDeletionPlan | null>(null)
   const libraryById = useMemo(
     () => new Map(library.map((semordnilap) => [semordnilap.id, semordnilap])),
     [library],
@@ -58,6 +62,27 @@ export function CompositeManagerDialog({
       setBusy(false)
     }
   }
+
+  const inspectDeletion = async () => {
+    setBusy(true)
+    setMessage(null)
+    try {
+      setDeletionPlan(await onInspectDeletion())
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : 'No se han podido revisar las dependencias.',
+      )
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const directIds = new Set(deletionPlan?.directDependentIds ?? [])
+  const dependentComposites = (deletionPlan?.dependentIds ?? [])
+    .map((id) => libraryById.get(id))
+    .filter((item): item is CompositeSemordnilap => item?.kind === 'composite')
 
   return (
     <ModalDialog title="Composite guardado" onClose={onClose} wide>
@@ -145,34 +170,71 @@ export function CompositeManagerDialog({
       </div>
 
       <div className={styles.danger}>
-        {!confirmingDelete ? (
+        {!deletionPlan ? (
           <button
             type="button"
-            disabled={busy || usedInCurrentDraft}
-            onClick={() => setConfirmingDelete(true)}
+            disabled={busy}
+            onClick={() => void inspectDeletion()}
           >
             Eliminar composite
           </button>
         ) : (
-          <div className={styles.confirmation} role="alert">
-            <span>Esta acción elimina el composite y sus estados.</span>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => {
-                void run(onDelete, 'Composite eliminado.').then((deleted) => {
-                  if (deleted) onClose()
-                })
-              }}
-            >
-              Eliminar definitivamente
-            </button>
-            <button type="button" onClick={() => setConfirmingDelete(false)}>
-              Cancelar
-            </button>
+          <div className={styles.deletionPlan} role="alert">
+            <strong>
+              {deletionPlan.dependentIds.length === 0
+                ? 'El composite no tiene derivados.'
+                : `Este composite se utiliza en ${deletionPlan.dependentIds.length} ${deletionPlan.dependentIds.length === 1 ? 'composite derivado' : 'composites derivados'}.`}
+            </strong>
+            {dependentComposites.length > 0 && (
+              <ul className={styles.dependencies}>
+                {dependentComposites.map((dependent) => (
+                  <li key={dependent.id}>
+                    <span>
+                      {directIds.has(dependent.id)
+                        ? 'Dependencia directa'
+                        : 'Dependencia indirecta'}
+                    </span>
+                    <strong>{dependent.title ?? dependent.source.text}</strong>
+                    <small>
+                      {dependent.source.text} ⇄ {dependent.target.text}
+                    </small>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p>
+              Se eliminarán {deletionPlan.dependentIds.length + 1} composites y
+              sus favoritos, descartes y etiquetas.
+            </p>
+            {deletionPlan.dependentDraftDatasetIds.length > 0 && (
+              <p className={styles.blocked}>
+                Retira los composites afectados del borrador antes de continuar.
+              </p>
+            )}
+            <div className={styles.confirmation}>
+              <button
+                type="button"
+                disabled={
+                  busy || deletionPlan.dependentDraftDatasetIds.length > 0
+                }
+                onClick={() => {
+                  void run(
+                    () => onDelete(deletionPlan),
+                    'Composites eliminados.',
+                  ).then((deleted) => {
+                    if (deleted) onClose()
+                  })
+                }}
+              >
+                Eliminar {deletionPlan.dependentIds.length + 1}
+              </button>
+              <button type="button" onClick={() => setDeletionPlan(null)}>
+                Cancelar
+              </button>
+            </div>
           </div>
         )}
-        {usedInCurrentDraft && (
+        {usedInCurrentDraft && !deletionPlan && (
           <p>Retíralo del borrador actual antes de eliminarlo.</p>
         )}
         <button

@@ -1,7 +1,9 @@
 import type {
+  CompositeDeletionPlan,
   PersonalDataRepository,
   PersonalDataSnapshot,
 } from '@/application'
+import { buildCompositeDeletionPlan } from '@/application/composites/build-composite-deletion-plan'
 import type { SemordnilabDatabase } from '@/infrastructure/database'
 import type { SemordnilapId } from '@/domain/semordnilap'
 
@@ -13,28 +15,40 @@ export class DexiePersonalDataRepository implements PersonalDataRepository {
   }
 
   async readAll(): Promise<PersonalDataSnapshot> {
-    const [statuses, savedComposites, compositionDrafts, workspacePreferences] =
-      await this.database.transaction(
-        'r',
-        [
-          this.database.semordnilapStatuses,
-          this.database.savedComposites,
-          this.database.compositionDrafts,
-          this.database.workspacePreferences,
-        ],
-        async () =>
-          Promise.all([
-            this.database.semordnilapStatuses.toArray(),
-            this.database.savedComposites.toArray(),
-            this.database.compositionDrafts.toArray(),
-            this.database.workspacePreferences.get('workspace'),
-          ]),
-      )
+    const [
+      statuses,
+      savedComposites,
+      compositionDrafts,
+      workspacePreferences,
+      tags,
+      semordnilapTags,
+    ] = await this.database.transaction(
+      'r',
+      [
+        this.database.semordnilapStatuses,
+        this.database.savedComposites,
+        this.database.compositionDrafts,
+        this.database.workspacePreferences,
+        this.database.tags,
+        this.database.semordnilapTags,
+      ],
+      async () =>
+        Promise.all([
+          this.database.semordnilapStatuses.toArray(),
+          this.database.savedComposites.toArray(),
+          this.database.compositionDrafts.toArray(),
+          this.database.workspacePreferences.get('workspace'),
+          this.database.tags.toArray(),
+          this.database.semordnilapTags.toArray(),
+        ]),
+    )
 
     return {
       statuses,
       savedComposites,
       compositionDrafts,
+      tags,
+      semordnilapTags,
       ...(workspacePreferences ? { workspacePreferences } : {}),
     }
   }
@@ -47,6 +61,8 @@ export class DexiePersonalDataRepository implements PersonalDataRepository {
         this.database.savedComposites,
         this.database.compositionDrafts,
         this.database.workspacePreferences,
+        this.database.tags,
+        this.database.semordnilapTags,
       ],
       async () => {
         await Promise.all([
@@ -54,6 +70,8 @@ export class DexiePersonalDataRepository implements PersonalDataRepository {
           this.database.savedComposites.clear(),
           this.database.compositionDrafts.clear(),
           this.database.workspacePreferences.clear(),
+          this.database.tags.clear(),
+          this.database.semordnilapTags.clear(),
         ])
         await Promise.all([
           this.database.semordnilapStatuses.bulkPut([...snapshot.statuses]),
@@ -61,6 +79,8 @@ export class DexiePersonalDataRepository implements PersonalDataRepository {
           this.database.compositionDrafts.bulkPut([
             ...snapshot.compositionDrafts,
           ]),
+          this.database.tags.bulkPut([...snapshot.tags]),
+          this.database.semordnilapTags.bulkPut([...snapshot.semordnilapTags]),
           snapshot.workspacePreferences
             ? this.database.workspacePreferences.put(
                 snapshot.workspacePreferences,
@@ -83,68 +103,64 @@ export class DexiePersonalDataRepository implements PersonalDataRepository {
     return updated > 0
   }
 
-  async deleteCompositeIfUnreferenced(id: SemordnilapId) {
+  async inspectCompositeDeletion(id: SemordnilapId) {
     return this.database.transaction(
+      'r',
+      [this.database.savedComposites, this.database.compositionDrafts],
+      async () =>
+        buildCompositeDeletionPlan(
+          await this.database.savedComposites.toArray(),
+          await this.database.compositionDrafts.toArray(),
+          id,
+        ),
+    )
+  }
+
+  async deleteCompositePlan(expected: CompositeDeletionPlan): Promise<void> {
+    await this.database.transaction(
       'rw',
       [
         this.database.savedComposites,
         this.database.compositionDrafts,
         this.database.semordnilapStatuses,
+        this.database.semordnilapTags,
       ],
       async () => {
-        const existing = await this.database.savedComposites.get(id)
-        if (!existing) {
-          return {
-            found: false,
-            removed: false,
-            dependentComposites: 0,
-            dependentDrafts: 0,
-          }
+        const current = buildCompositeDeletionPlan(
+          await this.database.savedComposites.toArray(),
+          await this.database.compositionDrafts.toArray(),
+          expected.rootId,
+        )
+        if (!current.found) throw new Error('El composite ya no está guardado.')
+        if (current.dependentDraftDatasetIds.length > 0) {
+          throw new Error(
+            'Retira los composites afectados del borrador antes de eliminarlos.',
+          )
         }
-        const [composites, draft] = await Promise.all([
-          this.database.savedComposites
-            .where('datasetId')
-            .equals(existing.datasetId)
-            .toArray(),
-          this.database.compositionDrafts.get(existing.datasetId),
-        ])
-        const dependentComposites = composites.filter(
-          (record) =>
-            record.id !== id &&
-            record.components.some(
-              (reference) =>
-                reference.kind === 'composite' &&
-                reference.semordnilapId === id,
-            ),
-        ).length
-        const dependentDrafts =
-          draft?.components.some(
-            (reference) =>
-              reference.kind === 'composite' && reference.semordnilapId === id,
-          ) === true
-            ? 1
-            : 0
-        if (dependentComposites > 0 || dependentDrafts > 0) {
-          return {
-            found: true,
-            removed: false,
-            dependentComposites,
-            dependentDrafts,
-          }
+        const currentIds = [...current.dependentIds].sort()
+        const expectedIds = [...expected.dependentIds].sort()
+        const currentDirectIds = [...current.directDependentIds].sort()
+        const expectedDirectIds = [...expected.directDependentIds].sort()
+        if (
+          currentIds.join('\u001f') !== expectedIds.join('\u001f') ||
+          currentDirectIds.join('\u001f') !== expectedDirectIds.join('\u001f')
+        ) {
+          throw new Error(
+            'Las dependencias han cambiado. Revisa de nuevo los composites afectados.',
+          )
         }
+        const affectedIds = [current.rootId, ...current.dependentIds]
         await Promise.all([
-          this.database.savedComposites.delete(id),
+          this.database.savedComposites.bulkDelete(affectedIds),
           this.database.semordnilapStatuses
             .where('semordnilapId')
-            .equals(id)
+            .anyOf(affectedIds)
+            .delete(),
+          this.database.semordnilapTags
+            .where('semordnilapId')
+            .anyOf(affectedIds)
             .delete(),
         ])
-        return {
-          found: true,
-          removed: true,
-          dependentComposites: 0,
-          dependentDrafts: 0,
-        }
       },
     )
   }

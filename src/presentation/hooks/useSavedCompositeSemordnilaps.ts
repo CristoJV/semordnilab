@@ -7,6 +7,8 @@ import type {
   SemordnilapCatalogItem,
   RenameSavedComposite,
   DeleteSavedComposite,
+  InspectSavedCompositeDeletion,
+  CompositeDeletionPlan,
 } from '@/application'
 import { createCompositeCatalogItem } from '@/application'
 import type {
@@ -20,6 +22,7 @@ type CompositeUseCases = {
   saveCompositeSemordnilap: SaveCompositeSemordnilap
   renameSavedComposite: RenameSavedComposite
   deleteSavedComposite: DeleteSavedComposite
+  inspectSavedCompositeDeletion: InspectSavedCompositeDeletion
 }
 
 type SavedCompositeState = {
@@ -31,7 +34,8 @@ type SavedCompositeState = {
     title?: string,
   ) => Promise<SaveCompositeSemordnilapResult>
   rename: (id: string, title: string) => Promise<void>
-  remove: (id: string) => Promise<void>
+  inspectDeletion: (id: string) => Promise<CompositeDeletionPlan>
+  remove: (plan: CompositeDeletionPlan) => Promise<void>
 }
 
 export function useSavedCompositeSemordnilaps(
@@ -104,8 +108,8 @@ export function useSavedCompositeSemordnilaps(
     [useCases.renameSavedComposite],
   )
   const remove = useCallback(
-    async (id: string) => {
-      await useCases.deleteSavedComposite.execute(id)
+    async (plan: CompositeDeletionPlan) => {
+      await useCases.deleteSavedComposite.execute(plan)
       setReloadToken((current) => current + 1)
     },
     [useCases.deleteSavedComposite],
@@ -117,6 +121,7 @@ export function useSavedCompositeSemordnilaps(
     errorMessage,
     save,
     rename,
+    inspectDeletion: (id) => useCases.inspectSavedCompositeDeletion.execute(id),
     remove,
   }
 }

@@ -1,6 +1,7 @@
-import type { SemordnilapCatalogItem } from '@/application'
+import type { SemordnilapCatalogItem, SemordnilapTag } from '@/application'
 
 import { HighlightedText } from './HighlightedText'
+import { TagDots } from './TagControls'
 import styles from './SemordnilapOption.module.css'
 
 type SemordnilapOptionProps = {
@@ -10,6 +11,7 @@ type SemordnilapOptionProps = {
   selectionMode: boolean
   selected: boolean
   query: string
+  tags: readonly SemordnilapTag[]
   onAdd: (item: SemordnilapCatalogItem) => void
   onToggleSelection: () => void
 }
@@ -21,6 +23,7 @@ export function SemordnilapOption({
   selectionMode,
   selected,
   query,
+  tags,
   onAdd,
   onToggleSelection,
 }: SemordnilapOptionProps) {
@@ -40,8 +43,8 @@ export function SemordnilapOption({
       onClick={() => (selectionMode ? onToggleSelection() : onAdd(item))}
       title={
         frequency === null
-          ? `${expression.text}. Semordnilap compuesto guardado`
-          : `${expression.text}. Frecuencia en el corpus: ${frequency.toLocaleString('es-ES')}`
+          ? `${expression.text}. Semordnilap compuesto guardado${tags.length > 0 ? `. Etiquetas: ${tags.map(({ name }) => name).join(', ')}` : ''}`
+          : `${expression.text}. Frecuencia en el corpus: ${frequency.toLocaleString('es-ES')}${tags.length > 0 ? `. Etiquetas: ${tags.map(({ name }) => name).join(', ')}` : ''}`
       }
       aria-label={
         selectionMode
@@ -52,6 +55,7 @@ export function SemordnilapOption({
       <span className={styles.text}>
         <HighlightedText text={expression.text} query={query} />
       </span>
+      <TagDots tags={tags} />
       {selectedCount > 0 && (
         <span className={styles.count} aria-label={`${selectedCount} añadidos`}>
           {selectedCount}

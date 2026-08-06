@@ -7,6 +7,7 @@ import {
   DexieCompositionDraftRepository,
   DexieSavedCompositeSemordnilapRepository,
   DexiePersonalDataRepository,
+  DexieSemordnilapTagRepository,
   DexieWorkspacePreferencesRepository,
 } from '@/infrastructure/repositories'
 
@@ -87,6 +88,8 @@ describe('repositorios Dexie de datos guardados', () => {
       ],
       savedComposites: [],
       compositionDrafts: [],
+      tags: [],
+      semordnilapTags: [],
     }
     await repository.replaceAll(original)
 
@@ -104,6 +107,8 @@ describe('repositorios Dexie de datos guardados', () => {
           },
         ],
         compositionDrafts: [],
+        tags: [],
+        semordnilapTags: [],
       } as never),
     ).rejects.toThrow()
 
@@ -144,22 +149,137 @@ describe('repositorios Dexie de datos guardados', () => {
           updatedAt: '2026-08-06T10:00:00.000Z',
         },
       ],
+      tags: [],
+      semordnilapTags: [],
     })
 
-    expect(
-      await repository.deleteCompositeIfUnreferenced(composite.id),
-    ).toEqual({
+    expect(await repository.inspectCompositeDeletion(composite.id)).toEqual({
       found: true,
-      removed: false,
-      dependentComposites: 0,
-      dependentDrafts: 1,
+      rootId: composite.id,
+      directDependentIds: [],
+      dependentIds: [],
+      dependentDraftDatasetIds: ['es-gl'],
     })
     await database.compositionDrafts.clear()
-    expect(
-      await repository.deleteCompositeIfUnreferenced(composite.id),
-    ).toMatchObject({ removed: true })
+    const plan = await repository.inspectCompositeDeletion(composite.id)
+    await repository.deleteCompositePlan(plan)
     expect(await database.savedComposites.count()).toBe(0)
     expect(await database.semordnilapStatuses.count()).toBe(0)
+  })
+
+  it('elimina en cascada todos los derivados y conserva datos no relacionados', async () => {
+    const database = createDatabase()
+    const repository = new DexiePersonalDataRepository(database)
+    const record = (id: string, dependency?: string) => ({
+      id,
+      datasetId: 'es-gl',
+      components: dependency
+        ? [
+            {
+              kind: 'composite' as const,
+              datasetId: 'es-gl',
+              semordnilapId: dependency,
+            },
+          ]
+        : [],
+      atomicComponentIds: [],
+      createdAt: '2026-08-06T10:00:00.000Z',
+      updatedAt: '2026-08-06T10:00:00.000Z',
+    })
+    const root = record('A')
+    const direct = record('B', 'A')
+    const indirect = record('C', 'B')
+    const unrelated = record('D')
+    const tag = {
+      id: 'tag:uno',
+      name: 'Uno',
+      normalizedName: 'uno',
+      color: 'violet' as const,
+      createdAt: '2026-08-06T10:00:00.000Z',
+      updatedAt: '2026-08-06T10:00:00.000Z',
+    }
+    await repository.replaceAll({
+      statuses: [
+        { datasetId: 'es-gl', semordnilapId: 'C', status: 'favorite' },
+        { datasetId: 'es-gl', semordnilapId: 'D', status: 'favorite' },
+      ],
+      savedComposites: [root, direct, indirect, unrelated],
+      compositionDrafts: [],
+      tags: [tag],
+      semordnilapTags: [
+        {
+          datasetId: 'es-gl',
+          semordnilapId: 'B',
+          tagId: tag.id,
+          createdAt: tag.createdAt,
+        },
+        {
+          datasetId: 'es-gl',
+          semordnilapId: 'D',
+          tagId: tag.id,
+          createdAt: tag.createdAt,
+        },
+      ],
+    })
+
+    const plan = await repository.inspectCompositeDeletion('A')
+    expect(plan).toMatchObject({
+      directDependentIds: ['B'],
+      dependentIds: ['B', 'C'],
+    })
+    await repository.deleteCompositePlan(plan)
+
+    const snapshot = await repository.readAll()
+    expect(snapshot.savedComposites).toEqual([unrelated])
+    expect(snapshot.statuses).toEqual([
+      { datasetId: 'es-gl', semordnilapId: 'D', status: 'favorite' },
+    ])
+    expect(snapshot.semordnilapTags).toEqual([
+      {
+        datasetId: 'es-gl',
+        semordnilapId: 'D',
+        tagId: tag.id,
+        createdAt: tag.createdAt,
+      },
+    ])
+    expect(snapshot.tags).toEqual([tag])
+  })
+
+  it('cancela la eliminación si las dependencias cambian tras la confirmación', async () => {
+    const database = createDatabase()
+    const repository = new DexiePersonalDataRepository(database)
+    const root = {
+      id: 'A',
+      datasetId: 'es-gl',
+      components: [],
+      atomicComponentIds: [],
+      createdAt: '2026-08-06T10:00:00.000Z',
+      updatedAt: '2026-08-06T10:00:00.000Z',
+    }
+    await repository.replaceAll({
+      statuses: [],
+      savedComposites: [root],
+      compositionDrafts: [],
+      tags: [],
+      semordnilapTags: [],
+    })
+    const stalePlan = await repository.inspectCompositeDeletion(root.id)
+    await database.savedComposites.add({
+      ...root,
+      id: 'B',
+      components: [
+        {
+          kind: 'composite',
+          datasetId: 'es-gl',
+          semordnilapId: root.id,
+        },
+      ],
+    })
+
+    await expect(repository.deleteCompositePlan(stalePlan)).rejects.toThrow(
+      'dependencias han cambiado',
+    )
+    expect(await database.savedComposites.count()).toBe(2)
   })
 
   it('persiste las preferencias como un registro versionable', async () => {
@@ -174,5 +294,45 @@ describe('repositorios Dexie de datos guardados', () => {
     }
     await repository.put(preferences)
     expect(await repository.get()).toEqual(preferences)
+  })
+
+  it('persiste etiquetas y elimina sus asignaciones en una transacción', async () => {
+    const database = createDatabase()
+    const repository = new DexieSemordnilapTagRepository(database)
+    const tag = {
+      id: 'tag:curioso',
+      name: 'Curioso',
+      normalizedName: 'curioso',
+      color: 'violet' as const,
+      createdAt: '2026-08-06T10:00:00.000Z',
+      updatedAt: '2026-08-06T10:00:00.000Z',
+    }
+    await repository.add(tag)
+    await repository.addAssignments([
+      {
+        datasetId: 'es-gl',
+        semordnilapId: 'atomic:uno',
+        tagId: tag.id,
+        createdAt: '2026-08-06T10:00:00.000Z',
+      },
+    ])
+
+    expect(await repository.list('es-gl')).toEqual({
+      tags: [tag],
+      assignments: [
+        {
+          datasetId: 'es-gl',
+          semordnilapId: 'atomic:uno',
+          tagId: tag.id,
+          createdAt: '2026-08-06T10:00:00.000Z',
+        },
+      ],
+    })
+
+    await repository.delete(tag.id)
+    expect(await repository.list('es-gl')).toEqual({
+      tags: [],
+      assignments: [],
+    })
   })
 })

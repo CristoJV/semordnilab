@@ -11,6 +11,7 @@ import type {
   AvailableDataset,
   SemordnilapCatalogItem,
   SemordnilapCatalogStatus,
+  TagId,
   CatalogViewMode,
   DatasetCatalogViewPreference,
 } from '@/application'
@@ -21,6 +22,7 @@ import type {
 } from '@/domain/semordnilap'
 import type { SemordnilapStatusMap } from '@/presentation/hooks/useSemordnilapStatuses'
 import type { Notify } from '@/presentation/hooks/useTransientNotifications'
+import type { SemordnilapTagState } from '@/presentation/hooks/useSemordnilapTags'
 import { useVirtualCatalogRows } from '@/presentation/hooks/useVirtualCatalogRows'
 
 import { CatalogLanguageHeader } from './CatalogLanguageHeader'
@@ -33,6 +35,8 @@ import { normalizeCatalogQuery } from './catalog-search'
 import type { CatalogSide, CatalogSort, CatalogSortField } from './catalog-view'
 import { SemordnilapOption } from './SemordnilapOption'
 import { SemordnilapRowActions } from './SemordnilapRowActions'
+import { TagAssignmentMenu, TagFilterMenu } from './TagControls'
+import { tagsForSemordnilap } from './tag-view'
 import styles from './PairedSemordnilapCatalog.module.css'
 
 type PairedSemordnilapCatalogProps = {
@@ -42,6 +46,7 @@ type PairedSemordnilapCatalogProps = {
   statuses: SemordnilapStatusMap
   statusesReady: boolean
   statusError: string | null
+  tagState: SemordnilapTagState
   onAdd: (semordnilap: Semordnilap) => void
   onAddStatus: (
     semordnilapIds: readonly SemordnilapId[],
@@ -55,6 +60,7 @@ type PairedSemordnilapCatalogProps = {
   initialView?: DatasetCatalogViewPreference
   onViewChange: (view: DatasetCatalogViewPreference) => void
   onOpenComposite: (composite: CompositeSemordnilap) => void
+  onManageTags: () => void
   onNotify: Notify
 }
 
@@ -65,6 +71,7 @@ export function PairedSemordnilapCatalog({
   statuses,
   statusesReady,
   statusError,
+  tagState,
   onAdd,
   onAddStatus,
   onRemoveStatus,
@@ -72,6 +79,7 @@ export function PairedSemordnilapCatalog({
   initialView,
   onViewChange,
   onOpenComposite,
+  onManageTags,
   onNotify,
 }: PairedSemordnilapCatalogProps) {
   const [sourceQuery, setSourceQuery] = useState(initialView?.sourceQuery ?? '')
@@ -82,6 +90,9 @@ export function PairedSemordnilapCatalog({
   const [sort, setSort] = useState<CatalogSort>(initialView?.sort ?? [])
   const [selectionMode, setSelectionMode] = useState(false)
   const [discoverySeed, setDiscoverySeed] = useState<number | null>(null)
+  const [selectedTagIds, setSelectedTagIds] = useState<ReadonlySet<TagId>>(
+    new Set(),
+  )
   const scrollerRef = useRef<HTMLDivElement>(null)
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<SemordnilapId>>(
     new Set(),
@@ -93,6 +104,11 @@ export function PairedSemordnilapCatalog({
     useDeferredValue(targetQuery),
   )
   const discardedView = viewMode === 'discarded'
+
+  const effectiveSelectedTagIds = useMemo(() => {
+    const available = new Set(tagState.tags.map(({ id }) => id))
+    return new Set([...selectedTagIds].filter((id) => available.has(id)))
+  }, [selectedTagIds, tagState.tags])
 
   useEffect(() => {
     onViewChange({
@@ -139,7 +155,7 @@ export function PairedSemordnilapCatalog({
   )
 
   const visibleItems = useMemo(() => {
-    return selectVisibleCatalogItems({
+    const byCatalogState = selectVisibleCatalogItems({
       items,
       viewMode,
       sourceQuery: deferredSourceQuery,
@@ -148,6 +164,11 @@ export function PairedSemordnilapCatalog({
       sourceLanguageCode: dataset.sourceLanguage.code,
       targetLanguageCode: dataset.targetLanguage.code,
       hasStatus,
+    })
+    if (effectiveSelectedTagIds.size === 0) return byCatalogState
+    return byCatalogState.filter((item) => {
+      const assigned = tagState.assignments.get(item.semordnilap.id)
+      return [...effectiveSelectedTagIds].some((tagId) => assigned?.has(tagId))
     })
   }, [
     dataset.sourceLanguage.code,
@@ -158,6 +179,8 @@ export function PairedSemordnilapCatalog({
     items,
     sort,
     hasStatus,
+    effectiveSelectedTagIds,
+    tagState.assignments,
   ])
 
   const displayedItems = useMemo(
@@ -235,10 +258,21 @@ export function PairedSemordnilapCatalog({
     })
   }
 
+  const toggleTagFilter = (tagId: TagId) => {
+    setDiscoverySeed(null)
+    setSelectedTagIds((current) => {
+      const next = new Set(current)
+      if (next.has(tagId)) next.delete(tagId)
+      else next.add(tagId)
+      return next
+    })
+    virtualRows.reset()
+  }
+
   return (
     <section
       className={styles.catalog}
-      data-has-error={Boolean(statusError)}
+      data-has-error={Boolean(statusError || tagState.errorMessage)}
       aria-label="Catálogo bilingüe"
     >
       <div className={styles.toolbar}>
@@ -264,6 +298,16 @@ export function PairedSemordnilapCatalog({
               >
                 {discardedView ? 'Restaurar' : 'Descartar'}
               </button>
+              <TagAssignmentMenu
+                tags={tagState.tags}
+                selectedIds={[...selectedIds]}
+                assignments={tagState.assignments}
+                onAdd={(tagId) => void tagState.addTo([...selectedIds], tagId)}
+                onRemove={(tagId) =>
+                  void tagState.removeFrom([...selectedIds], tagId)
+                }
+                onManage={onManageTags}
+              />
               <button type="button" onClick={leaveSelectionMode}>
                 Cancelar
               </button>
@@ -316,6 +360,16 @@ export function PairedSemordnilapCatalog({
               >
                 Seleccionar varios
               </button>
+              <TagFilterMenu
+                tags={tagState.tags}
+                selectedTagIds={effectiveSelectedTagIds}
+                onToggle={toggleTagFilter}
+                onClear={() => {
+                  setSelectedTagIds(new Set())
+                  virtualRows.reset()
+                }}
+                onManage={onManageTags}
+              />
               {discardedView && (
                 <>
                   <strong>Viendo descartados</strong>
@@ -331,26 +385,31 @@ export function PairedSemordnilapCatalog({
             </>
           )}
         </div>
-        {(sourceQuery || targetQuery || sort.length > 0) && !selectionMode && (
-          <button
-            className={styles.resetView}
-            type="button"
-            onClick={() => {
-              setSourceQuery('')
-              setTargetQuery('')
-              setSort([])
-              setDiscoverySeed(null)
-              virtualRows.reset()
-            }}
-          >
-            Restablecer filtros
-          </button>
-        )}
+        {(sourceQuery ||
+          targetQuery ||
+          sort.length > 0 ||
+          effectiveSelectedTagIds.size > 0) &&
+          !selectionMode && (
+            <button
+              className={styles.resetView}
+              type="button"
+              onClick={() => {
+                setSourceQuery('')
+                setTargetQuery('')
+                setSort([])
+                setDiscoverySeed(null)
+                setSelectedTagIds(new Set())
+                virtualRows.reset()
+              }}
+            >
+              Restablecer filtros
+            </button>
+          )}
       </div>
 
-      {statusError && (
+      {(statusError || tagState.errorMessage) && (
         <p className={styles.statusError} role="alert">
-          {statusError}
+          {statusError ?? tagState.errorMessage}
         </p>
       )}
 
@@ -402,6 +461,11 @@ export function PairedSemordnilapCatalog({
               const selected = selectedIds.has(id)
               const text = `${item.semordnilap.source.text} / ${item.semordnilap.target.text}`
               const favorite = hasStatus(id, 'favorite')
+              const itemTags = tagsForSemordnilap(
+                id,
+                tagState.tags,
+                tagState.assignments,
+              )
 
               return (
                 <li
@@ -417,6 +481,7 @@ export function PairedSemordnilapCatalog({
                     selectionMode={selectionMode}
                     selected={selected}
                     query={sourceQuery}
+                    tags={itemTags}
                     onAdd={({ semordnilap }) => onAdd(semordnilap)}
                     onToggleSelection={() => toggleSelection(id)}
                   />
@@ -449,6 +514,7 @@ export function PairedSemordnilapCatalog({
                     selectionMode={selectionMode}
                     selected={selected}
                     query={targetQuery}
+                    tags={itemTags}
                     onAdd={({ semordnilap }) => onAdd(semordnilap)}
                     onToggleSelection={() => toggleSelection(id)}
                   />

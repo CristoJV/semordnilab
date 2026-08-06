@@ -11,10 +11,12 @@ import { PairedSemordnilapCatalog } from '@/presentation/components/PairedSemord
 import { usePersistentCompositionWorkspace } from '@/presentation/hooks/usePersistentCompositionWorkspace'
 import { useSemordnilapCatalog } from '@/presentation/hooks/useSemordnilapCatalog'
 import { useSemordnilapStatuses } from '@/presentation/hooks/useSemordnilapStatuses'
+import { useSemordnilapTags } from '@/presentation/hooks/useSemordnilapTags'
 import { useTransientNotifications } from '@/presentation/hooks/useTransientNotifications'
 import { useSavedCompositeSemordnilaps } from '@/presentation/hooks/useSavedCompositeSemordnilaps'
 import { useWorkspacePreferences } from '@/presentation/hooks/useWorkspacePreferences'
 import type { CompositeSemordnilap } from '@/domain/semordnilap'
+import { TagManagerDialog } from '@/presentation/components/TagManagerDialog'
 
 import styles from './WorkspacePage.module.css'
 
@@ -26,6 +28,7 @@ const EMPTY_CATALOG_ITEMS = [] as const
 
 export function WorkspacePage({ dependencies }: WorkspacePageProps) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [tagManagerOpen, setTagManagerOpen] = useState(false)
   const [selectedComposite, setSelectedComposite] =
     useState<CompositeSemordnilap | null>(null)
   const { notifications, notify, dismiss } = useTransientNotifications()
@@ -46,6 +49,7 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
     dependencies,
     statusAliases,
   )
+  const tagState = useSemordnilapTags(catalog.selectedDatasetId, dependencies)
   const atomicItems = catalog.loadedDataset?.items ?? EMPTY_CATALOG_ITEMS
   const savedComposites = useSavedCompositeSemordnilaps(
     catalog.selectedDatasetId,
@@ -142,7 +146,8 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
           loadedDataset &&
           savedComposites.ready &&
           composition.ready &&
-          preferences.ready ? (
+          preferences.ready &&
+          tagState.ready ? (
             <PairedSemordnilapCatalog
               key={`${loadedDataset.dataset.id}:${preferences.viewRevision}`}
               dataset={loadedDataset.dataset}
@@ -153,6 +158,7 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
               statusError={
                 statusState.errorMessage ?? savedComposites.errorMessage
               }
+              tagState={tagState}
               onAdd={addComponent}
               onAddStatus={statusState.addStatus}
               onRemoveStatus={statusState.removeStatus}
@@ -160,6 +166,7 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
               initialView={preferences.catalogView(loadedDataset.dataset.id)}
               onViewChange={preferences.saveCatalogView}
               onOpenComposite={setSelectedComposite}
+              onManageTags={() => setTagManagerOpen(true)}
               onNotify={notify}
             />
           ) : (
@@ -178,7 +185,7 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
               )}
               {catalog.status === 'ready' &&
                 composition.ready &&
-                !preferences.ready && (
+                (!preferences.ready || !tagState.ready) && (
                   <>
                     <span className={styles.loader} aria-hidden="true" />
                     <p>Recuperando tus preferencias...</p>
@@ -256,7 +263,13 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
                 : null,
             )
           }}
-          onDelete={() => savedComposites.remove(selectedComposite.id)}
+          onInspectDeletion={() =>
+            savedComposites.inspectDeletion(selectedComposite.id)
+          }
+          onDelete={async (plan) => {
+            await savedComposites.remove(plan)
+            tagState.refresh()
+          }}
           onExportBackup={async () => {
             const result = await dependencies.exportPersonalData.execute()
             dependencies.personalDataFileGateway.downloadText(
@@ -264,6 +277,13 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
               result.content,
             )
           }}
+        />
+      )}
+
+      {tagManagerOpen && (
+        <TagManagerDialog
+          state={tagState}
+          onClose={() => setTagManagerOpen(false)}
         />
       )}
     </div>

@@ -39,6 +39,8 @@ El JSON exportado declara:
 - la fecha de exportación;
 - estados, composites, borradores y preferencias.
 
+El formato y la eliminación descritos aquí se amplían en el [ADR 0007](0007-tags-and-cascade-deletion.md) para incorporar etiquetas y dependencias transitivas sin cambiar las garantías de atomicidad.
+
 Los TSV no se incluyen porque forman parte de la aplicación y las entidades persistidas ya utilizan referencias estables.
 
 La importación admite combinación o sustitución. En una combinación, los estados forman una unión, los composites se deduplican por identidad y los conflictos de borrador requieren una estrategia explícita. Las preferencias pueden excluirse.

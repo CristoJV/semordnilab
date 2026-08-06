@@ -1,13 +1,17 @@
 import type {
   CompositionDraftRecord,
   CompositionDraftRepository,
+  CompositeDeletionPlan,
   SavedCompositeSemordnilapRecord,
   SavedCompositeSemordnilapRepository,
   PersonalDataRepository,
   PersonalDataSnapshot,
   WorkspacePreferencesRecord,
   WorkspacePreferencesRepository,
+  SemordnilapTag,
+  SemordnilapTagAssignment,
 } from '@/application'
+import { buildCompositeDeletionPlan } from '@/application/composites/build-composite-deletion-plan'
 
 import type { InMemorySemordnilapStatusRepository } from './in-memory-semordnilap-status-repository'
 import type { DatasetId, SemordnilapId } from '@/domain/semordnilap'
@@ -91,6 +95,8 @@ export class InMemoryPersonalDataRepository implements PersonalDataRepository {
   private readonly composites: InMemorySavedCompositeSemordnilapRepository
   private readonly drafts: InMemoryCompositionDraftRepository
   private readonly preferences: InMemoryWorkspacePreferencesRepository
+  private tags: readonly SemordnilapTag[] = []
+  private semordnilapTags: readonly SemordnilapTagAssignment[] = []
 
   constructor(
     statuses: InMemorySemordnilapStatusRepository,
@@ -110,6 +116,8 @@ export class InMemoryPersonalDataRepository implements PersonalDataRepository {
       statuses: this.statuses.readAllRecords(),
       savedComposites: this.composites.readAllRecords(),
       compositionDrafts: this.drafts.readAllRecords(),
+      tags: this.tags,
+      semordnilapTags: this.semordnilapTags,
       ...(workspacePreferences ? { workspacePreferences } : {}),
     }
   }
@@ -118,6 +126,8 @@ export class InMemoryPersonalDataRepository implements PersonalDataRepository {
     this.statuses.replaceAllRecords(snapshot.statuses)
     this.composites.replaceAllRecords(snapshot.savedComposites)
     this.drafts.replaceAllRecords(snapshot.compositionDrafts)
+    this.tags = snapshot.tags
+    this.semordnilapTags = snapshot.semordnilapTags
     this.preferences.replace(snapshot.workspacePreferences)
   }
 
@@ -136,54 +146,43 @@ export class InMemoryPersonalDataRepository implements PersonalDataRepository {
     return true
   }
 
-  async deleteCompositeIfUnreferenced(id: SemordnilapId) {
-    const records = this.composites.readAllRecords()
-    const existing = records.find((record) => record.id === id)
-    if (!existing) {
-      return {
-        found: false,
-        removed: false,
-        dependentComposites: 0,
-        dependentDrafts: 0,
-      }
+  async inspectCompositeDeletion(id: SemordnilapId) {
+    return buildCompositeDeletionPlan(
+      this.composites.readAllRecords(),
+      this.drafts.readAllRecords(),
+      id,
+    )
+  }
+
+  async deleteCompositePlan(plan: CompositeDeletionPlan): Promise<void> {
+    const current = await this.inspectCompositeDeletion(plan.rootId)
+    if (!current.found) throw new Error('El composite ya no está guardado.')
+    if (current.dependentDraftDatasetIds.length > 0) {
+      throw new Error(
+        'Retira los composites afectados del borrador antes de eliminarlos.',
+      )
     }
-    const dependentComposites = records.filter(
-      (record) =>
-        record.id !== id &&
-        record.components.some(
-          (reference) =>
-            reference.kind === 'composite' && reference.semordnilapId === id,
-        ),
-    ).length
-    const dependentDrafts = this.drafts
-      .readAllRecords()
-      .filter((record) =>
-        record.components.some(
-          (reference) =>
-            reference.kind === 'composite' && reference.semordnilapId === id,
-        ),
-      ).length
-    if (dependentComposites > 0 || dependentDrafts > 0) {
-      return {
-        found: true,
-        removed: false,
-        dependentComposites,
-        dependentDrafts,
-      }
+    if (
+      [...current.dependentIds].sort().join('\u001f') !==
+        [...plan.dependentIds].sort().join('\u001f') ||
+      [...current.directDependentIds].sort().join('\u001f') !==
+        [...plan.directDependentIds].sort().join('\u001f')
+    ) {
+      throw new Error('Las dependencias han cambiado.')
     }
+    const affected = new Set([plan.rootId, ...plan.dependentIds])
     this.composites.replaceAllRecords(
-      records.filter((record) => record.id !== id),
+      this.composites
+        .readAllRecords()
+        .filter((record) => !affected.has(record.id)),
     )
     this.statuses.replaceAllRecords(
       this.statuses
         .readAllRecords()
-        .filter((record) => record.semordnilapId !== id),
+        .filter((record) => !affected.has(record.semordnilapId)),
     )
-    return {
-      found: true,
-      removed: true,
-      dependentComposites: 0,
-      dependentDrafts: 0,
-    }
+    this.semordnilapTags = this.semordnilapTags.filter(
+      (record) => !affected.has(record.semordnilapId),
+    )
   }
 }

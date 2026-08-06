@@ -10,24 +10,31 @@ import { describe, expect, it, vi } from 'vitest'
 
 import {
   AddSemordnilapStatus,
+  AddSemordnilapTagAssignments,
   ClearCompositionDraft,
   DeleteSavedComposite,
+  DeleteSemordnilapTag,
   ExportPersonalData,
   ImportPersonalData,
+  InspectSavedCompositeDeletion,
   GetPersonalDataSummary,
   ListAvailableDatasets,
   ListSavedCompositeSemordnilaps,
   ListSemordnilapStatuses,
+  ListSemordnilapTags,
   LoadAtomicSemordnilaps,
   LoadCompositionDraft,
   LoadWorkspacePreferences,
   MigrateSemordnilapStatusReferences,
   RemoveAllSemordnilapStatuses,
   RemoveSemordnilapStatus,
+  RemoveSemordnilapTagAssignments,
   RenameSavedComposite,
   SaveCompositeSemordnilap,
   SaveCompositionDraft,
   SaveWorkspacePreferences,
+  CreateSemordnilapTag,
+  UpdateSemordnilapTag,
   PreviewPersonalDataImport,
   type LoadedSemordnilapDataset,
   type SemordnilapDatasetSource,
@@ -41,6 +48,7 @@ import {
   testDataset,
 } from '../support/fixtures'
 import { InMemorySemordnilapStatusRepository } from '../support/in-memory-semordnilap-status-repository'
+import { InMemorySemordnilapTagRepository } from '../support/in-memory-semordnilap-tag-repository'
 import {
   InMemoryCompositionDraftRepository,
   InMemoryPersonalDataRepository,
@@ -65,6 +73,7 @@ function createDependencies(
     ...sourceOverrides,
   }
   const statusRepository = new InMemorySemordnilapStatusRepository()
+  const tagRepository = new InMemorySemordnilapTagRepository()
   const compositeRepository = new InMemorySavedCompositeSemordnilapRepository()
   const draftRepository = new InMemoryCompositionDraftRepository()
   const preferencesRepository = new InMemoryWorkspacePreferencesRepository()
@@ -87,6 +96,16 @@ function createDependencies(
     migrateSemordnilapStatusReferences: new MigrateSemordnilapStatusReferences(
       statusRepository,
     ),
+    listSemordnilapTags: new ListSemordnilapTags(tagRepository),
+    createSemordnilapTag: new CreateSemordnilapTag(tagRepository),
+    updateSemordnilapTag: new UpdateSemordnilapTag(tagRepository),
+    deleteSemordnilapTag: new DeleteSemordnilapTag(tagRepository),
+    addSemordnilapTagAssignments: new AddSemordnilapTagAssignments(
+      tagRepository,
+    ),
+    removeSemordnilapTagAssignments: new RemoveSemordnilapTagAssignments(
+      tagRepository,
+    ),
     listSavedCompositeSemordnilaps: new ListSavedCompositeSemordnilaps(
       compositeRepository,
     ),
@@ -102,6 +121,9 @@ function createDependencies(
     ),
     renameSavedComposite: new RenameSavedComposite(personalDataRepository),
     deleteSavedComposite: new DeleteSavedComposite(personalDataRepository),
+    inspectSavedCompositeDeletion: new InspectSavedCompositeDeletion(
+      personalDataRepository,
+    ),
     exportPersonalData: new ExportPersonalData(personalDataRepository),
     previewPersonalDataImport: new PreviewPersonalDataImport(
       personalDataRepository,
@@ -123,6 +145,62 @@ function getComponentTexts(list: HTMLElement): string[] {
 }
 
 describe('WorkspacePage', () => {
+  it('crea, asigna y filtra etiquetas sin romper la pareja bilingüe', async () => {
+    const user = userEvent.setup()
+    render(<WorkspacePage dependencies={createDependencies()} />)
+    await user.selectOptions(
+      screen.getByLabelText('Conjunto lingüístico'),
+      testDataset.id,
+    )
+    const catalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
+
+    await user.click(
+      within(catalog).getByText('Etiquetas', { selector: 'summary' }),
+    )
+    await user.click(within(catalog).getByRole('button', { name: 'Gestionar' }))
+    const dialog = screen.getByRole('dialog', { name: 'Gestionar etiquetas' })
+    await user.type(within(dialog).getByLabelText('Nueva etiqueta'), 'Curioso')
+    await user.selectOptions(within(dialog).getByLabelText('Color'), 'green')
+    await user.click(within(dialog).getByRole('button', { name: 'Crear' }))
+    expect(
+      await within(dialog).findByDisplayValue('Curioso'),
+    ).toBeInTheDocument()
+    await user.click(
+      within(dialog).getByRole('button', { name: 'Cerrar diálogo' }),
+    )
+
+    await user.click(
+      within(catalog).getByRole('button', { name: 'Seleccionar varios' }),
+    )
+    await user.click(
+      within(catalog).getByRole('button', { name: 'Seleccionar ella' }),
+    )
+    await user.click(
+      within(catalog).getByText('Etiquetar', { selector: 'summary' }),
+    )
+    await user.click(within(catalog).getByRole('checkbox', { name: /Curioso/ }))
+    await waitFor(() =>
+      expect(
+        within(catalog).getByRole('button', {
+          name: 'Deseleccionar ella',
+        }),
+      ).toHaveAttribute('title', expect.stringContaining('Etiquetas: Curioso')),
+    )
+    await user.click(within(catalog).getByRole('button', { name: 'Cancelar' }))
+
+    await user.click(
+      within(catalog).getByText('Etiquetas', { selector: 'summary' }),
+    )
+    await user.click(within(catalog).getByRole('checkbox', { name: 'Curioso' }))
+    const filtered = within(catalog).getByRole('list', {
+      name: 'Semordnilaps filtrados',
+    })
+    expect(within(filtered).getAllByRole('listitem')).toHaveLength(1)
+    expect(within(filtered).getByText('ella')).toBeInTheDocument()
+  })
+
   it('carga el catálogo y compone el destino en orden inverso', async () => {
     const user = userEvent.setup()
     render(<WorkspacePage dependencies={createDependencies()} />)
