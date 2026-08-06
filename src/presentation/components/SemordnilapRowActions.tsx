@@ -12,6 +12,7 @@ type SemordnilapRowActionsProps = {
   onDiscard: () => void
   onRestore: () => void
   onToggleSelection: () => void
+  onOpenComposite: () => void
 }
 
 export function SemordnilapRowActions({
@@ -26,6 +27,7 @@ export function SemordnilapRowActions({
   onDiscard,
   onRestore,
   onToggleSelection,
+  onOpenComposite,
 }: SemordnilapRowActionsProps) {
   if (selectionMode) {
     return (
@@ -43,9 +45,15 @@ export function SemordnilapRowActions({
   return (
     <div className={styles.actions}>
       {composite && (
-        <span className={styles.composite} title="Composite guardado">
+        <button
+          type="button"
+          className={styles.composite}
+          onClick={onOpenComposite}
+          aria-label={`Gestionar composite: ${text}`}
+          title="Gestionar composite guardado"
+        >
           C
-        </span>
+        </button>
       )}
       <button
         type="button"

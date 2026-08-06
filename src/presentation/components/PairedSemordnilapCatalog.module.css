@@ -43,10 +43,27 @@
   gap: 0.75rem;
   align-items: center;
   justify-content: space-between;
-  min-height: 3.2rem;
-  padding: 0.5rem clamp(0.75rem, 2.8vw, 2rem);
+  min-height: 2.65rem;
+  padding: 0.35rem clamp(0.75rem, 2.8vw, 2rem);
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
+}
+
+.viewTabs {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.viewTabs button[data-active='true'] {
+  color: white;
+  background: var(--color-violet);
+  border-color: var(--color-violet);
+}
+
+.viewTabs button span {
+  margin-left: 0.15rem;
+  opacity: 0.72;
 }
 
 .toolbarMain {

@@ -1,11 +1,9 @@
-export type CatalogSide = 'source' | 'target'
-export type CatalogSortField = 'alphabetical' | 'length'
-export type CatalogSortDirection = 'ascending' | 'descending'
+import type {
+  CatalogSide,
+  CatalogSortField,
+  CatalogSortPreference,
+} from '@/application'
 
-export type CatalogSortCriterion = {
-  field: CatalogSortField
-  side: CatalogSide
-  direction: CatalogSortDirection
-}
-
-export type CatalogSort = readonly CatalogSortCriterion[]
+export type { CatalogSide, CatalogSortField }
+export type CatalogSortCriterion = CatalogSortPreference
+export type CatalogSort = readonly CatalogSortPreference[]

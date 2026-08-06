@@ -1,14 +1,18 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import type { ApplicationDependencies } from '@/app/composition/create-application-dependencies'
 import { AppFooter } from '@/presentation/components/AppFooter'
 import { AppHeader } from '@/presentation/components/AppHeader'
+import { AppMenuDialog } from '@/presentation/components/AppMenuDialog'
+import { CompositeManagerDialog } from '@/presentation/components/CompositeManagerDialog'
 import { CompositionWorkspace } from '@/presentation/components/CompositionWorkspace'
 import { PairedSemordnilapCatalog } from '@/presentation/components/PairedSemordnilapCatalog'
 import { usePersistentCompositionWorkspace } from '@/presentation/hooks/usePersistentCompositionWorkspace'
 import { useSemordnilapCatalog } from '@/presentation/hooks/useSemordnilapCatalog'
 import { useSemordnilapStatuses } from '@/presentation/hooks/useSemordnilapStatuses'
 import { useSavedCompositeSemordnilaps } from '@/presentation/hooks/useSavedCompositeSemordnilaps'
+import { useWorkspacePreferences } from '@/presentation/hooks/useWorkspacePreferences'
+import type { CompositeSemordnilap } from '@/domain/semordnilap'
 
 import styles from './WorkspacePage.module.css'
 
@@ -19,6 +23,10 @@ type WorkspacePageProps = {
 const EMPTY_CATALOG_ITEMS = [] as const
 
 export function WorkspacePage({ dependencies }: WorkspacePageProps) {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [selectedComposite, setSelectedComposite] =
+    useState<CompositeSemordnilap | null>(null)
+  const preferences = useWorkspacePreferences(dependencies)
   const catalog = useSemordnilapCatalog(dependencies)
   const statusAliases = useMemo(
     () =>
@@ -83,10 +91,12 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
         status={catalog.status}
         itemCount={catalogItems.length}
         onDatasetChange={handleDatasetChange}
+        onOpenMenu={() => setMenuOpen(true)}
       />
 
       <main className={styles.main}>
         <CompositionWorkspace
+          key={`composition:${preferences.viewRevision}`}
           dataset={loadedDataset?.dataset ?? null}
           components={composition.components}
           snapshot={composition.snapshot}
@@ -100,6 +110,12 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
           onUndo={composition.undo}
           onRedo={composition.redo}
           persistenceError={composition.persistenceError}
+          persistenceStatus={composition.persistenceStatus}
+          initialCollapsed={
+            preferences.preferences.rememberCompositionCollapsed &&
+            preferences.preferences.compositionCollapsed
+          }
+          onCollapsedChange={preferences.setCompositionCollapsed}
           onDiscardIncompatibleDraft={composition.discardIncompatibleDraft}
           onSave={(title) =>
             savedComposites.save(
@@ -116,9 +132,10 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
           {catalog.status === 'ready' &&
           loadedDataset &&
           savedComposites.ready &&
-          composition.ready ? (
+          composition.ready &&
+          preferences.ready ? (
             <PairedSemordnilapCatalog
-              key={loadedDataset.dataset.id}
+              key={`${loadedDataset.dataset.id}:${preferences.viewRevision}`}
               dataset={loadedDataset.dataset}
               items={catalogItems}
               selectedCounts={selectedCounts}
@@ -131,6 +148,9 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
               onAddStatus={statusState.addStatus}
               onRemoveStatus={statusState.removeStatus}
               onRemoveAllStatus={statusState.removeAllStatus}
+              initialView={preferences.catalogView(loadedDataset.dataset.id)}
+              onViewChange={preferences.saveCatalogView}
+              onOpenComposite={setSelectedComposite}
             />
           ) : (
             <div className={styles.catalogState}>
@@ -146,6 +166,14 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
                   <p>Recuperando tu espacio de trabajo...</p>
                 </>
               )}
+              {catalog.status === 'ready' &&
+                composition.ready &&
+                !preferences.ready && (
+                  <>
+                    <span className={styles.loader} aria-hidden="true" />
+                    <p>Recuperando tus preferencias...</p>
+                  </>
+                )}
               {catalog.status === 'idle' && (
                 <>
                   <span className={styles.stateMark} aria-hidden="true">
@@ -169,6 +197,64 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
       </main>
 
       <AppFooter />
+
+      {menuOpen && (
+        <AppMenuDialog
+          useCases={dependencies}
+          preferences={preferences}
+          onClose={() => setMenuOpen(false)}
+          onImported={() => window.location.reload()}
+        />
+      )}
+
+      {selectedComposite && (
+        <CompositeManagerDialog
+          composite={selectedComposite}
+          library={library}
+          hasCurrentDraft={composition.components.length > 0}
+          usedInCurrentDraft={composition.components.some(
+            ({ semordnilap }) => semordnilap.id === selectedComposite.id,
+          )}
+          onClose={() => setSelectedComposite(null)}
+          onInsert={() => {
+            composition.add(selectedComposite)
+            setSelectedComposite(null)
+          }}
+          onOpenAsDraft={() => {
+            const byId = new Map(library.map((item) => [item.id, item]))
+            const components = selectedComposite.components.map((reference) => {
+              const component = byId.get(reference.semordnilapId)
+              if (!component) {
+                throw new Error('El composite contiene una referencia ausente.')
+              }
+              return component
+            })
+            composition.restore(components, components.length)
+            setSelectedComposite(null)
+          }}
+          onRename={async (title) => {
+            await savedComposites.rename(selectedComposite.id, title)
+            setSelectedComposite((current) =>
+              current
+                ? {
+                    ...current,
+                    ...(title.trim()
+                      ? { title: title.trim() }
+                      : { title: undefined }),
+                  }
+                : null,
+            )
+          }}
+          onDelete={() => savedComposites.remove(selectedComposite.id)}
+          onExportBackup={async () => {
+            const result = await dependencies.exportPersonalData.execute()
+            dependencies.personalDataFileGateway.downloadText(
+              result.filename,
+              result.content,
+            )
+          }}
+        />
+      )}
     </div>
   )
 }

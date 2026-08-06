@@ -27,13 +27,25 @@
   display: grid;
   width: 1.3rem;
   height: 1.3rem;
+  padding: 0;
   color: var(--color-violet-strong);
   font-size: 0.58rem;
   font-weight: 850;
   background: var(--color-violet-soft);
   border: 1px solid color-mix(in srgb, var(--color-violet) 35%, transparent);
   border-radius: 50%;
+  cursor: pointer;
   place-items: center;
+}
+
+.composite:hover {
+  color: white;
+  background: var(--color-violet);
+}
+
+.composite:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-violet) 35%, transparent);
+  outline-offset: 1px;
 }
 
 .action:hover:not(:disabled),

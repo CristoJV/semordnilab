@@ -124,5 +124,42 @@ describe('DexieSemordnilapStatusRepository', () => {
     ])
     expect(await upgraded.savedComposites.count()).toBe(0)
     expect(await upgraded.compositionDrafts.count()).toBe(0)
+    expect(await upgraded.workspacePreferences.count()).toBe(0)
+  })
+
+  it('actualiza una base v2 sin perder composites ni borradores', async () => {
+    const databaseName = `semordnilab-v2-${Date.now()}`
+    const legacy = new Dexie(databaseName)
+    legacy.version(2).stores({
+      semordnilapStatuses:
+        '[datasetId+semordnilapId+status], datasetId, semordnilapId, status, [datasetId+status]',
+      savedComposites: 'id, datasetId, createdAt, updatedAt',
+      compositionDrafts: 'datasetId, updatedAt',
+    })
+    const composite = {
+      id: 'composite:es-gl:uno',
+      datasetId: 'es-gl',
+      components: [],
+      atomicComponentIds: [],
+      createdAt: '2026-08-06T10:00:00.000Z',
+      updatedAt: '2026-08-06T10:00:00.000Z',
+    }
+    const draft = {
+      datasetId: 'es-gl',
+      components: [],
+      insertionIndex: 0,
+      updatedAt: '2026-08-06T10:00:00.000Z',
+    }
+    await legacy.table('savedComposites').put(composite)
+    await legacy.table('compositionDrafts').put(draft)
+    legacy.close()
+
+    const upgraded = new SemordnilabDatabase(databaseName)
+    databases.push(upgraded)
+    await upgraded.open()
+
+    expect(await upgraded.savedComposites.toArray()).toEqual([composite])
+    expect(await upgraded.compositionDrafts.toArray()).toEqual([draft])
+    expect(await upgraded.workspacePreferences.count()).toBe(0)
   })
 })

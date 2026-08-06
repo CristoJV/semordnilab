@@ -25,6 +25,9 @@ type CompositionWorkspaceProps = {
   onUndo: () => void
   onRedo: () => void
   persistenceError: string | null
+  persistenceStatus: 'loading' | 'saving' | 'saved' | 'error'
+  initialCollapsed: boolean
+  onCollapsedChange: (collapsed: boolean) => void
   onDiscardIncompatibleDraft: () => Promise<void>
   onSave: (title?: string) => Promise<SaveCompositeSemordnilapResult>
 }
@@ -43,6 +46,9 @@ export function CompositionWorkspace({
   onUndo,
   onRedo,
   persistenceError,
+  persistenceStatus,
+  initialCollapsed,
+  onCollapsedChange,
   onDiscardIncompatibleDraft,
   onSave,
 }: CompositionWorkspaceProps) {
@@ -51,9 +57,10 @@ export function CompositionWorkspace({
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
   const [collapsed, setCollapsed] = useState(
     () =>
-      typeof window !== 'undefined' &&
-      typeof window.matchMedia === 'function' &&
-      window.matchMedia('(max-width: 760px)').matches,
+      initialCollapsed ||
+      (typeof window !== 'undefined' &&
+        typeof window.matchMedia === 'function' &&
+        window.matchMedia('(max-width: 760px)').matches),
   )
   const sourceLabel = dataset?.sourceLanguage.label ?? 'Origen'
   const targetLabel = dataset?.targetLanguage.label ?? 'Destino'
@@ -63,6 +70,22 @@ export function CompositionWorkspace({
       : snapshot.isComposite
         ? 'La composición forma un semordnilap válido.'
         : 'Añade al menos otro semordnilap para formar una composición.'
+  const persistenceLabel =
+    persistenceStatus === 'loading'
+      ? 'Recuperando borrador'
+      : persistenceStatus === 'saving'
+        ? 'Guardando borrador...'
+        : persistenceStatus === 'error'
+          ? 'Error al guardar el borrador'
+          : 'Borrador guardado localmente'
+
+  const toggleCollapsed = () => {
+    setCollapsed((current) => {
+      const next = !current
+      onCollapsedChange(next)
+      return next
+    })
+  }
 
   const handleSave = async () => {
     setSaving(true)
@@ -94,11 +117,13 @@ export function CompositionWorkspace({
     >
       <div className={styles.heading}>
         <div>
-          <p className={styles.eyebrow}>Borrador guardado localmente</p>
+          <p className={styles.eyebrow} aria-live="polite">
+            {persistenceLabel}
+          </p>
           <h1 id="composition-title">Área de composición</h1>
         </div>
         <div className={styles.headingActions}>
-          <button type="button" onClick={() => setCollapsed((value) => !value)}>
+          <button type="button" onClick={toggleCollapsed}>
             {collapsed ? 'Expandir área' : 'Plegar área'}
           </button>
           <button type="button" disabled={!canUndo} onClick={onUndo}>

@@ -49,7 +49,7 @@ Al resolver un composite se comprueban:
 - el identificador determinista;
 - la relación inversa de las expresiones resultantes.
 
-Un registro que no supere estas comprobaciones no se incorpora al catálogo y produce un error visible. Los composites son inmutables desde la interfaz actual. Guardar una secuencia existente devuelve el registro anterior y no escribe un duplicado.
+Un registro que no supere estas comprobaciones no se incorpora al catálogo y produce un error visible. La estructura de los composites es inmutable desde la interfaz. El título puede actualizarse como metadato y la eliminación está protegida por las referencias existentes. Guardar una secuencia existente devuelve el registro anterior y no escribe un duplicado.
 
 ## Consecuencias
 
@@ -58,4 +58,4 @@ Un registro que no supere estas comprobaciones no se incorpora al catálogo y pr
 - La migración semántica de identificadores ocurre solo con la correspondencia del dataset disponible.
 - Los borradores sobreviven a recargas y cambios de dataset.
 - Los composites pueden anidarse sin duplicar textos derivados.
-- La exportación y la eliminación permanente de composites siguen necesitando decisiones propias.
+- La exportación y la eliminación permanente se definen posteriormente en el ADR 0004.

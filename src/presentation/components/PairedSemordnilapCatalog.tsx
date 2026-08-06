@@ -10,8 +10,14 @@ import type {
   AvailableDataset,
   SemordnilapCatalogItem,
   SemordnilapCatalogStatus,
+  CatalogViewMode,
+  DatasetCatalogViewPreference,
 } from '@/application'
-import type { Semordnilap, SemordnilapId } from '@/domain/semordnilap'
+import type {
+  CompositeSemordnilap,
+  Semordnilap,
+  SemordnilapId,
+} from '@/domain/semordnilap'
 import type { SemordnilapStatusMap } from '@/presentation/hooks/useSemordnilapStatuses'
 
 import { CatalogLanguageHeader } from './CatalogLanguageHeader'
@@ -42,9 +48,10 @@ type PairedSemordnilapCatalogProps = {
     status: SemordnilapCatalogStatus,
   ) => Promise<void>
   onRemoveAllStatus: (status: SemordnilapCatalogStatus) => Promise<void>
+  initialView?: DatasetCatalogViewPreference
+  onViewChange: (view: DatasetCatalogViewPreference) => void
+  onOpenComposite: (composite: CompositeSemordnilap) => void
 }
-
-type ViewMode = 'active' | 'discarded'
 
 function normalizeQuery(value: string): string {
   return value
@@ -103,11 +110,16 @@ export function PairedSemordnilapCatalog({
   onAddStatus,
   onRemoveStatus,
   onRemoveAllStatus,
+  initialView,
+  onViewChange,
+  onOpenComposite,
 }: PairedSemordnilapCatalogProps) {
-  const [sourceQuery, setSourceQuery] = useState('')
-  const [targetQuery, setTargetQuery] = useState('')
-  const [viewMode, setViewMode] = useState<ViewMode>('active')
-  const [sort, setSort] = useState<CatalogSort>([])
+  const [sourceQuery, setSourceQuery] = useState(initialView?.sourceQuery ?? '')
+  const [targetQuery, setTargetQuery] = useState(initialView?.targetQuery ?? '')
+  const [viewMode, setViewMode] = useState<CatalogViewMode>(
+    initialView?.viewMode ?? 'active',
+  )
+  const [sort, setSort] = useState<CatalogSort>(initialView?.sort ?? [])
   const [selectionMode, setSelectionMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<SemordnilapId>>(
     new Set(),
@@ -118,6 +130,16 @@ export function PairedSemordnilapCatalog({
   const deferredSourceQuery = normalizeQuery(useDeferredValue(sourceQuery))
   const deferredTargetQuery = normalizeQuery(useDeferredValue(targetQuery))
   const discardedView = viewMode === 'discarded'
+
+  useEffect(() => {
+    onViewChange({
+      datasetId: dataset.id,
+      sourceQuery,
+      targetQuery,
+      viewMode,
+      sort,
+    })
+  }, [dataset.id, onViewChange, sort, sourceQuery, targetQuery, viewMode])
 
   useEffect(() => {
     if (lastDiscardedIds.length === 0) return undefined
@@ -140,6 +162,24 @@ export function PairedSemordnilapCatalog({
       ),
     [hasStatus, items],
   )
+  const savedCount = useMemo(
+    () =>
+      items.filter(
+        (item) =>
+          item.semordnilap.kind === 'composite' &&
+          !hasStatus(item.semordnilap.id, 'discarded'),
+      ).length,
+    [hasStatus, items],
+  )
+  const favoriteCount = useMemo(
+    () =>
+      items.filter(
+        (item) =>
+          hasStatus(item.semordnilap.id, 'favorite') &&
+          !hasStatus(item.semordnilap.id, 'discarded'),
+      ).length,
+    [hasStatus, items],
+  )
 
   const visibleItems = useMemo(() => {
     const collators = {
@@ -157,8 +197,17 @@ export function PairedSemordnilapCatalog({
     )
     const filtered = items.filter((item) => {
       const discarded = hasStatus(item.semordnilap.id, 'discarded')
+      const belongsToView =
+        viewMode === 'discarded'
+          ? discarded
+          : !discarded &&
+            (viewMode === 'saved'
+              ? item.semordnilap.kind === 'composite'
+              : viewMode === 'favorites'
+                ? hasStatus(item.semordnilap.id, 'favorite')
+                : true)
       return (
-        discarded === discardedView &&
+        belongsToView &&
         item.sourceSearchText.includes(deferredSourceQuery) &&
         item.targetSearchText.includes(deferredTargetQuery)
       )
@@ -192,7 +241,7 @@ export function PairedSemordnilapCatalog({
     dataset.targetLanguage.code,
     deferredSourceQuery,
     deferredTargetQuery,
-    discardedView,
+    viewMode,
     items,
     sort,
     hasStatus,
@@ -213,7 +262,7 @@ export function PairedSemordnilapCatalog({
   }
 
   const toggleDiscardedView = () => {
-    setViewMode((current) => (current === 'active' ? 'discarded' : 'active'))
+    setViewMode((current) => (current === 'discarded' ? 'active' : 'discarded'))
     setSourceQuery('')
     setTargetQuery('')
     leaveSelectionMode()
@@ -271,6 +320,29 @@ export function PairedSemordnilapCatalog({
             </>
           ) : (
             <>
+              <nav className={styles.viewTabs} aria-label="Vistas del catálogo">
+                {(
+                  [
+                    ['active', 'Todos', items.length - discardedCount],
+                    ['saved', 'Guardados', savedCount],
+                    ['favorites', 'Favoritos', favoriteCount],
+                    ['discarded', 'Descartados', discardedCount],
+                  ] as const
+                ).map(([mode, label, count]) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    data-active={viewMode === mode}
+                    aria-pressed={viewMode === mode}
+                    onClick={() => {
+                      setViewMode(mode)
+                      leaveSelectionMode()
+                    }}
+                  >
+                    {label} <span>{count}</span>
+                  </button>
+                ))}
+              </nav>
               <button
                 type="button"
                 disabled={!statusesReady || visibleItems.length === 0}
@@ -281,9 +353,6 @@ export function PairedSemordnilapCatalog({
               {discardedView && (
                 <>
                   <strong>Viendo descartados</strong>
-                  <button type="button" onClick={toggleDiscardedView}>
-                    Volver al catálogo
-                  </button>
                   <button
                     type="button"
                     disabled={discardedCount === 0}
@@ -394,6 +463,11 @@ export function PairedSemordnilapCatalog({
                     onDiscard={() => discard([id])}
                     onRestore={() => void onRemoveStatus([id], 'discarded')}
                     onToggleSelection={() => toggleSelection(id)}
+                    onOpenComposite={() => {
+                      if (item.semordnilap.kind === 'composite') {
+                        onOpenComposite(item.semordnilap)
+                      }
+                    }}
                   />
                   <SemordnilapOption
                     item={item}

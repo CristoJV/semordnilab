@@ -1,0 +1,186 @@
+.tabs {
+  display: flex;
+  gap: 0.35rem;
+  margin: -0.2rem 0 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tabs button,
+.dataActions button,
+.fileButton,
+.importButton,
+.reset {
+  padding: 0.5rem 0.75rem;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 750;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.65rem;
+  cursor: pointer;
+}
+
+.tabs button[data-active='true'] {
+  color: white;
+  background: var(--color-violet);
+  border-color: var(--color-violet);
+}
+
+.section {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.section h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.9rem;
+}
+
+.section h4 {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.section p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+  margin: 0.75rem 0 0;
+}
+
+.summary div {
+  padding: 0.55rem;
+  text-align: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.65rem;
+}
+
+.summary dt {
+  color: var(--color-text-muted);
+  font-size: 0.62rem;
+}
+
+.summary dd {
+  margin: 0.2rem 0 0;
+  font-weight: 850;
+}
+
+.dataActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.dataActions > button:first-child,
+.importButton {
+  color: white;
+  background: var(--color-violet);
+  border-color: var(--color-violet);
+}
+
+.fileButton input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.importPanel {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.8rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.8rem;
+}
+
+.importPanel fieldset {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.65rem;
+}
+
+.importPanel legend,
+.importPanel label {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.importPanel select {
+  margin-left: 0.5rem;
+  color: var(--color-text);
+  font: inherit;
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-border);
+}
+
+.previewDate {
+  font-weight: 700;
+}
+
+.preference {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.preference span {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.preference strong {
+  font-size: 0.8rem;
+}
+
+.preference small {
+  color: var(--color-text-muted);
+}
+
+.preference input {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--color-violet);
+}
+
+.reset {
+  justify-self: start;
+}
+
+.message,
+.error {
+  margin-top: 1rem;
+  padding: 0.6rem;
+  background: var(--color-violet-soft);
+  border-radius: 0.6rem;
+}
+
+.error {
+  color: var(--color-error, #8c2430);
+}
+
+@media (max-width: 480px) {
+  .summary {
+    grid-template-columns: 1fr 1fr;
+  }
+}

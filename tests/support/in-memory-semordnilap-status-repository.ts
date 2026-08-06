@@ -19,6 +19,15 @@ export class InMemorySemordnilapStatusRepository implements SemordnilapStatusRep
       this.records.set(recordKey(record), record)
   }
 
+  readAllRecords(): readonly SemordnilapStatusRecord[] {
+    return [...this.records.values()]
+  }
+
+  replaceAllRecords(records: readonly SemordnilapStatusRecord[]): void {
+    this.records.clear()
+    for (const record of records) this.records.set(recordKey(record), record)
+  }
+
   async listByDataset(
     datasetId: DatasetId,
   ): Promise<readonly SemordnilapStatusRecord[]> {

@@ -18,13 +18,18 @@ El proyecto se encuentra en su fase inicial. Actualmente incluye:
 - cursor de inserción, movimiento, deshacer y rehacer en la composición;
 - borradores conservados automáticamente por conjunto lingüístico;
 - guardado, deduplicación y reutilización de composites anidados;
+- vistas específicas para composites guardados, favoritos y descartados;
+- gestión de composites con inserción, apertura como borrador, renombrado y eliminación protegida;
+- un menú de datos y preferencias integrado en la barra superior;
+- exportación e importación validada de copias de seguridad locales;
+- preferencias de vista persistentes por conjunto lingüístico;
 - una interfaz adaptable con paleta violeta y mostaza;
 - pruebas de dominio, aplicación, infraestructura y presentación;
-- persistencia versionada de estados, composites y borradores con Dexie e IndexedDB;
+- persistencia versionada de estados, composites, borradores y preferencias con Dexie e IndexedDB;
 - configuración de Vite y GitHub Actions para desplegar en GitHub Pages;
 - documentación funcional y técnica.
 
-La importación de datasets externos y la exportación de la colección local todavía no están implementadas.
+La importación de datasets lingüísticos externos todavía no está implementada. La importación disponible actualmente recupera copias de los datos personales de la aplicación, no incorpora nuevos TSV.
 
 ## Arquitectura
 
@@ -52,6 +57,7 @@ Infrastructure
 - [ADR 0001: primera interfaz](docs/adr/0001-first-interface.md)
 - [ADR 0002: estados del catálogo](docs/adr/0002-catalog-statuses.md)
 - [ADR 0003: composites y espacio de trabajo persistente](docs/adr/0003-persistent-composites.md)
+- [ADR 0004: copias, preferencias y gestión de composites](docs/adr/0004-personal-data-and-composite-management.md)
 
 La documentación distingue entre el estado actual y las decisiones previstas. Debe actualizarse junto con la implementación para continuar siendo una referencia del comportamiento real.
 

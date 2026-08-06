@@ -38,7 +38,7 @@ Es la representación utilizada para comparar e invertir expresiones. Los datase
 
 La pantalla se organiza verticalmente para aprovechar una ventana más ancha que alta:
 
-1. Una barra superior con la identidad de la aplicación, el selector del conjunto lingüístico y el estado de carga.
+1. Una barra superior compacta con la identidad de la aplicación, el selector del conjunto lingüístico, el estado de carga y el acceso al menú.
 2. Un área de composición donde se agrupan los semordnilaps seleccionados.
 3. Un catálogo inferior con los dos idiomas en columnas paralelas.
 4. Un pie de página compacto con la marca `SemordniLAB`.
@@ -54,11 +54,11 @@ Cuando todavía no hay componentes, el área ofrece una indicación breve para e
 
 Debajo aparecen los dos exploradores. La columna izquierda alinea sus semordnilaps hacia la derecha y la columna derecha los alinea hacia la izquierda. Las expresiones quedan orientadas visualmente hacia el punto de encuentro entre ambos idiomas.
 
-Cada explorador dispone de búsqueda y ordenación propias. Al seleccionar una expresión, el semordnilap completo se añade al área de composición y su expresión correspondiente aparece en la secuencia inversa. Las acciones situadas entre ambas columnas actúan sobre el semordnilap completo.
+Cada explorador dispone de búsqueda y ordenación propias. Los controles de ordenación se sitúan junto al título del idioma para reducir la altura de las cabeceras. Al seleccionar una expresión, el semordnilap completo se añade al área de composición y su expresión correspondiente aparece en la secuencia inversa. Las acciones situadas entre ambas columnas actúan sobre el semordnilap completo.
 
 Los espacios situados antes, después y entre componentes permiten elegir la posición de la siguiente inserción. El espacio final está activo inicialmente y el cursor avanza después de cada incorporación. Seleccionar un espacio en el idioma de destino activa su posición canónica equivalente en origen.
 
-Cada componente se puede mover hacia la izquierda o la derecha, retirar o recuperar mediante el historial. Deshacer y rehacer cubren inserciones, movimientos, retiradas y vaciado. Cada cambio actualiza simultáneamente los dos idiomas y conserva automáticamente el borrador del dataset activo.
+Cada componente se puede mover hacia la izquierda o la derecha, retirar o recuperar mediante el historial. Deshacer y rehacer cubren inserciones, movimientos, retiradas y vaciado. Cada cambio actualiza simultáneamente los dos idiomas y conserva automáticamente el borrador del dataset activo. El encabezado del área distingue entre recuperación, guardado en curso, guardado correcto y error de persistencia.
 
 La correspondencia visual entre componentes debe permanecer visible para que se entienda cómo se forma el resultado.
 
@@ -113,6 +113,13 @@ La interfaz utiliza actualmente dos estados:
 
 Los estados son independientes. Por ejemplo, un favorito puede descartarse sin perder la marca de favorito. Este modelo permite incorporar otros estados sin cambiar la identidad del registro ni crear una estructura específica para cada uno.
 
+La barra del catálogo ofrece cuatro vistas compartidas:
+
+- `Todos` reúne las unidades activas;
+- `Guardados` muestra únicamente composites;
+- `Favoritos` reúne las unidades activas con ese estado;
+- `Descartados` muestra las unidades retiradas de la vista activa.
+
 Descartar o restaurar una fila actualiza las dos expresiones a la vez. Los botones de descartados de ambas cabeceras abren la misma colección compartida. Desde ella se puede restaurar una unidad, seleccionar varias o restaurarlas todas. La selección múltiple también permite aplicar favoritos o descartes por lotes desde la vista activa. Después de descartar, un aviso temporal permite deshacer inmediatamente la operación.
 
 La búsqueda sigue funcionando dentro de la vista activa o descartada y continúa aplicando la intersección de ambos idiomas. Restablecer los filtros elimina consultas y ordenación, pero no borra estados persistentes.
@@ -140,14 +147,28 @@ Las expresiones resultantes se derivan de los componentes y no constituyen una f
 
 Los composites guardados aparecen directamente en el catálogo con un indicador propio. Pueden buscarse, marcarse como favoritos, descartarse e insertarse como una sola pieza dentro de otra composición. La resolución recursiva conserva la procedencia atómica y comprueba la integridad antes de mostrar cada resultado.
 
-La identidad de un composite se deriva de la secuencia expandida de componentes atómicos. Guardar de nuevo la misma construcción no crea un duplicado. Los registros son inmutables desde la interfaz actual, por lo que una composición nueva no puede modificar indirectamente otra ya guardada ni introducir referencias circulares.
+El indicador abre un diálogo de gestión que muestra las dos expresiones, los componentes directos y la cantidad de unidades atómicas. Desde él se puede:
+
+- insertar el composite en la posición activa;
+- abrir sus componentes directos como nuevo borrador, con confirmación si sustituye trabajo existente;
+- cambiar el título sin modificar la identidad ni la estructura;
+- exportar una copia de seguridad;
+- eliminarlo cuando ningún composite ni borrador conserve una referencia.
+
+La edición estructural no modifica un composite guardado. Abrirlo como borrador y guardar otra construcción produce una identidad nueva o reutiliza otra ya existente.
+
+La identidad de un composite se deriva de la secuencia expandida de componentes atómicos. Guardar de nuevo la misma construcción no crea un duplicado. La estructura guardada es inmutable, aunque su título puede cambiar. Por tanto, una composición nueva no puede modificar indirectamente otra ya guardada ni introducir referencias circulares.
 
 ## Persistencia y exportación
 
 La aplicación no requiere cuenta ni servidor. Guarda en el navegador los estados del catálogo, un borrador por dataset y los composites. Los datasets incluidos se sirven como archivos estáticos y no se duplican en la base de datos local.
 
-La base tiene una versión explícita y las actualizaciones conservan las tablas anteriores mediante migraciones aditivas. Los identificadores atómicos son estables aunque una fila cambie de posición en el TSV. Las preferencias guardadas con los identificadores antiguos se convierten dentro de una transacción cuando se carga cada dataset.
+La base tiene una versión explícita y las actualizaciones conservan las tablas anteriores mediante migraciones aditivas. Los identificadores atómicos son estables aunque una fila cambie de posición en el TSV. Los estados guardados con los identificadores antiguos se convierten dentro de una transacción cuando se carga cada dataset.
 
-El usuario podrá exportar su colección para conservarla o trasladarla. El formato de intercambio deberá incluir referencias suficientes para reconstruir y validar las composiciones anidadas.
+El menú de la barra superior separa `Datos` y `Preferencias`. La sección de datos resume el almacenamiento local y permite exportar una copia JSON versionada. La copia contiene estados, composites, borradores y preferencias, pero no duplica los TSV incluidos.
+
+Antes de importar se analiza todo el archivo y se muestra un resumen. El usuario puede combinarlo con los datos actuales o sustituirlos, decidir cómo resolver conflictos de borradores y excluir las preferencias. La validación comprueba formato, versión, datasets, identificadores, referencias, ciclos e integridad de composites. Solo después se reemplazan las tablas dentro de una única transacción. La aplicación descarga automáticamente una copia del estado anterior antes de confirmar la escritura.
+
+Las preferencias permiten recordar por dataset las búsquedas, el modo del catálogo y la combinación ordenada de criterios. También pueden recordar si el área de composición está plegada. Restablecerlas no modifica favoritos, descartados, borradores ni composites.
 
 Una futura ampliación podría añadir sincronización entre dispositivos, colecciones compartidas y colaboración. Estas posibilidades no forman parte de la especificación actual.

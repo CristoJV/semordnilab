@@ -63,11 +63,24 @@ export function CatalogLanguageHeader({
   return (
     <div className={styles.header} data-side={side}>
       <div className={styles.heading}>
-        <div>
+        <div className={styles.headingTitle}>
           <p className={styles.eyebrow}>
             {side === 'source' ? 'Origen' : 'Destino'}
           </p>
           <h2>{languageLabel}</h2>
+        </div>
+        <div className={styles.sorts} aria-label={`Ordenar ${languageLabel}`}>
+          {(['alphabetical', 'length'] as const).map((field) => (
+            <button
+              key={field}
+              type="button"
+              data-active={Boolean(activeCriterion(field))}
+              onClick={() => onCycleSort(field, side)}
+              aria-label={sortDescription(field)}
+            >
+              {sortLabel(field)}
+            </button>
+          ))}
         </div>
         <span className={styles.results} aria-live="polite">
           {resultCount.toLocaleString('es-ES')}
@@ -100,23 +113,11 @@ export function CatalogLanguageHeader({
           aria-label={`${discardedView ? 'Volver al catálogo activo' : 'Ver descartados'} desde ${languageLabel}`}
           title={discardedView ? 'Volver al catálogo' : 'Ver descartados'}
         >
-          <span aria-hidden="true">⌫</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5" />
+          </svg>
           {discardedCount > 0 && <small>{discardedCount}</small>}
         </button>
-      </div>
-
-      <div className={styles.sorts} aria-label={`Ordenar ${languageLabel}`}>
-        {(['alphabetical', 'length'] as const).map((field) => (
-          <button
-            key={field}
-            type="button"
-            data-active={Boolean(activeCriterion(field))}
-            onClick={() => onCycleSort(field, side)}
-            aria-label={sortDescription(field)}
-          >
-            {sortLabel(field)}
-          </button>
-        ))}
       </div>
     </div>
   )

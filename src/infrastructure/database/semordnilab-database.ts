@@ -5,10 +5,11 @@ import type {
   SavedCompositeSemordnilapRecord,
   SemordnilapCatalogStatus,
   SemordnilapStatusRecord,
+  WorkspacePreferencesRecord,
 } from '@/application'
 import type { DatasetId, SemordnilapId } from '@/domain/semordnilap'
 
-export const DATABASE_VERSION = 2
+export const DATABASE_VERSION = 3
 
 export type SemordnilapStatusKey = [
   DatasetId,
@@ -29,19 +30,27 @@ export class SemordnilabDatabase extends Dexie {
     SemordnilapId
   >
   readonly compositionDrafts: Table<CompositionDraftRecord, DatasetId>
+  readonly workspacePreferences: Table<WorkspacePreferencesRecord, 'workspace'>
 
   constructor(databaseName = 'semordnilab') {
     super(databaseName)
 
     this.version(1).stores({ semordnilapStatuses: statusSchema })
+    this.version(2).stores({
+      semordnilapStatuses: statusSchema,
+      savedComposites: 'id, datasetId, createdAt, updatedAt',
+      compositionDrafts: 'datasetId, updatedAt',
+    })
     this.version(DATABASE_VERSION).stores({
       semordnilapStatuses: statusSchema,
       savedComposites: 'id, datasetId, createdAt, updatedAt',
       compositionDrafts: 'datasetId, updatedAt',
+      workspacePreferences: 'id, updatedAt',
     })
 
     this.semordnilapStatuses = this.table('semordnilapStatuses')
     this.savedComposites = this.table('savedComposites')
     this.compositionDrafts = this.table('compositionDrafts')
+    this.workspacePreferences = this.table('workspacePreferences')
   }
 }

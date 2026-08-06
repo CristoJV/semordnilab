@@ -11,6 +11,7 @@ type AppHeaderProps = {
   status: CatalogStatus
   itemCount: number
   onDatasetChange: (datasetId: DatasetId | '') => void
+  onOpenMenu: () => void
 }
 
 export function AppHeader({
@@ -19,6 +20,7 @@ export function AppHeader({
   status,
   itemCount,
   onDatasetChange,
+  onOpenMenu,
 }: AppHeaderProps) {
   const statusText =
     status === 'loading'
@@ -44,9 +46,21 @@ export function AppHeader({
         onChange={onDatasetChange}
       />
 
-      <p className={styles.status} aria-live="polite">
-        {statusText}
-      </p>
+      <div className={styles.trailing}>
+        <p className={styles.status} aria-live="polite">
+          {statusText}
+        </p>
+        <button
+          className={styles.menuButton}
+          type="button"
+          onClick={onOpenMenu}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          Menú
+        </button>
+      </div>
     </header>
   )
 }

@@ -17,7 +17,10 @@ El repositorio contiene actualmente:
 - favoritos prioritarios, vista de descartados, restauración y selección múltiple;
 - criterios de ordenación combinables desde cualquiera de los idiomas;
 - guardado, deduplicación y resolución recursiva de composites;
-- esquema IndexedDB en versión 2 con migración comprobada desde la versión 1;
+- gestión de composites con actualización de metadatos y eliminación transaccional protegida;
+- copias JSON versionadas con inspección, combinación, validación semántica e importación atómica;
+- preferencias de vista persistentes por dataset;
+- esquema IndexedDB en versión 3 con migraciones comprobadas desde las versiones 1 y 2;
 - CSS Modules y estilos globales basados en tokens;
 - pruebas con Vitest para dominio, aplicación, infraestructura y presentación;
 - TypeScript estricto, alias `@/`, ESLint y Prettier;
@@ -25,7 +28,7 @@ El repositorio contiene actualmente:
 - la ruta base de Vite para publicar en `/semordnilab/`;
 - un workflow de GitHub Actions para desplegar en GitHub Pages.
 
-La persistencia local está conectada para estados del catálogo, composites y borradores. Todavía no están implementadas la importación de datasets externos ni la exportación de la colección.
+La persistencia local está conectada para estados del catálogo, composites, borradores y preferencias. La colección personal puede exportarse e importarse. La importación de datasets lingüísticos externos sigue sin estar implementada.
 
 ## Stack y política de dependencias
 
@@ -389,7 +392,7 @@ No se añadirá inicialmente una librería de búsqueda. Una dependencia solo se
 
 ## Persistencia local
 
-Dexie implementa repositorios internos sobre IndexedDB. `DATABASE_VERSION` marca actualmente la versión 2. La declaración de la versión 1 permanece intacta y contiene `semordnilapStatuses`, con la clave compuesta:
+Dexie implementa repositorios internos sobre IndexedDB. `DATABASE_VERSION` marca actualmente la versión 3. La declaración de la versión 1 permanece intacta y contiene `semordnilapStatuses`, con la clave compuesta:
 
 ```text
 [datasetId + semordnilapId + status]
@@ -404,13 +407,22 @@ La versión 2 conserva esa tabla y añade:
 - `savedComposites`, indexada por `id` y `datasetId`;
 - `compositionDrafts`, con `datasetId` como clave primaria.
 
-La actualización es aditiva. Una prueba abre una base real de versión 1 con estados, la actualiza a la versión 2 y comprueba que los registros sobreviven y que las tablas nuevas están disponibles. Las referencias de estado basadas en antiguas posiciones del TSV se reemplazan posteriormente dentro de una transacción, una vez que el dataset permite conocer la correspondencia segura.
+La versión 3 conserva las tres tablas y añade:
+
+- `workspacePreferences`, con el identificador constante `workspace` como clave primaria.
+
+Las actualizaciones son aditivas. Las pruebas abren bases reales de versiones 1 y 2, las actualizan a la versión actual y comprueban que estados, composites y borradores sobreviven. Las referencias de estado basadas en antiguas posiciones del TSV se reemplazan posteriormente dentro de una transacción, una vez que el dataset permite conocer la correspondencia segura.
 
 La base local almacena únicamente aquello que no pueda reconstruirse de forma fiable. Actualmente persiste:
 
 - estados genéricos del catálogo mediante referencias estables;
 - registros de composites con referencias, identidad atómica, título y fechas;
 - un borrador y su posición de inserción por dataset.
+- preferencias globales y vistas de catálogo por dataset.
+
+La copia de seguridad utiliza un sobre con nombre de formato, versión y fecha de exportación. La capa de aplicación analiza datos desconocidos, construye el resultado de la estrategia elegida y vuelve a resolver todos los composites contra los datasets incluidos. La infraestructura solo sustituye las cuatro tablas después de completar esa validación y lo hace dentro de una transacción Dexie. Un error de escritura revierte también los vaciados previos.
+
+Renombrar un composite actualiza únicamente su título y fecha. Eliminarlo utiliza una transacción específica que comprueba referencias desde composites y borradores antes de borrar el registro y sus estados. Estas operaciones dirigidas evitan reescribir colecciones no relacionadas y reducen el riesgo de perder una escritura concurrente del borrador.
 
 Las expresiones derivadas de los composites y el contenido completo de los TSV no se guardan en IndexedDB.
 

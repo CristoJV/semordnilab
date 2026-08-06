@@ -5,6 +5,8 @@ import type {
   SaveCompositeSemordnilap,
   SaveCompositeSemordnilapResult,
   SemordnilapCatalogItem,
+  RenameSavedComposite,
+  DeleteSavedComposite,
 } from '@/application'
 import { createCompositeCatalogItem } from '@/application'
 import type {
@@ -16,6 +18,8 @@ import type {
 type CompositeUseCases = {
   listSavedCompositeSemordnilaps: ListSavedCompositeSemordnilaps
   saveCompositeSemordnilap: SaveCompositeSemordnilap
+  renameSavedComposite: RenameSavedComposite
+  deleteSavedComposite: DeleteSavedComposite
 }
 
 type SavedCompositeState = {
@@ -26,6 +30,8 @@ type SavedCompositeState = {
     components: readonly Semordnilap[],
     title?: string,
   ) => Promise<SaveCompositeSemordnilapResult>
+  rename: (id: string, title: string) => Promise<void>
+  remove: (id: string) => Promise<void>
 }
 
 export function useSavedCompositeSemordnilaps(
@@ -90,10 +96,27 @@ export function useSavedCompositeSemordnilaps(
     [datasetId, useCases.saveCompositeSemordnilap],
   )
 
+  const rename = useCallback(
+    async (id: string, title: string) => {
+      await useCases.renameSavedComposite.execute(id, title)
+      setReloadToken((current) => current + 1)
+    },
+    [useCases.renameSavedComposite],
+  )
+  const remove = useCallback(
+    async (id: string) => {
+      await useCases.deleteSavedComposite.execute(id)
+      setReloadToken((current) => current + 1)
+    },
+    [useCases.deleteSavedComposite],
+  )
+
   return {
     items,
     ready: Boolean(datasetId && loadedDatasetId === datasetId),
     errorMessage,
     save,
+    rename,
+    remove,
   }
 }

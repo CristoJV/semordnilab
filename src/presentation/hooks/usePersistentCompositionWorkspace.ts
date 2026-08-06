@@ -24,6 +24,7 @@ type DraftUseCases = {
 
 export type PersistentCompositionWorkspaceState = CompositionWorkspaceState & {
   ready: boolean
+  persistenceStatus: 'loading' | 'saving' | 'saved' | 'error'
   persistenceError: string | null
   discardIncompatibleDraft: () => Promise<void>
 }
@@ -38,6 +39,9 @@ export function usePersistentCompositionWorkspace(
   const restoreWorkspace = workspace.restore
   const [hydratedDatasetId, setHydratedDatasetId] = useState<DatasetId | ''>('')
   const [persistenceError, setPersistenceError] = useState<string | null>(null)
+  const [persistenceStatus, setPersistenceStatus] = useState<
+    'loading' | 'saving' | 'saved' | 'error'
+  >('loading')
   const latestDraft = useRef({
     datasetId,
     components: workspace.components,
@@ -83,6 +87,7 @@ export function usePersistentCompositionWorkspace(
         restoreWorkspace(semordnilaps, draft?.insertionIndex ?? 0)
         setHydratedDatasetId(datasetId)
         setPersistenceError(null)
+        setPersistenceStatus('saved')
       })
       .catch((error: unknown) => {
         if (!active) return
@@ -91,6 +96,7 @@ export function usePersistentCompositionWorkspace(
             ? error.message
             : 'No se ha podido recuperar el borrador.',
         )
+        setPersistenceStatus('error')
       })
     return () => {
       active = false
@@ -110,6 +116,7 @@ export function usePersistentCompositionWorkspace(
     restoreWorkspace([], 0)
     setHydratedDatasetId(datasetId)
     setPersistenceError(null)
+    setPersistenceStatus('saved')
   }, [datasetId, restoreWorkspace, useCases.clearCompositionDraft])
 
   useEffect(() => {
@@ -140,6 +147,7 @@ export function usePersistentCompositionWorkspace(
   useEffect(() => {
     if (!datasetId || hydratedDatasetId !== datasetId) return undefined
     const timeout = window.setTimeout(() => {
+      setPersistenceStatus('saving')
       const operation =
         workspace.components.length === 0
           ? useCases.clearCompositionDraft.execute(datasetId)
@@ -152,14 +160,18 @@ export function usePersistentCompositionWorkspace(
               updatedAt: new Date().toISOString(),
             })
       void operation
-        .then(() => setPersistenceError(null))
-        .catch((error: unknown) =>
+        .then(() => {
+          setPersistenceError(null)
+          setPersistenceStatus('saved')
+        })
+        .catch((error: unknown) => {
           setPersistenceError(
             error instanceof Error
               ? error.message
               : 'No se ha podido conservar el borrador.',
-          ),
-        )
+          )
+          setPersistenceStatus('error')
+        })
     }, 180)
     return () => window.clearTimeout(timeout)
   }, [
@@ -174,6 +186,7 @@ export function usePersistentCompositionWorkspace(
   return {
     ...workspace,
     ready: Boolean(datasetId && hydratedDatasetId === datasetId),
+    persistenceStatus,
     persistenceError,
     discardIncompatibleDraft,
   }

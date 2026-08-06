@@ -5,16 +5,24 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   AddSemordnilapStatus,
   ClearCompositionDraft,
+  DeleteSavedComposite,
+  ExportPersonalData,
+  ImportPersonalData,
+  GetPersonalDataSummary,
   ListAvailableDatasets,
   ListSavedCompositeSemordnilaps,
   ListSemordnilapStatuses,
   LoadAtomicSemordnilaps,
   LoadCompositionDraft,
+  LoadWorkspacePreferences,
   MigrateSemordnilapStatusReferences,
   RemoveAllSemordnilapStatuses,
   RemoveSemordnilapStatus,
+  RenameSavedComposite,
   SaveCompositeSemordnilap,
   SaveCompositionDraft,
+  SaveWorkspacePreferences,
+  PreviewPersonalDataImport,
   type LoadedSemordnilapDataset,
   type SemordnilapDatasetSource,
 } from '@/application'
@@ -29,7 +37,9 @@ import {
 import { InMemorySemordnilapStatusRepository } from '../support/in-memory-semordnilap-status-repository'
 import {
   InMemoryCompositionDraftRepository,
+  InMemoryPersonalDataRepository,
   InMemorySavedCompositeSemordnilapRepository,
+  InMemoryWorkspacePreferencesRepository,
 } from '../support/in-memory-saved-data-repositories'
 
 const ella = createAtomicSemordnilap('ella', 'ella', 'ella', 'a lle', 'alle')
@@ -51,6 +61,13 @@ function createDependencies(
   const statusRepository = new InMemorySemordnilapStatusRepository()
   const compositeRepository = new InMemorySavedCompositeSemordnilapRepository()
   const draftRepository = new InMemoryCompositionDraftRepository()
+  const preferencesRepository = new InMemoryWorkspacePreferencesRepository()
+  const personalDataRepository = new InMemoryPersonalDataRepository(
+    statusRepository,
+    compositeRepository,
+    draftRepository,
+    preferencesRepository,
+  )
 
   return {
     listAvailableDatasets: new ListAvailableDatasets(source),
@@ -71,6 +88,25 @@ function createDependencies(
     loadCompositionDraft: new LoadCompositionDraft(draftRepository),
     saveCompositionDraft: new SaveCompositionDraft(draftRepository),
     clearCompositionDraft: new ClearCompositionDraft(draftRepository),
+    loadWorkspacePreferences: new LoadWorkspacePreferences(
+      preferencesRepository,
+    ),
+    saveWorkspacePreferences: new SaveWorkspacePreferences(
+      preferencesRepository,
+    ),
+    renameSavedComposite: new RenameSavedComposite(personalDataRepository),
+    deleteSavedComposite: new DeleteSavedComposite(personalDataRepository),
+    exportPersonalData: new ExportPersonalData(personalDataRepository),
+    previewPersonalDataImport: new PreviewPersonalDataImport(
+      personalDataRepository,
+      source,
+    ),
+    importPersonalData: new ImportPersonalData(personalDataRepository, source),
+    getPersonalDataSummary: new GetPersonalDataSummary(personalDataRepository),
+    personalDataFileGateway: {
+      readText: (file) => file.text(),
+      downloadText: vi.fn(),
+    },
   }
 }
 
@@ -493,6 +529,7 @@ describe('WorkspacePage', () => {
         expect.objectContaining({ insertionIndex: 1 }),
       ),
     )
+    expect(screen.getByText('Borrador guardado localmente')).toBeInTheDocument()
     firstRender.unmount()
 
     const secondUser = userEvent.setup()
@@ -634,5 +671,192 @@ describe('WorkspacePage', () => {
       await screen.findByRole('region', { name: 'Catálogo bilingüe' }),
     ).toBeInTheDocument()
     expect(load).toHaveBeenCalledTimes(2)
+  })
+
+  it('muestra solo composites guardados y abre su gestión', async () => {
+    const user = userEvent.setup()
+    render(<WorkspacePage dependencies={createDependencies()} />)
+    await user.selectOptions(
+      screen.getByLabelText('Conjunto lingüístico'),
+      testDataset.id,
+    )
+    const catalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
+    await user.click(
+      within(catalog).getByRole('button', {
+        name: 'Añadir ella a la composición',
+      }),
+    )
+    await user.click(
+      within(catalog).getByRole('button', {
+        name: 'Añadir no se a la composición',
+      }),
+    )
+    await user.click(screen.getByRole('button', { name: 'Guardar composite' }))
+    await screen.findByText('Composite guardado y añadido al catálogo.')
+
+    await user.click(
+      within(catalog).getByRole('button', { name: /Guardados 1/ }),
+    )
+    expect(within(catalog).getAllByRole('listitem')).toHaveLength(1)
+    await user.click(
+      within(catalog).getByRole('button', {
+        name: 'Gestionar composite: ella no se / e son a lle',
+      }),
+    )
+
+    const dialog = screen.getByRole('dialog', { name: 'Composite guardado' })
+    expect(within(dialog).getByText('ella no se')).toBeInTheDocument()
+    expect(within(dialog).getByText('e son a lle')).toBeInTheDocument()
+    const title = within(dialog).getByLabelText('Nombre del composite')
+    await user.type(title, 'Hallazgo')
+    await user.click(within(dialog).getByRole('button', { name: 'Renombrar' }))
+    expect(
+      await within(dialog).findByText('Nombre actualizado.'),
+    ).toBeInTheDocument()
+  })
+
+  it('abre el menú, exporta y conserva preferencias', async () => {
+    const dependencies = createDependencies()
+    const download = vi.spyOn(
+      dependencies.personalDataFileGateway,
+      'downloadText',
+    )
+    const savePreferences = vi.spyOn(
+      dependencies.saveWorkspacePreferences,
+      'execute',
+    )
+    const user = userEvent.setup()
+    render(<WorkspacePage dependencies={dependencies} />)
+
+    await user.click(screen.getByRole('button', { name: 'Menú' }))
+    const dialog = screen.getByRole('dialog', { name: 'Menú' })
+    await user.click(
+      within(dialog).getByRole('button', { name: 'Exportar copia' }),
+    )
+    await waitFor(() => expect(download).toHaveBeenCalledOnce())
+
+    await user.click(
+      within(dialog).getByRole('button', { name: 'Preferencias' }),
+    )
+    await user.click(
+      within(dialog).getByRole('checkbox', {
+        name: /Filtros y ordenación por dataset/,
+      }),
+    )
+    await waitFor(() =>
+      expect(savePreferences).toHaveBeenCalledWith(
+        expect.objectContaining({ rememberCatalogView: false }),
+      ),
+    )
+  })
+
+  it('rechaza una copia incompatible desde el menú antes de importarla', async () => {
+    const dependencies = createDependencies()
+    vi.spyOn(
+      dependencies.personalDataFileGateway,
+      'readText',
+    ).mockResolvedValue('{}')
+    const importData = vi.spyOn(dependencies.importPersonalData, 'execute')
+    const user = userEvent.setup()
+    render(<WorkspacePage dependencies={dependencies} />)
+
+    await user.click(screen.getByRole('button', { name: 'Menú' }))
+    const dialog = screen.getByRole('dialog', { name: 'Menú' })
+    const fileInput = within(dialog).getByLabelText(
+      'Seleccionar copia para importar',
+    )
+    await user.upload(
+      fileInput,
+      new File(['{}'], 'copia.json', { type: 'application/json' }),
+    )
+
+    expect(
+      await within(dialog).findByText(
+        'El archivo no es una copia de SemordniLAB.',
+      ),
+    ).toBeInTheDocument()
+    expect(importData).not.toHaveBeenCalled()
+  })
+
+  it('usa una papelera para abrir los descartados', async () => {
+    const user = userEvent.setup()
+    render(<WorkspacePage dependencies={createDependencies()} />)
+    await user.selectOptions(
+      screen.getByLabelText('Conjunto lingüístico'),
+      testDataset.id,
+    )
+    const catalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
+    const discarded = within(catalog).getByRole('button', {
+      name: 'Ver descartados desde Español',
+    })
+    expect(discarded.querySelector('svg')).toBeInTheDocument()
+    expect(discarded).not.toHaveTextContent('⌫')
+  })
+
+  it('recupera filtros y ordenación para cada dataset', async () => {
+    const dependencies = createDependencies()
+    const firstUser = userEvent.setup()
+    const firstRender = render(<WorkspacePage dependencies={dependencies} />)
+    await firstUser.selectOptions(
+      screen.getByLabelText('Conjunto lingüístico'),
+      testDataset.id,
+    )
+    const firstCatalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
+    await firstUser.type(
+      within(firstCatalog).getByRole('searchbox', {
+        name: 'Buscar en Español',
+      }),
+      'ella',
+    )
+    await firstUser.click(
+      within(firstCatalog).getByRole('button', {
+        name: 'Activar orden alfabético ascendente en Español',
+      }),
+    )
+    await waitFor(async () =>
+      expect(
+        await dependencies.loadWorkspacePreferences.execute(),
+      ).toMatchObject({
+        catalogViews: [
+          expect.objectContaining({
+            datasetId: testDataset.id,
+            sourceQuery: 'ella',
+            sort: [
+              expect.objectContaining({
+                field: 'alphabetical',
+                direction: 'ascending',
+              }),
+            ],
+          }),
+        ],
+      }),
+    )
+    firstRender.unmount()
+
+    const secondUser = userEvent.setup()
+    render(<WorkspacePage dependencies={dependencies} />)
+    await secondUser.selectOptions(
+      screen.getByLabelText('Conjunto lingüístico'),
+      testDataset.id,
+    )
+    const restoredCatalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
+    expect(
+      within(restoredCatalog).getByRole('searchbox', {
+        name: 'Buscar en Español',
+      }),
+    ).toHaveValue('ella')
+    expect(
+      within(restoredCatalog).getByRole('button', {
+        name: 'Cambiar orden alfabético a descendente en Español',
+      }),
+    ).toBeInTheDocument()
   })
 })
