@@ -123,3 +123,9 @@
   padding-top: 0.35rem;
   border-top: 1px solid var(--color-border);
 }
+
+.panelActions button:last-child {
+  color: white;
+  background: var(--color-violet);
+  border-color: var(--color-violet);
+}

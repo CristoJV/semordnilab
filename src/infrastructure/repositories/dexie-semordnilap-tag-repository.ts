@@ -1,6 +1,7 @@
 import type {
   SemordnilapTag,
   SemordnilapTagAssignment,
+  SemordnilapTagChange,
   SemordnilapTagRepository,
   TagId,
 } from '@/application'
@@ -80,6 +81,65 @@ export class DexieSemordnilapTagRepository implements SemordnilapTagRepository {
   ): Promise<void> {
     await this.database.semordnilapTags.bulkDelete(
       semordnilapIds.map((semordnilapId) => [datasetId, semordnilapId, tagId]),
+    )
+  }
+
+  async applyAssignmentChanges(
+    datasetId: DatasetId,
+    semordnilapIds: readonly SemordnilapId[],
+    changes: readonly SemordnilapTagChange[],
+    createdAt: string,
+  ): Promise<void> {
+    if (semordnilapIds.length === 0 || changes.length === 0) return
+    await this.database.transaction(
+      'rw',
+      [this.database.tags, this.database.semordnilapTags],
+      async () => {
+        const assignedTagIds = changes
+          .filter(({ assigned }) => assigned)
+          .map(({ tagId }) => tagId)
+        const tags = await this.database.tags.bulkGet(assignedTagIds)
+        if (tags.some((tag) => !tag)) {
+          throw new Error('Alguna de las etiquetas ya no existe.')
+        }
+        const additions = changes
+          .filter(({ assigned }) => assigned)
+          .flatMap(({ tagId }) =>
+            semordnilapIds.map((semordnilapId) => ({
+              datasetId,
+              semordnilapId,
+              tagId,
+              createdAt,
+            })),
+          )
+        const existingAdditions = await this.database.semordnilapTags.bulkGet(
+          additions.map(
+            ({ datasetId: assignmentDatasetId, semordnilapId, tagId }) =>
+              [assignmentDatasetId, semordnilapId, tagId] as [
+                DatasetId,
+                SemordnilapId,
+                TagId,
+              ],
+          ),
+        )
+        const newAdditions = additions.filter(
+          (_, index) => !existingAdditions[index],
+        )
+        const removals = changes
+          .filter(({ assigned }) => !assigned)
+          .flatMap(({ tagId }) =>
+            semordnilapIds.map(
+              (semordnilapId) =>
+                [datasetId, semordnilapId, tagId] as [
+                  DatasetId,
+                  SemordnilapId,
+                  TagId,
+                ],
+            ),
+          )
+        await this.database.semordnilapTags.bulkPut(newAdditions)
+        await this.database.semordnilapTags.bulkDelete(removals)
+      },
     )
   }
 }

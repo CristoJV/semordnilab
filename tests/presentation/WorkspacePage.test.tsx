@@ -11,6 +11,7 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   AddSemordnilapStatus,
   AddSemordnilapTagAssignments,
+  ApplySemordnilapTagChanges,
   ClearCompositionDraft,
   DeleteSavedComposite,
   DeleteSemordnilapTag,
@@ -103,6 +104,7 @@ function createDependencies(
     addSemordnilapTagAssignments: new AddSemordnilapTagAssignments(
       tagRepository,
     ),
+    applySemordnilapTagChanges: new ApplySemordnilapTagChanges(tagRepository),
     removeSemordnilapTagAssignments: new RemoveSemordnilapTagAssignments(
       tagRepository,
     ),
@@ -177,10 +179,19 @@ describe('WorkspacePage', () => {
     await user.click(
       within(catalog).getByRole('button', { name: 'Seleccionar ella' }),
     )
-    await user.click(
-      within(catalog).getByText('Etiquetar', { selector: 'summary' }),
-    )
+    const assignmentToggle = within(catalog).getByText('Etiquetar', {
+      selector: 'summary',
+    })
+    await user.click(assignmentToggle)
     await user.click(within(catalog).getByRole('checkbox', { name: /Curioso/ }))
+    expect(
+      within(catalog).getByRole('button', { name: 'Deseleccionar ella' }),
+    ).not.toHaveAttribute(
+      'title',
+      expect.stringContaining('Etiquetas: Curioso'),
+    )
+    await user.click(within(catalog).getByRole('button', { name: 'Aplicar' }))
+    expect(assignmentToggle.closest('details')).not.toHaveAttribute('open')
     await waitFor(() =>
       expect(
         within(catalog).getByRole('button', {
@@ -188,12 +199,20 @@ describe('WorkspacePage', () => {
         }),
       ).toHaveAttribute('title', expect.stringContaining('Etiquetas: Curioso')),
     )
-    await user.click(within(catalog).getByRole('button', { name: 'Cancelar' }))
+    await user.click(within(catalog).getByRole('button', { name: 'Cerrar' }))
 
-    await user.click(
-      within(catalog).getByText('Etiquetas', { selector: 'summary' }),
-    )
+    const filterToggle = within(catalog).getByText('Etiquetas', {
+      selector: 'summary',
+    })
+    await user.click(filterToggle)
     await user.click(within(catalog).getByRole('checkbox', { name: 'Curioso' }))
+    expect(
+      within(
+        within(catalog).getByRole('list', { name: 'Semordnilaps filtrados' }),
+      ).getAllByRole('listitem'),
+    ).toHaveLength(2)
+    await user.click(within(catalog).getByRole('button', { name: 'Aplicar' }))
+    expect(filterToggle.closest('details')).not.toHaveAttribute('open')
     const filtered = within(catalog).getByRole('list', {
       name: 'Semordnilaps filtrados',
     })

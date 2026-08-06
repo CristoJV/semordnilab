@@ -1,6 +1,7 @@
 import type {
   SemordnilapTag,
   SemordnilapTagAssignment,
+  SemordnilapTagChange,
   SemordnilapTagRepository,
   TagId,
 } from '@/application'
@@ -57,6 +58,28 @@ export class InMemorySemordnilapTagRepository implements SemordnilapTagRepositor
       this.assignments.delete(
         this.key({ datasetId, semordnilapId, tagId, createdAt: '' }),
       )
+    }
+  }
+
+  async applyAssignmentChanges(
+    datasetId: DatasetId,
+    semordnilapIds: readonly SemordnilapId[],
+    changes: readonly SemordnilapTagChange[],
+    createdAt: string,
+  ): Promise<void> {
+    for (const { tagId, assigned } of changes) {
+      if (assigned && !this.tags.has(tagId)) {
+        throw new Error('La etiqueta ya no existe.')
+      }
+      for (const semordnilapId of semordnilapIds) {
+        const assignment = { datasetId, semordnilapId, tagId, createdAt }
+        const key = this.key(assignment)
+        if (assigned && !this.assignments.has(key)) {
+          this.assignments.set(key, assignment)
+        } else if (!assigned) {
+          this.assignments.delete(key)
+        }
+      }
     }
   }
 

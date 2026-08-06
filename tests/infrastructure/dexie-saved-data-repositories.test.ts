@@ -329,6 +329,34 @@ describe('repositorios Dexie de datos guardados', () => {
       ],
     })
 
+    await repository.applyAssignmentChanges(
+      'es-gl',
+      ['atomic:uno', 'atomic:dos'],
+      [{ tagId: tag.id, assigned: true }],
+      '2026-08-06T11:00:00.000Z',
+    )
+    const appliedAssignments = (await repository.list('es-gl')).assignments
+    expect(appliedAssignments).toHaveLength(2)
+    expect(
+      appliedAssignments.find(
+        ({ semordnilapId }) => semordnilapId === 'atomic:uno',
+      )?.createdAt,
+    ).toBe('2026-08-06T10:00:00.000Z')
+    await repository.applyAssignmentChanges(
+      'es-gl',
+      ['atomic:uno'],
+      [{ tagId: tag.id, assigned: false }],
+      '2026-08-06T12:00:00.000Z',
+    )
+    expect((await repository.list('es-gl')).assignments).toEqual([
+      {
+        datasetId: 'es-gl',
+        semordnilapId: 'atomic:dos',
+        tagId: tag.id,
+        createdAt: '2026-08-06T11:00:00.000Z',
+      },
+    ])
+
     await repository.delete(tag.id)
     expect(await repository.list('es-gl')).toEqual({
       tags: [],

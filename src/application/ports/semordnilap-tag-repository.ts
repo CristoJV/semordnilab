@@ -2,6 +2,7 @@ import type {
   SemordnilapTag,
   SemordnilapTagAssignment,
   SemordnilapTagCollection,
+  SemordnilapTagChange,
   TagId,
 } from '@/application/dto/semordnilap-tag'
 import type { DatasetId, SemordnilapId } from '@/domain/semordnilap'
@@ -19,5 +20,11 @@ export interface SemordnilapTagRepository {
     datasetId: DatasetId,
     semordnilapIds: readonly SemordnilapId[],
     tagId: TagId,
+  ): Promise<void>
+  applyAssignmentChanges(
+    datasetId: DatasetId,
+    semordnilapIds: readonly SemordnilapId[],
+    changes: readonly SemordnilapTagChange[],
+    createdAt: string,
   ): Promise<void>
 }

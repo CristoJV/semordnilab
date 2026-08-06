@@ -12,6 +12,7 @@ export {
   type SemordnilapTag,
   type SemordnilapTagAssignment,
   type SemordnilapTagCollection,
+  type SemordnilapTagChange,
   type TagColor,
   type TagId,
 } from './dto/semordnilap-tag'
@@ -91,6 +92,7 @@ export {
 } from './use-cases/update-semordnilap-tag'
 export {
   AddSemordnilapTagAssignments,
+  ApplySemordnilapTagChanges,
   RemoveSemordnilapTagAssignments,
 } from './use-cases/change-semordnilap-tag-assignments'
 export { createCompositeCatalogItem } from './composites/create-composite-catalog-item'

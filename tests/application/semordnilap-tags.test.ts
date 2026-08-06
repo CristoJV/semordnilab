@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   AddSemordnilapTagAssignments,
+  ApplySemordnilapTagChanges,
   CreateSemordnilapTag,
   DeleteSemordnilapTag,
   ListSemordnilapTags,
@@ -68,6 +69,13 @@ describe('etiquetas de semordnilaps', () => {
       tag.id,
     )
     expect((await repository.list('es-gl')).assignments).toHaveLength(1)
+
+    await new ApplySemordnilapTagChanges(repository).execute(
+      'es-gl',
+      ['atomic:uno', 'atomic:dos'],
+      [{ tagId: tag.id, assigned: true }],
+    )
+    expect((await repository.list('es-gl')).assignments).toHaveLength(2)
 
     await new DeleteSemordnilapTag(repository).execute(tag.id)
     expect(await repository.list('es-gl')).toEqual({

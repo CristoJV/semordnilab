@@ -1,6 +1,7 @@
 import {
   AddSemordnilapStatus,
   AddSemordnilapTagAssignments,
+  ApplySemordnilapTagChanges,
   ClearCompositionDraft,
   CreateSemordnilapTag,
   DeleteSavedComposite,
@@ -53,6 +54,7 @@ export type ApplicationDependencies = {
   updateSemordnilapTag: UpdateSemordnilapTag
   deleteSemordnilapTag: DeleteSemordnilapTag
   addSemordnilapTagAssignments: AddSemordnilapTagAssignments
+  applySemordnilapTagChanges: ApplySemordnilapTagChanges
   removeSemordnilapTagAssignments: RemoveSemordnilapTagAssignments
   listSavedCompositeSemordnilaps: ListSavedCompositeSemordnilaps
   saveCompositeSemordnilap: SaveCompositeSemordnilap
@@ -106,6 +108,7 @@ export function createApplicationDependencies(): ApplicationDependencies {
     addSemordnilapTagAssignments: new AddSemordnilapTagAssignments(
       tagRepository,
     ),
+    applySemordnilapTagChanges: new ApplySemordnilapTagChanges(tagRepository),
     removeSemordnilapTagAssignments: new RemoveSemordnilapTagAssignments(
       tagRepository,
     ),

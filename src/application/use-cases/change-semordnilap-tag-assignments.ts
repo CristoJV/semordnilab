@@ -1,4 +1,7 @@
-import type { TagId } from '@/application/dto/semordnilap-tag'
+import type {
+  SemordnilapTagChange,
+  TagId,
+} from '@/application/dto/semordnilap-tag'
 import type { SemordnilapTagRepository } from '@/application/ports/semordnilap-tag-repository'
 import type { DatasetId, SemordnilapId } from '@/domain/semordnilap'
 
@@ -47,6 +50,35 @@ export class RemoveSemordnilapTagAssignments {
       datasetId,
       [...new Set(semordnilapIds)],
       tagId,
+    )
+  }
+}
+
+export class ApplySemordnilapTagChanges {
+  private readonly repository: SemordnilapTagRepository
+  private readonly now: () => Date
+
+  constructor(
+    repository: SemordnilapTagRepository,
+    now: () => Date = () => new Date(),
+  ) {
+    this.repository = repository
+    this.now = now
+  }
+
+  execute(
+    datasetId: DatasetId,
+    semordnilapIds: readonly SemordnilapId[],
+    changes: readonly SemordnilapTagChange[],
+  ): Promise<void> {
+    const uniqueChanges = [
+      ...new Map(changes.map((change) => [change.tagId, change])).values(),
+    ]
+    return this.repository.applyAssignmentChanges(
+      datasetId,
+      [...new Set(semordnilapIds)],
+      uniqueChanges,
+      this.now().toISOString(),
     )
   }
 }

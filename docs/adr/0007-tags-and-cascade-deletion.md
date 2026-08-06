@@ -14,7 +14,9 @@ Ambas ampliaciones deben preservar las bases IndexedDB existentes y viajar en la
 
 Una etiqueta es una entidad global con identidad estable, nombre normalizado único, color de una paleta cerrada y fechas. La relación `SemordnilapTagAssignment` contiene `datasetId`, `semordnilapId`, `tagId` y la fecha de asignación. No contiene un lado lingüístico porque el semordnilap es una unidad bilingüe indivisible.
 
-Los estados funcionales y las etiquetas permanecen separados. Favorito y descartado determinan vistas y acciones, mientras que las etiquetas solo clasifican y filtran. La selección múltiple permite asignarlas por lotes. El catálogo muestra puntos compactos en un espacio fijo y combina con una operación inclusiva las etiquetas elegidas en el filtro.
+Los estados funcionales y las etiquetas permanecen separados. Favorito y descartado determinan vistas y acciones, mientras que las etiquetas solo clasifican y filtran. La selección múltiple permite preparar varias modificaciones y aplicarlas mediante una única escritura transaccional. El filtro también conserva una selección temporal hasta que `Aplicar` la activa. Ambos desplegables se cierran después de confirmar para devolver el foco al catálogo.
+
+El catálogo muestra puntos compactos en un espacio fijo y combina con una operación inclusiva las etiquetas elegidas en el filtro.
 
 El gestor permite crear, renombrar, recolorear y eliminar etiquetas. Eliminar una definición retira todas sus asignaciones dentro de la misma transacción, sin modificar unidades atómicas ni composites.
 

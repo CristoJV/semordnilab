@@ -2,11 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import type {
   AddSemordnilapTagAssignments,
+  ApplySemordnilapTagChanges,
   CreateSemordnilapTag,
   DeleteSemordnilapTag,
   ListSemordnilapTags,
   RemoveSemordnilapTagAssignments,
   SemordnilapTag,
+  SemordnilapTagChange,
   TagColor,
   TagId,
   UpdateSemordnilapTag,
@@ -19,6 +21,7 @@ type TagUseCases = {
   updateSemordnilapTag: UpdateSemordnilapTag
   deleteSemordnilapTag: DeleteSemordnilapTag
   addSemordnilapTagAssignments: AddSemordnilapTagAssignments
+  applySemordnilapTagChanges: ApplySemordnilapTagChanges
   removeSemordnilapTagAssignments: RemoveSemordnilapTagAssignments
 }
 
@@ -38,6 +41,10 @@ export type SemordnilapTagState = {
   removeFrom: (
     semordnilapIds: readonly SemordnilapId[],
     tagId: TagId,
+  ) => Promise<void>
+  applyTo: (
+    semordnilapIds: readonly SemordnilapId[],
+    changes: readonly SemordnilapTagChange[],
   ) => Promise<void>
 }
 
@@ -136,6 +143,12 @@ export function useSemordnilapTags(
       if (!datasetId) return Promise.reject(new Error('No hay un dataset.'))
       return runAndReload(() =>
         useCases.removeSemordnilapTagAssignments.execute(datasetId, ids, tagId),
+      )
+    },
+    applyTo: (ids, changes) => {
+      if (!datasetId) return Promise.reject(new Error('No hay un dataset.'))
+      return runAndReload(() =>
+        useCases.applySemordnilapTagChanges.execute(datasetId, ids, changes),
       )
     },
   }

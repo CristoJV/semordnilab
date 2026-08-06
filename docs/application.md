@@ -138,9 +138,11 @@ La búsqueda sigue funcionando dentro de la vista activa o descartada y continú
 
 Las etiquetas son clasificaciones creadas por el usuario y se mantienen separadas de los estados funcionales. Cada etiqueta tiene una identidad estable, un nombre único normalizado y un color de la paleta disponible. Las etiquetas son globales para poder reutilizarlas en distintos pares lingüísticos, mientras que cada asignación identifica el dataset y el semordnilap etiquetado.
 
-La asignación se realiza desde la selección múltiple. Una misma etiqueta puede aplicarse a semordnilaps atómicos y composites, siempre sobre la unidad bilingüe completa. Las filas reservan un espacio fijo para mostrar hasta tres puntos de color en ambos idiomas; las etiquetas adicionales se resumen mediante un contador y los nombres permanecen disponibles como información textual.
+La asignación se realiza desde la selección múltiple. Una misma etiqueta puede aplicarse a semordnilaps atómicos y composites, siempre sobre la unidad bilingüe completa. Marcar o desmarcar etiquetas prepara una edición temporal; `Aplicar` guarda todos los cambios en una única transacción y cierra el desplegable. `Cerrar` abandona después el modo de selección sin sugerir que se revierten cambios ya aplicados.
 
-El control `Etiquetas` filtra por cualquiera de las etiquetas seleccionadas sin romper la alineación de las columnas. Desde el mismo control se abre el gestor para crear, renombrar, recolorear o eliminar etiquetas. Eliminar una etiqueta retira sus asignaciones en todas las colecciones, pero no modifica los semordnilaps.
+Las filas reservan un espacio fijo para mostrar hasta tres puntos de color en ambos idiomas; las etiquetas adicionales se resumen mediante un contador y los nombres permanecen disponibles como información textual.
+
+El control `Etiquetas` filtra por cualquiera de las etiquetas seleccionadas sin romper la alineación de las columnas. Las casillas preparan el filtro y el botón `Aplicar` lo activa y cierra el desplegable. Desde el mismo control se abre el gestor para crear, renombrar, recolorear o eliminar etiquetas. Eliminar una etiqueta retira sus asignaciones en todas las colecciones, pero no modifica los semordnilaps.
 
 ## Validación de una composición
 

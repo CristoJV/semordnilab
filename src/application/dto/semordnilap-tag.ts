@@ -32,3 +32,8 @@ export type SemordnilapTagCollection = {
   tags: readonly SemordnilapTag[]
   assignments: readonly SemordnilapTagAssignment[]
 }
+
+export type SemordnilapTagChange = {
+  tagId: TagId
+  assigned: boolean
+}

@@ -258,14 +258,9 @@ export function PairedSemordnilapCatalog({
     })
   }
 
-  const toggleTagFilter = (tagId: TagId) => {
+  const applyTagFilter = (tagIds: ReadonlySet<TagId>) => {
     setDiscoverySeed(null)
-    setSelectedTagIds((current) => {
-      const next = new Set(current)
-      if (next.has(tagId)) next.delete(tagId)
-      else next.add(tagId)
-      return next
-    })
+    setSelectedTagIds(new Set(tagIds))
     virtualRows.reset()
   }
 
@@ -302,14 +297,13 @@ export function PairedSemordnilapCatalog({
                 tags={tagState.tags}
                 selectedIds={[...selectedIds]}
                 assignments={tagState.assignments}
-                onAdd={(tagId) => void tagState.addTo([...selectedIds], tagId)}
-                onRemove={(tagId) =>
-                  void tagState.removeFrom([...selectedIds], tagId)
+                onApply={(changes) =>
+                  tagState.applyTo([...selectedIds], changes)
                 }
                 onManage={onManageTags}
               />
               <button type="button" onClick={leaveSelectionMode}>
-                Cancelar
+                Cerrar
               </button>
             </>
           ) : (
@@ -363,11 +357,7 @@ export function PairedSemordnilapCatalog({
               <TagFilterMenu
                 tags={tagState.tags}
                 selectedTagIds={effectiveSelectedTagIds}
-                onToggle={toggleTagFilter}
-                onClear={() => {
-                  setSelectedTagIds(new Set())
-                  virtualRows.reset()
-                }}
+                onApply={applyTagFilter}
                 onManage={onManageTags}
               />
               {discardedView && (
