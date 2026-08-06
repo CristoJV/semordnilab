@@ -1,5 +1,6 @@
 import type { SemordnilapCatalogItem } from '@/application'
 
+import { HighlightedText } from './HighlightedText'
 import styles from './SemordnilapOption.module.css'
 
 type SemordnilapOptionProps = {
@@ -8,6 +9,7 @@ type SemordnilapOptionProps = {
   selectedCount: number
   selectionMode: boolean
   selected: boolean
+  query: string
   onAdd: (item: SemordnilapCatalogItem) => void
   onToggleSelection: () => void
 }
@@ -18,6 +20,7 @@ export function SemordnilapOption({
   selectedCount,
   selectionMode,
   selected,
+  query,
   onAdd,
   onToggleSelection,
 }: SemordnilapOptionProps) {
@@ -37,8 +40,8 @@ export function SemordnilapOption({
       onClick={() => (selectionMode ? onToggleSelection() : onAdd(item))}
       title={
         frequency === null
-          ? 'Semordnilap compuesto guardado'
-          : `Frecuencia en el corpus: ${frequency.toLocaleString('es-ES')}`
+          ? `${expression.text}. Semordnilap compuesto guardado`
+          : `${expression.text}. Frecuencia en el corpus: ${frequency.toLocaleString('es-ES')}`
       }
       aria-label={
         selectionMode
@@ -46,7 +49,9 @@ export function SemordnilapOption({
           : `Añadir ${expression.text} a la composición`
       }
     >
-      <span className={styles.text}>{expression.text}</span>
+      <span className={styles.text}>
+        <HighlightedText text={expression.text} query={query} />
+      </span>
       {selectedCount > 0 && (
         <span className={styles.count} aria-label={`${selectedCount} añadidos`}>
           {selectedCount}

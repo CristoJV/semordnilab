@@ -36,7 +36,7 @@ El borrador conserva una secuencia canónica y un cursor entre componentes. El e
 
 Los componentes disponen de movimiento y retirada accesibles y el historial de sesión permite deshacer y rehacer operaciones que modifican la secuencia. La decisión visual inicial de utilizar botones fue sustituida por la interacción directa descrita en el ADR 0005. La secuencia canónica y el contrato del historial permanecen sin cambios.
 
-Los composites guardados se muestran en el catálogo antes que los atómicos dentro de cada grupo de estado. Pueden utilizar favoritos y descartes existentes porque comparten `datasetId` y `semordnilapId`.
+Los composites guardados pueden utilizar favoritos y descartes existentes porque comparten `datasetId` y `semordnilapId`. Su promoción automática sobre los atómicos fue sustituida por el orden estable del ADR 0006; la vista `Guardados` continúa ofreciendo acceso directo a la colección.
 
 ## Integridad
 

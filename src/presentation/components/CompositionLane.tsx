@@ -18,10 +18,12 @@ type CompositionLaneProps = {
   components: readonly DraftSemordnilapComponent[]
   insertionIndex: number
   dragging: DraggingState | null
+  highlightedInstanceId: number | null
   laneRef: RefObject<HTMLOListElement | null>
   onSelectInsertion: (index: number) => void
   onRemove: (instanceId: number, canonicalIndex: number, text: string) => void
   onMove: (instanceId: number, offset: -1 | 1) => void
+  onHighlight: (instanceId: number | null) => void
   bindPointer: (target: CompositionPointerTarget) => CompositionPointerBindings
 }
 
@@ -31,10 +33,12 @@ export function CompositionLane({
   components,
   insertionIndex,
   dragging,
+  highlightedInstanceId,
   laneRef,
   onSelectInsertion,
   onRemove,
   onMove,
+  onHighlight,
   bindPointer,
 }: CompositionLaneProps) {
   const sourceSide = side === 'source'
@@ -76,6 +80,7 @@ export function CompositionLane({
                 text={text}
                 tone={side}
                 dragging={dragging?.target.instanceId === instanceId}
+                highlighted={highlightedInstanceId === instanceId}
                 pointerBindings={bindPointer({
                   instanceId,
                   canonicalIndex,
@@ -83,6 +88,9 @@ export function CompositionLane({
                   side,
                 })}
                 onRemove={() => onRemove(instanceId, canonicalIndex, text)}
+                onHighlightChange={(highlighted) =>
+                  onHighlight(highlighted ? instanceId : null)
+                }
                 canMoveLeft={visualIndex > 0}
                 canMoveRight={visualIndex < components.length - 1}
                 onMoveLeft={() => onMove(instanceId, moveLeft)}

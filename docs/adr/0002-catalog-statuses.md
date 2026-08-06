@@ -25,7 +25,7 @@ La clave persistente es `[datasetId + semordnilapId + status]`. Un mismo semordn
 
 El estado se aplica a la unidad completa. No se almacena el idioma desde el que se inició la acción. Descartar desde cualquier lado oculta la fila completa y la vista de descartados muestra las dos expresiones relacionadas.
 
-La presentación ofrece acciones individuales y selección múltiple. Los favoritos aparecen primero. El catálogo puede ordenarse alfabéticamente o por longitud en ambos idiomas mediante controles con estados ascendente, descendente y desactivado.
+La presentación ofrece acciones individuales y selección múltiple. La decisión inicial de promover favoritos fue sustituida por el orden estable del ADR 0006. El catálogo puede ordenarse alfabéticamente o por longitud en ambos idiomas mediante controles con estados ascendente, descendente y desactivado.
 
 ## Persistencia y capas
 

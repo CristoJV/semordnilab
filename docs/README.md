@@ -11,6 +11,7 @@ Esta carpeta reúne la documentación funcional y técnica del proyecto. Su prop
 - [ADR 0003: composites persistentes](adr/0003-persistent-composites.md): identidad estable, migración y edición del espacio de trabajo.
 - [ADR 0004: datos personales y gestión de composites](adr/0004-personal-data-and-composite-management.md): copias atómicas, preferencias y eliminación segura.
 - [ADR 0005: interacción directa en la composición](adr/0005-direct-composition-interaction.md): gestos, máquina de estados, desplazamiento lateral y avisos transitorios.
+- [ADR 0006: exploración eficiente del catálogo](adr/0006-efficient-catalog-exploration.md): orden estable, relevancia, descubrimiento y renderizado virtual.
 
 ## Estado del proyecto
 

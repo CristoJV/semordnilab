@@ -7,10 +7,9 @@ import type {
 import type { CompositionSnapshot } from '@/domain/semordnilap'
 import type { DraftSemordnilapComponent } from '@/presentation/hooks/useCompositionWorkspace'
 import { useCompositionPointerInteraction } from '@/presentation/hooks/useCompositionPointerInteraction'
-import { useTransientNotifications } from '@/presentation/hooks/useTransientNotifications'
+import type { Notify } from '@/presentation/hooks/useTransientNotifications'
 
 import { CompositionLane } from './CompositionLane'
-import { NotificationViewport } from './NotificationViewport'
 import styles from './CompositionWorkspace.module.css'
 
 type CompositionWorkspaceProps = {
@@ -38,6 +37,7 @@ type CompositionWorkspaceProps = {
   onCollapsedChange: (collapsed: boolean) => void
   onDiscardIncompatibleDraft: () => Promise<void>
   onSave: (title?: string) => Promise<SaveCompositeSemordnilapResult>
+  onNotify: Notify
 }
 
 export function CompositionWorkspace({
@@ -62,12 +62,15 @@ export function CompositionWorkspace({
   onCollapsedChange,
   onDiscardIncompatibleDraft,
   onSave,
+  onNotify,
 }: CompositionWorkspaceProps) {
   const [saving, setSaving] = useState(false)
+  const [highlightedInstanceId, setHighlightedInstanceId] = useState<
+    number | null
+  >(null)
   const sourceLane = useRef<HTMLOListElement>(null)
   const targetLane = useRef<HTMLOListElement>(null)
   const canRestoreRemovedRef = useRef(canRestoreRemoved)
-  const { notifications, notify, dismiss } = useTransientNotifications()
   const [collapsed, setCollapsed] = useState(
     () =>
       initialCollapsed ||
@@ -105,7 +108,7 @@ export function CompositionWorkspace({
       )
       if (!component) return
       onRemove(instanceId)
-      notify({
+      onNotify({
         tone: 'warning',
         message: `Se ha retirado «${text}» de la composición.`,
         action: {
@@ -115,7 +118,7 @@ export function CompositionWorkspace({
               onRestoreRemoved(component, canonicalIndex)
               return
             }
-            notify({
+            onNotify({
               tone: 'warning',
               message: 'El semordnilap ya no está disponible en este conjunto.',
             })
@@ -123,7 +126,7 @@ export function CompositionWorkspace({
         },
       })
     },
-    [components, notify, onRemove, onRestoreRemoved],
+    [components, onNotify, onRemove, onRestoreRemoved],
   )
   const getLane = useCallback(
     (side: 'source' | 'target') =>
@@ -145,14 +148,14 @@ export function CompositionWorkspace({
     setSaving(true)
     try {
       const result = await onSave()
-      notify({
+      onNotify({
         tone: result.created ? 'success' : 'warning',
         message: result.created
           ? 'Composite guardado y añadido al catálogo.'
           : 'Esta composición ya estaba guardada.',
       })
     } catch (error) {
-      notify({
+      onNotify({
         tone: 'error',
         message:
           error instanceof Error
@@ -241,10 +244,12 @@ export function CompositionWorkspace({
               components={components}
               insertionIndex={insertionIndex}
               dragging={pointerInteraction.dragging}
+              highlightedInstanceId={highlightedInstanceId}
               laneRef={sourceLane}
               onSelectInsertion={onSelectInsertion}
               onRemove={removeWithNotification}
               onMove={onMove}
+              onHighlight={setHighlightedInstanceId}
               bindPointer={pointerInteraction.bind}
             />
             <CompositionLane
@@ -253,10 +258,12 @@ export function CompositionWorkspace({
               components={components}
               insertionIndex={insertionIndex}
               dragging={pointerInteraction.dragging}
+              highlightedInstanceId={highlightedInstanceId}
               laneRef={targetLane}
               onSelectInsertion={onSelectInsertion}
               onRemove={removeWithNotification}
               onMove={onMove}
+              onHighlight={setHighlightedInstanceId}
               bindPointer={pointerInteraction.bind}
             />
           </div>
@@ -286,7 +293,6 @@ export function CompositionWorkspace({
           </button>
         </div>
       )}
-      <NotificationViewport notifications={notifications} onDismiss={dismiss} />
     </section>
   )
 }

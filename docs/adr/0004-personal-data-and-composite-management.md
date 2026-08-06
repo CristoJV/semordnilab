@@ -16,7 +16,7 @@ La barra superior se comprime y añade un único botón `Menú`. Su diálogo con
 - `Datos` resume el contenido local y permite exportar o importar una copia;
 - `Preferencias` controla si se recuerdan las vistas del catálogo y el estado plegado del área de composición.
 
-Los controles cotidianos permanecen en el catálogo. Sus vistas son `Todos`, `Guardados`, `Favoritos` y `Descartados`. La ordenación se muestra junto al idioma y el acceso a descartados utiliza un icono de papelera.
+Los controles cotidianos permanecen en el catálogo. Sus vistas son `Todos`, `Guardados`, `Favoritos` y `Descartados`. La ordenación se muestra junto al idioma. Los accesos duplicados mediante papeleras en cada cabecera fueron retirados posteriormente; la vista superior es el único acceso a la colección de descartados.
 
 El indicador de un composite abre un diálogo de gestión. Cambiar el título no modifica su estructura. Abrir como borrador permite crear una variante sin editar indirectamente el registro original.
 

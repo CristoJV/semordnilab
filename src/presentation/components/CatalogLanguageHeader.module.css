@@ -57,9 +57,7 @@
 }
 
 .searchRow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.45rem;
+  display: block;
 }
 
 .search svg {
@@ -92,63 +90,9 @@
   outline-offset: 1px;
 }
 
-.trash {
-  position: relative;
-  display: grid;
-  width: 2.65rem;
-  padding: 0;
-  color: var(--color-text-muted);
-  font: inherit;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 0.75rem;
-  cursor: pointer;
-  place-items: center;
-}
-
-.trash[data-active='true'] {
-  color: white;
-  background: var(--color-violet);
-  border-color: var(--color-violet);
-}
-
-.trash:focus-visible,
 .sorts button:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--color-violet) 35%, transparent);
   outline-offset: 2px;
-}
-
-.trash:disabled {
-  cursor: wait;
-  opacity: 0.45;
-}
-
-.trash small {
-  position: absolute;
-  top: -0.35rem;
-  right: -0.35rem;
-  display: grid;
-  min-width: 1.2rem;
-  height: 1.2rem;
-  padding-inline: 0.2rem;
-  color: var(--color-text);
-  font-size: 0.6rem;
-  font-weight: 800;
-  background: var(--color-mustard);
-  border: 2px solid var(--color-surface-strong);
-  border-radius: 999px;
-  place-items: center;
-}
-
-.trash > svg {
-  position: static;
-  width: 1.1rem;
-  height: 1.1rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.8;
 }
 
 .sorts {

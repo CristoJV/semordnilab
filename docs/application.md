@@ -64,7 +64,7 @@ Retirar una pieza muestra un aviso temporal de color naranja claro con la acció
 
 El teclado ofrece la misma funcionalidad sin depender de los gestos: `Intro`, espacio, Suprimir o Retroceso retiran la pieza, mientras que `Mayús` con las flechas laterales la desplaza. Deshacer y rehacer cubren inserciones, movimientos, retiradas y vaciado. Cada cambio actualiza simultáneamente los dos idiomas y conserva automáticamente el borrador del dataset activo. El encabezado del área distingue entre recuperación, guardado en curso, guardado correcto y error de persistencia.
 
-La correspondencia visual entre componentes debe permanecer visible para que se entienda cómo se forma el resultado.
+La correspondencia visual entre componentes permanece visible para que se entienda cómo se forma el resultado. Al señalar o enfocar una pieza, su aparición relacionada se resalta simultáneamente en el otro idioma.
 
 ## Identidad visual
 
@@ -98,13 +98,19 @@ Cada idioma dispone de su propio campo de búsqueda, pero ambos campos filtran u
 
 Por ejemplo, una búsqueda en español reduce simultáneamente la columna gallega a sus correspondencias. Una consulta posterior en gallego se aplica únicamente a ese conjunto ya reducido. Las dos columnas comparten desplazamiento y nunca pierden la alineación.
 
-La búsqueda actual admite:
+Cada campo interpreta su contenido como una consulta continua. La búsqueda actual admite:
 
 - diferencias de mayúsculas, minúsculas y tildes;
-- coincidencias parciales y por varias palabras;
+- expresiones con espacios y coincidencias parciales;
 - consulta sobre el texto visible y la forma normalizada.
 
-Cada cabecera permite ordenar por el texto o por la longitud en caracteres. Un control recorre tres estados: ascendente, descendente y desactivado. Los criterios se acumulan según su orden de activación y muestran su prioridad numérica. Pueden combinar comparaciones de ambos idiomas, pero la fila bilingüe sigue siendo indivisible. Los favoritos conservan prioridad y los composites guardados aparecen antes que los atómicos dentro de su grupo.
+Cuando no hay una ordenación explícita, una consulta muestra primero la coincidencia exacta, después las expresiones que empiezan por ella y finalmente las coincidencias parciales. El fragmento visible se resalta sin perder sus diacríticos. Una ordenación elegida por el usuario sustituye esa prioridad.
+
+Cada cabecera permite ordenar por el texto o por la longitud en caracteres. Un control recorre tres estados: ascendente, descendente y desactivado. Los criterios se acumulan según su orden de activación y muestran su prioridad numérica. Pueden combinar comparaciones de ambos idiomas, pero la fila bilingüe sigue siendo indivisible. Favoritos y composites no alteran por sí mismos el orden de `Todos`; sus indicadores permanecen en la posición correspondiente y sus vistas especializadas conservan el mismo criterio.
+
+La acción `Descubrir` selecciona un grupo pequeño y variado de la vista activa. Combina expresiones cortas, medias y largas, y `Otro grupo` permite renovar la selección. Empezar una búsqueda, elegir otra vista u ordenar vuelve al catálogo normal.
+
+El catálogo conserva todos los resultados en memoria, pero solo monta las filas visibles y un margen próximo. Esta ventana virtual mantiene la altura y la posición de desplazamiento sin crear miles de controles simultáneos.
 
 ## Estados del catálogo
 
@@ -112,7 +118,7 @@ Un semordnilap puede recibir uno o varios estados. La identidad persistida se co
 
 La interfaz utiliza actualmente dos estados:
 
-- `favorite` coloca el semordnilap al principio del catálogo sin modificarlo;
+- `favorite` muestra una estrella y permite encontrar el semordnilap en la vista de favoritos sin mover su fila;
 - `discarded` lo retira de la vista activa y lo muestra en la vista de descartados.
 
 Los estados son independientes. Por ejemplo, un favorito puede descartarse sin perder la marca de favorito. Este modelo permite incorporar otros estados sin cambiar la identidad del registro ni crear una estructura específica para cada uno.
@@ -124,7 +130,7 @@ La barra del catálogo ofrece cuatro vistas compartidas:
 - `Favoritos` reúne las unidades activas con ese estado;
 - `Descartados` muestra las unidades retiradas de la vista activa.
 
-Descartar o restaurar una fila actualiza las dos expresiones a la vez. Los botones de descartados de ambas cabeceras abren la misma colección compartida. Desde ella se puede restaurar una unidad, seleccionar varias o restaurarlas todas. La selección múltiple también permite aplicar favoritos o descartes por lotes desde la vista activa. Después de descartar, un aviso temporal permite deshacer inmediatamente la operación.
+Descartar o restaurar una fila actualiza las dos expresiones a la vez. La vista superior `Descartados` abre la colección compartida. Desde ella se puede restaurar una unidad, seleccionar varias o restaurarlas todas. La selección múltiple también permite aplicar favoritos o descartes por lotes desde la vista activa. Después de descartar, el sistema común de avisos permite deshacer inmediatamente la operación.
 
 La búsqueda sigue funcionando dentro de la vista activa o descartada y continúa aplicando la intersección de ambos idiomas. Restablecer los filtros elimina consultas y ordenación, pero no borra estados persistentes.
 

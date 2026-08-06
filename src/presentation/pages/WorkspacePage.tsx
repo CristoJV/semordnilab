@@ -6,10 +6,12 @@ import { AppHeader } from '@/presentation/components/AppHeader'
 import { AppMenuDialog } from '@/presentation/components/AppMenuDialog'
 import { CompositeManagerDialog } from '@/presentation/components/CompositeManagerDialog'
 import { CompositionWorkspace } from '@/presentation/components/CompositionWorkspace'
+import { NotificationViewport } from '@/presentation/components/NotificationViewport'
 import { PairedSemordnilapCatalog } from '@/presentation/components/PairedSemordnilapCatalog'
 import { usePersistentCompositionWorkspace } from '@/presentation/hooks/usePersistentCompositionWorkspace'
 import { useSemordnilapCatalog } from '@/presentation/hooks/useSemordnilapCatalog'
 import { useSemordnilapStatuses } from '@/presentation/hooks/useSemordnilapStatuses'
+import { useTransientNotifications } from '@/presentation/hooks/useTransientNotifications'
 import { useSavedCompositeSemordnilaps } from '@/presentation/hooks/useSavedCompositeSemordnilaps'
 import { useWorkspacePreferences } from '@/presentation/hooks/useWorkspacePreferences'
 import type { CompositeSemordnilap } from '@/domain/semordnilap'
@@ -26,6 +28,7 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [selectedComposite, setSelectedComposite] =
     useState<CompositeSemordnilap | null>(null)
+  const { notifications, notify, dismiss } = useTransientNotifications()
   const preferences = useWorkspacePreferences(dependencies)
   const catalog = useSemordnilapCatalog(dependencies)
   const statusAliases = useMemo(
@@ -50,7 +53,7 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
     dependencies,
   )
   const catalogItems = useMemo(
-    () => [...savedComposites.items, ...atomicItems],
+    () => [...atomicItems, ...savedComposites.items],
     [atomicItems, savedComposites.items],
   )
   const library = useMemo(
@@ -128,6 +131,7 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
               title,
             )
           }
+          onNotify={notify}
         />
 
         <div
@@ -156,6 +160,7 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
               initialView={preferences.catalogView(loadedDataset.dataset.id)}
               onViewChange={preferences.saveCatalogView}
               onOpenComposite={setSelectedComposite}
+              onNotify={notify}
             />
           ) : (
             <div className={styles.catalogState}>
@@ -202,6 +207,7 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
       </main>
 
       <AppFooter />
+      <NotificationViewport notifications={notifications} onDismiss={dismiss} />
 
       {menuOpen && (
         <AppMenuDialog

@@ -187,11 +187,19 @@ describe('WorkspacePage', () => {
     ).not.toBeInTheDocument()
     expect(screen.queryByTitle('Formas normalizadas')).not.toBeInTheDocument()
 
-    await user.click(
-      within(targetComposition).getByRole('listitem', {
-        name: /a lle\. Pulsa Intro para retirar/,
-      }),
-    )
+    const sourceElla = within(sourceComposition).getByRole('listitem', {
+      name: /ella\. Pulsa Intro para retirar/,
+    })
+    const targetElla = within(targetComposition).getByRole('listitem', {
+      name: /a lle\. Pulsa Intro para retirar/,
+    })
+    fireEvent.pointerEnter(sourceElla)
+    expect(sourceElla).toHaveAttribute('data-highlighted', 'true')
+    expect(targetElla).toHaveAttribute('data-highlighted', 'true')
+    fireEvent.pointerLeave(sourceElla)
+    expect(targetElla).toHaveAttribute('data-highlighted', 'false')
+
+    await user.click(targetElla)
 
     expect(getComponentTexts(sourceComposition)).toEqual(['no se'])
     expect(
@@ -269,6 +277,83 @@ describe('WorkspacePage', () => {
     })
   })
 
+  it('ofrece grupos de descubrimiento y vuelve a la búsqueda normal', async () => {
+    const user = userEvent.setup()
+    render(<WorkspacePage dependencies={createDependencies()} />)
+    await user.selectOptions(
+      screen.getByLabelText('Conjunto lingüístico'),
+      testDataset.id,
+    )
+    const catalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
+
+    await user.click(within(catalog).getByRole('button', { name: 'Descubrir' }))
+    expect(
+      within(catalog).getByRole('button', { name: 'Otro grupo' }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    expect(within(catalog).getByText('2 de 2')).toBeInTheDocument()
+
+    await user.type(
+      within(catalog).getByRole('searchbox', { name: 'Buscar en Español' }),
+      'ella',
+    )
+    expect(
+      within(catalog).getByRole('button', { name: 'Descubrir' }),
+    ).toHaveAttribute('aria-pressed', 'false')
+    expect(within(catalog).queryByText('2 de 2')).not.toBeInTheDocument()
+  })
+
+  it('virtualiza un catálogo grande y conserva el scroll al marcar estados', async () => {
+    const manyItems: LoadedSemordnilapDataset = {
+      dataset: testDataset,
+      items: Array.from({ length: 100 }, (_, index) =>
+        createCatalogItem(
+          createAtomicSemordnilap(
+            `item-${index}`,
+            `palabra ${index}`,
+            `palabra${index}`,
+            `${index} arbalap`,
+            `${index}arbalap`,
+          ),
+        ),
+      ),
+    }
+    const user = userEvent.setup()
+    render(
+      <WorkspacePage
+        dependencies={createDependencies({ load: async () => manyItems })}
+      />,
+    )
+    await user.selectOptions(
+      screen.getByLabelText('Conjunto lingüístico'),
+      testDataset.id,
+    )
+    const catalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
+    const list = within(catalog).getByRole('list', {
+      name: 'Semordnilaps filtrados',
+    })
+    const scroller = list.parentElement!
+
+    expect(within(list).getAllByRole('listitem').length).toBeLessThan(100)
+    expect(within(list).getAllByRole('listitem')[0]).toHaveAttribute(
+      'aria-setsize',
+      '100',
+    )
+
+    scroller.scrollTop = 560
+    fireEvent.scroll(scroller)
+    const visibleRow = within(list).getAllByRole('listitem')[3]!
+    const favorite = within(visibleRow).getByRole('button', {
+      name: /Añadir a favoritos/,
+    })
+    await user.click(favorite)
+    await waitFor(() => expect(favorite).toHaveAccessibleName(/Quitar/))
+    expect(scroller.scrollTop).toBe(560)
+  })
+
   it('guarda un composite, evita duplicados y lo incorpora al catálogo', async () => {
     const user = userEvent.setup()
     render(<WorkspacePage dependencies={createDependencies()} />)
@@ -317,7 +402,7 @@ describe('WorkspacePage', () => {
     expect(within(catalog).getAllByRole('listitem')).toHaveLength(3)
   })
 
-  it('prioriza favoritos y mantiene alineado el catálogo descartado', async () => {
+  it('mantiene estable un favorito y conserva alineado el catálogo descartado', async () => {
     const user = userEvent.setup()
     render(<WorkspacePage dependencies={createDependencies()} />)
 
@@ -337,9 +422,15 @@ describe('WorkspacePage', () => {
 
     await waitFor(() => {
       const rows = within(catalog).getAllByRole('listitem')
-      expect(rows[0]).toHaveTextContent('no se')
-      expect(rows[0]).toHaveTextContent('e son')
+      expect(rows[0]).toHaveTextContent('ella')
+      expect(rows[1]).toHaveTextContent('no se')
+      expect(rows[1]).toHaveTextContent('e son')
     })
+    expect(
+      within(catalog).getByRole('button', {
+        name: 'Quitar de favoritos: no se / e son',
+      }),
+    ).toBeInTheDocument()
 
     await user.click(
       within(catalog).getByRole('button', {
@@ -356,7 +447,7 @@ describe('WorkspacePage', () => {
 
     await user.click(
       within(catalog).getByRole('button', {
-        name: 'Ver descartados desde Español',
+        name: /Descartados 1/,
       }),
     )
 
@@ -704,9 +795,7 @@ describe('WorkspacePage', () => {
     })
     await waitFor(() => expect(discard).toBeEnabled())
     await user.click(discard)
-    await user.click(
-      within(catalog).getByRole('button', { name: 'Deshacer descarte' }),
-    )
+    await user.click(screen.getByRole('button', { name: 'Deshacer descarte' }))
 
     await waitFor(() =>
       expect(within(catalog).getAllByRole('listitem')).toHaveLength(2),
@@ -748,7 +837,7 @@ describe('WorkspacePage', () => {
     ).toBeInTheDocument()
     await user.click(
       within(catalog).getByRole('button', {
-        name: 'Ver descartados desde Gallego',
+        name: /Descartados 2/,
       }),
     )
     expect(await within(catalog).findAllByRole('listitem')).toHaveLength(2)
@@ -883,7 +972,7 @@ describe('WorkspacePage', () => {
     expect(importData).not.toHaveBeenCalled()
   })
 
-  it('usa una papelera para abrir los descartados', async () => {
+  it('ofrece un único acceso superior a los descartados', async () => {
     const user = userEvent.setup()
     render(<WorkspacePage dependencies={createDependencies()} />)
     await user.selectOptions(
@@ -894,10 +983,19 @@ describe('WorkspacePage', () => {
       name: 'Catálogo bilingüe',
     })
     const discarded = within(catalog).getByRole('button', {
-      name: 'Ver descartados desde Español',
+      name: /Descartados 0/,
     })
-    expect(discarded.querySelector('svg')).toBeInTheDocument()
-    expect(discarded).not.toHaveTextContent('⌫')
+    expect(discarded).toBeInTheDocument()
+    expect(
+      within(catalog).queryByRole('button', {
+        name: /Ver descartados desde/,
+      }),
+    ).not.toBeInTheDocument()
+    const discard = within(catalog).getByRole('button', {
+      name: 'Descartar: ella / a lle',
+    })
+    expect(discard.querySelector('svg')).toBeInTheDocument()
+    expect(discard).not.toHaveTextContent('×')
   })
 
   it('recupera filtros y ordenación para cada dataset', async () => {

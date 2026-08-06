@@ -8,7 +8,9 @@ type SemordnilapComponentProps = {
   text: string
   tone: 'source' | 'target'
   dragging: boolean
+  highlighted: boolean
   pointerBindings: CompositionPointerBindings
+  onHighlightChange: (highlighted: boolean) => void
   onRemove: () => void
   canMoveLeft: boolean
   canMoveRight: boolean
@@ -20,7 +22,9 @@ export function SemordnilapComponent({
   text,
   tone,
   dragging,
+  highlighted,
   pointerBindings,
+  onHighlightChange,
   onRemove,
   canMoveLeft,
   canMoveRight,
@@ -54,11 +58,16 @@ export function SemordnilapComponent({
       className={styles.component}
       data-tone={tone}
       data-dragging={dragging}
+      data-highlighted={highlighted}
       tabIndex={0}
       aria-label={`${text}. Pulsa Intro para retirar, arrastra para mover.`}
       aria-keyshortcuts="Enter Space Delete Backspace Shift+ArrowLeft Shift+ArrowRight"
       title="Pulsa para retirar. Arrastra para mover."
       onKeyDown={handleKeyDown}
+      onPointerEnter={() => onHighlightChange(true)}
+      onPointerLeave={() => onHighlightChange(false)}
+      onFocus={() => onHighlightChange(true)}
+      onBlur={() => onHighlightChange(false)}
       onContextMenu={(event) => event.preventDefault()}
       {...pointerBindings}
     >

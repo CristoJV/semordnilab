@@ -12,9 +12,11 @@ export type TransientNotification = {
   }
 }
 
-type NotificationInput = Omit<TransientNotification, 'id'> & {
+export type NotificationInput = Omit<TransientNotification, 'id'> & {
   lifetime?: number
 }
+
+export type Notify = (input: NotificationInput) => number
 
 export function useTransientNotifications() {
   const [notifications, setNotifications] = useState<
@@ -22,11 +24,13 @@ export function useTransientNotifications() {
   >([])
   const nextId = useRef(0)
   const timers = useRef(new Map<number, number>())
+  const activeIds = useRef<readonly number[]>([])
 
   const dismiss = useCallback((id: number) => {
     const timer = timers.current.get(id)
     if (timer !== undefined) window.clearTimeout(timer)
     timers.current.delete(id)
+    activeIds.current = activeIds.current.filter((activeId) => activeId !== id)
     setNotifications((current) =>
       current.filter((notification) => notification.id !== id),
     )
@@ -35,6 +39,13 @@ export function useTransientNotifications() {
   const notify = useCallback(
     ({ lifetime = 3200, ...input }: NotificationInput) => {
       const id = nextId.current++
+      const evictedIds = activeIds.current.slice(0, -2)
+      for (const evictedId of evictedIds) {
+        const timer = timers.current.get(evictedId)
+        if (timer !== undefined) window.clearTimeout(timer)
+        timers.current.delete(evictedId)
+      }
+      activeIds.current = [...activeIds.current.slice(-2), id]
       setNotifications((current) => [...current.slice(-2), { id, ...input }])
       timers.current.set(
         id,
@@ -49,6 +60,7 @@ export function useTransientNotifications() {
     () => () => {
       for (const timer of timers.current.values()) window.clearTimeout(timer)
       timers.current.clear()
+      activeIds.current = []
     },
     [],
   )

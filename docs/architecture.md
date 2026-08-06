@@ -14,7 +14,8 @@ El repositorio contiene actualmente:
 - un área de composición persistente con cursor, movimiento e historial;
 - un catálogo bilingüe con filas alineadas y filtros combinados;
 - estados genéricos de catálogo persistidos con Dexie e IndexedDB;
-- favoritos prioritarios, vista de descartados, restauración y selección múltiple;
+- favoritos de posición estable, vista de descartados, restauración y selección múltiple;
+- búsqueda con relevancia visual, resaltado, descubrimiento y ventana virtual;
 - criterios de ordenación combinables desde cualquiera de los idiomas;
 - guardado, deduplicación y resolución recursiva de composites;
 - gestión de composites con actualización de metadatos y eliminación transaccional protegida;
@@ -410,11 +411,15 @@ IndexedDB es la fuente persistente de verdad. React solo conserva la informació
 
 La implementación actual mantiene dos consultas visuales, una para cada idioma. Ambas se aplican mediante intersección sobre el mismo conjunto de DTO de catálogo. El resultado se representa en filas bilingües, cada una identificada por un único `SemordnilapId`, y utiliza un solo contenedor de desplazamiento.
 
-El filtrado sencillo pertenece a presentación porque solo adapta un catálogo ya cargado a la vista actual. Las reglas de normalización compartidas con la composición permanecen en el dominio. Si la búsqueda incorpora relevancia, indexación u otras reglas reutilizables, esa coordinación se trasladará a un caso de uso y el índice optimizado permanecerá en infraestructura.
+El filtrado y la relevancia sencilla pertenecen a presentación porque solo adaptan un catálogo ya cargado a la vista actual. Las funciones puras normalizan una consulta continua, comprueban cada lado y asignan prioridad a coincidencia exacta, inicial o parcial. Las reglas de normalización lingüística compartidas con la composición permanecen en el dominio. Si la búsqueda incorpora indexación persistente u otras reglas de producto reutilizables, esa coordinación se trasladará a un caso de uso y el índice optimizado permanecerá en infraestructura.
 
-La implementación actual busca y ordena en memoria. La ordenación mantiene una lista de criterios con lado, campo y dirección. Se evalúan según su prioridad de activación y el orden original resuelve el último empate. Los favoritos forman un grupo prioritario y los composites preceden a los atómicos dentro de cada grupo. Si las mediciones muestran bloqueos con conjuntos mayores, un adaptador de infraestructura trasladará el trabajo a un Web Worker sin cambiar el contrato utilizado por la aplicación.
+La implementación actual busca y ordena en memoria. La ordenación mantiene una lista de criterios con lado, campo y dirección. Se evalúan según su prioridad de activación y el orden original resuelve el último empate. Favoritos y composites no forman grupos prioritarios, por lo que cambiar un estado no desplaza inesperadamente la fila ni reinicia su contenedor.
 
-No se añadirá inicialmente una librería de búsqueda. Una dependencia solo se evaluará cuando el comportamiento requerido y las mediciones demuestren que la implementación propia no es suficiente.
+`selectDiscoveryItems` crea grupos deterministas a partir de una semilla y distribuye la selección entre tres intervalos de longitud. El estado de descubrimiento es efímero y no amplía el contrato de preferencias persistidas.
+
+`useVirtualCatalogRows` calcula una ventana de altura fija con margen anterior y posterior. El DOM contiene solo las filas cercanas al área visible, mientras que los rellenos conservan la altura total y los atributos `aria-posinset` y `aria-setsize` describen la posición lógica. Si las mediciones muestran bloqueos en el filtrado con conjuntos mayores, un adaptador de infraestructura podrá trasladar ese cálculo a un Web Worker sin cambiar el contrato utilizado por la presentación.
+
+La implementación no añade una librería de búsqueda ni una dependencia de virtualización. Una dependencia solo se evaluará cuando el comportamiento requerido y las mediciones demuestren que las funciones actuales no son suficientes.
 
 ## Persistencia local
 

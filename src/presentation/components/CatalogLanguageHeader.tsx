@@ -7,12 +7,8 @@ type CatalogLanguageHeaderProps = {
   resultCount: number
   side: CatalogSide
   sort: CatalogSort
-  discardedView: boolean
-  discardedCount: number
-  statusesReady: boolean
   onQueryChange: (query: string) => void
   onCycleSort: (field: CatalogSortField, side: CatalogSide) => void
-  onToggleDiscardedView: () => void
 }
 
 export function CatalogLanguageHeader({
@@ -21,12 +17,8 @@ export function CatalogLanguageHeader({
   resultCount,
   side,
   sort,
-  discardedView,
-  discardedCount,
-  statusesReady,
   onQueryChange,
   onCycleSort,
-  onToggleDiscardedView,
 }: CatalogLanguageHeaderProps) {
   const searchId = `${side}-catalog-search`
   const activeCriterion = (field: CatalogSortField) =>
@@ -104,20 +96,6 @@ export function CatalogLanguageHeader({
             autoComplete="off"
           />
         </label>
-        <button
-          className={styles.trash}
-          data-active={discardedView}
-          type="button"
-          disabled={!statusesReady}
-          onClick={onToggleDiscardedView}
-          aria-label={`${discardedView ? 'Volver al catálogo activo' : 'Ver descartados'} desde ${languageLabel}`}
-          title={discardedView ? 'Volver al catálogo' : 'Ver descartados'}
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5" />
-          </svg>
-          {discardedCount > 0 && <small>{discardedCount}</small>}
-        </button>
       </div>
     </div>
   )

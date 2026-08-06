@@ -13,7 +13,9 @@ El proyecto se encuentra en su fase inicial. Actualmente incluye:
 - datasets de español con español, gallego y portugués en TSV;
 - carga y validación de todos los semordnilaps de un conjunto seleccionado;
 - exploración bilingüe con filtros combinados y filas siempre alineadas;
-- favoritos, descarte y restauración persistentes por semordnilap;
+- búsqueda sencilla con relevancia, resaltado y renderizado virtual;
+- grupos variados para descubrir semordnilaps sin una consulta previa;
+- favoritos estables, descarte y restauración persistentes por semordnilap;
 - selección múltiple y criterios de ordenación combinables en ambos idiomas;
 - cursor de inserción, reordenación directa, deshacer y rehacer en la composición;
 - interacción unificada para ratón, pantalla táctil y teclado;
@@ -61,6 +63,7 @@ Infrastructure
 - [ADR 0003: composites y espacio de trabajo persistente](docs/adr/0003-persistent-composites.md)
 - [ADR 0004: copias, preferencias y gestión de composites](docs/adr/0004-personal-data-and-composite-management.md)
 - [ADR 0005: interacción directa en la composición](docs/adr/0005-direct-composition-interaction.md)
+- [ADR 0006: exploración eficiente del catálogo](docs/adr/0006-efficient-catalog-exploration.md)
 
 La documentación distingue entre el estado actual y las decisiones previstas. Debe actualizarse junto con la implementación para continuar siendo una referencia del comportamiento real.
 

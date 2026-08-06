@@ -52,7 +52,9 @@ export function SemordnilapRowActions({
           aria-label={`Gestionar composite: ${text}`}
           title="Gestionar composite guardado"
         >
-          C
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m12 3 8 4.5-8 4.5-8-4.5L12 3Zm-8 9 8 4.5 8-4.5M4 16.5l8 4.5 8-4.5" />
+          </svg>
         </button>
       )}
       <button
@@ -69,12 +71,19 @@ export function SemordnilapRowActions({
       <button
         type="button"
         className={styles.action}
+        data-kind={discardedView ? 'restore' : 'discard'}
         disabled={disabled}
         onClick={discardedView ? onRestore : onDiscard}
         aria-label={`${discardedView ? 'Restaurar' : 'Descartar'}: ${text}`}
         title={discardedView ? 'Restaurar' : 'Descartar'}
       >
-        <span aria-hidden="true">{discardedView ? '↩' : '×'}</span>
+        {discardedView ? (
+          <span aria-hidden="true">↩</span>
+        ) : (
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5" />
+          </svg>
+        )}
       </button>
     </div>
   )
