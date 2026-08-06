@@ -195,6 +195,7 @@ describe('repositorios Dexie de datos guardados', () => {
       name: 'Uno',
       normalizedName: 'uno',
       color: 'violet' as const,
+      icon: 'tag' as const,
       createdAt: '2026-08-06T10:00:00.000Z',
       updatedAt: '2026-08-06T10:00:00.000Z',
     }
@@ -304,6 +305,7 @@ describe('repositorios Dexie de datos guardados', () => {
       name: 'Curioso',
       normalizedName: 'curioso',
       color: 'violet' as const,
+      icon: 'star' as const,
       createdAt: '2026-08-06T10:00:00.000Z',
       updatedAt: '2026-08-06T10:00:00.000Z',
     }

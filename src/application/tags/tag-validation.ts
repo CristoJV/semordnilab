@@ -1,4 +1,9 @@
-import { TAG_COLORS, type TagColor } from '@/application/dto/semordnilap-tag'
+import {
+  TAG_COLORS,
+  TAG_ICONS,
+  type TagColor,
+  type TagIcon,
+} from '@/application/dto/semordnilap-tag'
 
 export const MAX_TAG_NAME_LENGTH = 40
 
@@ -20,5 +25,11 @@ export function normalizeTagName(name: string): string {
 export function assertTagColor(color: string): asserts color is TagColor {
   if (!TAG_COLORS.includes(color as TagColor)) {
     throw new Error('El color de la etiqueta no está disponible.')
+  }
+}
+
+export function assertTagIcon(icon: string): asserts icon is TagIcon {
+  if (!TAG_ICONS.includes(icon as TagIcon)) {
+    throw new Error('El icono de la etiqueta no está disponible.')
   }
 }

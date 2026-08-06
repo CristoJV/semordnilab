@@ -302,8 +302,16 @@ export function PairedSemordnilapCatalog({
                 }
                 onManage={onManageTags}
               />
-              <button type="button" onClick={leaveSelectionMode}>
-                Cerrar
+              <button
+                className={styles.closeSelection}
+                type="button"
+                aria-label="Cerrar selección"
+                title="Cerrar selección"
+                onClick={leaveSelectionMode}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6 6 18" />
+                </svg>
               </button>
             </>
           ) : (

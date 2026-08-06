@@ -23,22 +23,28 @@ describe('etiquetas de semordnilaps', () => {
     const tag = await create.execute({
       name: '  Para   revisar ',
       color: 'violet',
+      icon: 'star',
     })
 
     expect(tag).toMatchObject({
       id: 'tag:uno',
       name: 'Para revisar',
       normalizedName: 'para revisar',
+      icon: 'star',
     })
     await expect(
-      create.execute({ name: 'PARA REVISAR', color: 'mustard' }),
+      create.execute({ name: 'PARA REVISAR', color: 'mustard', icon: 'tag' }),
     ).rejects.toThrow('Ya existe')
   })
 
   it('asigna, retira, actualiza y elimina etiquetas sin tocar semordnilaps', async () => {
     const repository = new InMemorySemordnilapTagRepository()
     const create = new CreateSemordnilapTag(repository, () => 'uno')
-    const tag = await create.execute({ name: 'Curioso', color: 'mustard' })
+    const tag = await create.execute({
+      name: 'Curioso',
+      color: 'mustard',
+      icon: 'tag',
+    })
     const add = new AddSemordnilapTagAssignments(
       repository,
       () => new Date('2026-08-06T11:00:00.000Z'),
@@ -56,11 +62,12 @@ describe('etiquetas de semordnilaps', () => {
     const updated = await new UpdateSemordnilapTag(
       repository,
       () => new Date('2026-08-06T12:00:00.000Z'),
-    ).execute(tag, { name: 'Muy curioso', color: 'green' })
+    ).execute(tag, { name: 'Muy curioso', color: 'green', icon: 'heart' })
     expect(updated).toMatchObject({
       id: tag.id,
       normalizedName: 'muy curioso',
       color: 'green',
+      icon: 'heart',
     })
 
     await new RemoveSemordnilapTagAssignments(repository).execute(

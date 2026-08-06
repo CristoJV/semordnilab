@@ -1,5 +1,6 @@
 .tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.35rem;
   margin: -0.2rem 0 1rem;
   padding-bottom: 0.75rem;
@@ -26,6 +27,10 @@
   color: white;
   background: var(--color-violet);
   border-color: var(--color-violet);
+}
+
+.tabs button:last-child {
+  margin-left: auto;
 }
 
 .section {

@@ -9,7 +9,23 @@ export const TAG_COLORS = [
   'rose',
 ] as const
 
+export const TAG_ICONS = [
+  'tag',
+  'star',
+  'heart',
+  'bookmark',
+  'flag',
+  'sparkles',
+  'lightbulb',
+  'book',
+  'person',
+  'place',
+  'language',
+  'puzzle',
+] as const
+
 export type TagColor = (typeof TAG_COLORS)[number]
+export type TagIcon = (typeof TAG_ICONS)[number]
 export type TagId = string
 
 export type SemordnilapTag = {
@@ -17,6 +33,7 @@ export type SemordnilapTag = {
   name: string
   normalizedName: string
   color: TagColor
+  icon: TagIcon
   createdAt: string
   updatedAt: string
 }

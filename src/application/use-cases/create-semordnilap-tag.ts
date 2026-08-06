@@ -1,10 +1,12 @@
 import type {
   SemordnilapTag,
   TagColor,
+  TagIcon,
 } from '@/application/dto/semordnilap-tag'
 import type { SemordnilapTagRepository } from '@/application/ports/semordnilap-tag-repository'
 import {
   assertTagColor,
+  assertTagIcon,
   cleanTagName,
   normalizeTagName,
 } from '@/application/tags/tag-validation'
@@ -12,6 +14,7 @@ import {
 export type CreateSemordnilapTagInput = {
   name: string
   color: TagColor
+  icon: TagIcon
 }
 
 export class CreateSemordnilapTag {
@@ -31,6 +34,7 @@ export class CreateSemordnilapTag {
 
   async execute(input: CreateSemordnilapTagInput): Promise<SemordnilapTag> {
     assertTagColor(input.color)
+    assertTagIcon(input.icon)
     const name = cleanTagName(input.name)
     const normalizedName = normalizeTagName(name)
     if (await this.repository.findByNormalizedName(normalizedName)) {
@@ -42,6 +46,7 @@ export class CreateSemordnilapTag {
       name,
       normalizedName,
       color: input.color,
+      icon: input.icon,
       createdAt: timestamp,
       updatedAt: timestamp,
     }

@@ -83,6 +83,7 @@ describe('copias de datos personales', () => {
           name: 'Hallazgo',
           normalizedName: 'hallazgo',
           color: 'violet',
+          icon: 'star',
           createdAt: '2026-08-06T10:30:00.000Z',
           updatedAt: '2026-08-06T10:30:00.000Z',
         },
@@ -100,7 +101,7 @@ describe('copias de datos personales', () => {
       origin.repository,
       () => new Date('2026-08-06T12:00:00.000Z'),
     ).execute()
-    expect(JSON.parse(exported.content)).toMatchObject({ version: 2 })
+    expect(JSON.parse(exported.content)).toMatchObject({ version: 3 })
 
     const target = createRepository()
     await target.statuses.add({
@@ -191,6 +192,7 @@ describe('copias de datos personales', () => {
           name: 'Revisar',
           normalizedName: 'revisar',
           color: 'violet',
+          icon: 'tag',
           createdAt: '2026-08-06T10:00:00.000Z',
           updatedAt: '2026-08-06T10:00:00.000Z',
         },
@@ -225,6 +227,12 @@ describe('copias de datos personales', () => {
         ],
       },
     })
+
+    const legacyPreview = await new PreviewPersonalDataImport(
+      base.repository,
+      source,
+    ).execute(imported, mergeOptions)
+    expect(legacyPreview.backup.data.tags[0]).toMatchObject({ icon: 'tag' })
 
     await new ImportPersonalData(base.repository, source).execute(
       imported,

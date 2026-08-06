@@ -1,8 +1,10 @@
-import { useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 import type { SemordnilapTag, SemordnilapTagChange, TagId } from '@/application'
 import type { SemordnilapId } from '@/domain/semordnilap'
 
+import { ModalDialog } from './ModalDialog'
+import { TagIconGlyph } from './TagIconGlyph'
 import styles from './TagControls.module.css'
 
 export function TagDots({ tags }: { tags: readonly SemordnilapTag[] }) {
@@ -14,7 +16,12 @@ export function TagDots({ tags }: { tags: readonly SemordnilapTag[] }) {
       aria-hidden="true"
     >
       {visible.map((tag) => (
-        <i key={tag.id} data-color={tag.color} />
+        <TagIconGlyph
+          key={tag.id}
+          className={styles.tagMark}
+          icon={tag.icon}
+          color={tag.color}
+        />
       ))}
       {tags.length > visible.length && (
         <small>+{tags.length - visible.length}</small>
@@ -76,7 +83,11 @@ export function TagFilterMenu({
                 checked={draftTagIds.has(tag.id)}
                 onChange={() => toggleDraft(tag.id)}
               />
-              <i data-color={tag.color} />
+              <TagIconGlyph
+                className={styles.tagMark}
+                icon={tag.icon}
+                color={tag.color}
+              />
               <span>{tag.name}</span>
             </label>
           ))
@@ -128,14 +139,12 @@ export function TagAssignmentMenu({
   onApply,
   onManage,
 }: TagAssignmentMenuProps) {
-  const detailsRef = useRef<HTMLDetailsElement>(null)
+  const [open, setOpen] = useState(false)
   const [changes, setChanges] = useState<ReadonlyMap<TagId, boolean>>(new Map())
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const close = () => {
-    if (detailsRef.current) detailsRef.current.open = false
-  }
+  const close = useCallback(() => setOpen(false), [])
 
   const apply = async () => {
     setBusy(true)
@@ -157,75 +166,89 @@ export function TagAssignmentMenu({
   }
 
   return (
-    <details
-      ref={detailsRef}
-      className={styles.menu}
-      onToggle={(event) => {
-        if (event.currentTarget.open) {
+    <>
+      <button
+        className={styles.trigger}
+        type="button"
+        disabled={selectedIds.length === 0}
+        onClick={() => {
           setChanges(new Map())
           setError(null)
-        }
-      }}
-    >
-      <summary>Etiquetar</summary>
-      <div className={styles.panel}>
-        {tags.length === 0 ? (
-          <p>Crea una etiqueta para clasificar la selección.</p>
-        ) : (
-          tags.map((tag) => {
-            const assignedCount = selectedIds.filter((id) =>
-              assignments.get(id)?.has(tag.id),
-            ).length
-            const allAssigned = assignedCount === selectedIds.length
-            const displayedAssigned = changes.get(tag.id) ?? allAssigned
-            const displayedCount = changes.has(tag.id)
-              ? displayedAssigned
-                ? selectedIds.length
-                : 0
-              : assignedCount
-            return (
-              <label key={tag.id}>
-                <input
-                  type="checkbox"
-                  checked={displayedAssigned}
-                  aria-describedby={`tag-count-${tag.id}`}
-                  onChange={() =>
-                    setChanges((current) => {
-                      const next = new Map(current)
-                      next.set(tag.id, !displayedAssigned)
-                      return next
-                    })
-                  }
-                />
-                <i data-color={tag.color} />
-                <span>{tag.name}</span>
-                <small id={`tag-count-${tag.id}`}>
-                  {displayedCount}/{selectedIds.length}
-                </small>
-              </label>
-            )
-          })
-        )}
-        {error && <p role="alert">{error}</p>}
-        <div className={styles.panelActions}>
-          <button
-            type="button"
-            onClick={() => {
-              close()
-              onManage()
-            }}
-          >
-            Gestionar etiquetas
-          </button>
-          <button
-            type="button"
-            disabled={busy || selectedIds.length === 0}
-            onClick={() => void apply()}
-          >
-            Aplicar
-          </button>
-        </div>
-      </div>
-    </details>
+          setOpen(true)
+        }}
+      >
+        Etiquetar
+      </button>
+      {open && (
+        <ModalDialog title="Etiquetar selección" onClose={close}>
+          <div className={styles.assignmentDialog}>
+            <p className={styles.assignmentIntro}>
+              Aplica etiquetas a los {selectedIds.length} semordnilaps
+              seleccionados.
+            </p>
+            {tags.length === 0 ? (
+              <p>Crea una etiqueta para clasificar la selección.</p>
+            ) : (
+              tags.map((tag) => {
+                const assignedCount = selectedIds.filter((id) =>
+                  assignments.get(id)?.has(tag.id),
+                ).length
+                const allAssigned = assignedCount === selectedIds.length
+                const displayedAssigned = changes.get(tag.id) ?? allAssigned
+                const displayedCount = changes.has(tag.id)
+                  ? displayedAssigned
+                    ? selectedIds.length
+                    : 0
+                  : assignedCount
+                return (
+                  <label key={tag.id}>
+                    <input
+                      type="checkbox"
+                      checked={displayedAssigned}
+                      aria-describedby={`tag-count-${tag.id}`}
+                      onChange={() =>
+                        setChanges((current) => {
+                          const next = new Map(current)
+                          next.set(tag.id, !displayedAssigned)
+                          return next
+                        })
+                      }
+                    />
+                    <TagIconGlyph
+                      className={styles.tagMark}
+                      icon={tag.icon}
+                      color={tag.color}
+                    />
+                    <span>{tag.name}</span>
+                    <small id={`tag-count-${tag.id}`}>
+                      {displayedCount}/{selectedIds.length}
+                    </small>
+                  </label>
+                )
+              })
+            )}
+            {error && <p role="alert">{error}</p>}
+            <div className={styles.panelActions}>
+              <button
+                type="button"
+                onClick={() => {
+                  close()
+                  onManage()
+                }}
+              >
+                Gestionar etiquetas
+              </button>
+              <button
+                type="button"
+                disabled={busy || selectedIds.length === 0}
+                onClick={() => void apply()}
+              >
+                Aplicar
+              </button>
+            </div>
+          </div>
+        </ModalDialog>
+      )}
+    </>
   )
 }

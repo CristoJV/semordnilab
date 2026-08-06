@@ -28,6 +28,7 @@ type AppMenuDialogProps = {
   preferences: WorkspacePreferencesState
   onClose: () => void
   onImported: () => void
+  onManageTags: () => void
 }
 
 const DEFAULT_IMPORT_OPTIONS: PersonalDataImportOptions = {
@@ -72,6 +73,7 @@ export function AppMenuDialog({
   preferences,
   onClose,
   onImported,
+  onManageTags,
 }: AppMenuDialogProps) {
   const [section, setSection] = useState<'data' | 'preferences'>('data')
   const [summary, setSummary] = useState<PersonalDataSummary | null>(null)
@@ -208,6 +210,15 @@ export function AppMenuDialog({
           onClick={() => setSection('preferences')}
         >
           Preferencias
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            onClose()
+            onManageTags()
+          }}
+        >
+          Gestionar etiquetas
         </button>
       </nav>
 

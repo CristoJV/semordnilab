@@ -2,5 +2,6 @@ export { DexieCompositionDraftRepository } from './dexie-composition-draft-repos
 export { DexieSavedCompositeSemordnilapRepository } from './dexie-saved-composite-semordnilap-repository'
 export { DexieSemordnilapStatusRepository } from './dexie-semordnilap-status-repository'
 export { DexieSemordnilapTagRepository } from './dexie-semordnilap-tag-repository'
+export { BrowserSelectedDatasetRepository } from './browser-selected-dataset-repository'
 export { DexiePersonalDataRepository } from './dexie-personal-data-repository'
 export { DexieWorkspacePreferencesRepository } from './dexie-workspace-preferences-repository'

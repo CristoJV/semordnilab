@@ -16,6 +16,7 @@ import {
   ListSemordnilapTags,
   LoadAtomicSemordnilaps,
   LoadCompositionDraft,
+  LoadSelectedDataset,
   LoadWorkspacePreferences,
   MigrateSemordnilapStatusReferences,
   RemoveAllSemordnilapStatuses,
@@ -24,6 +25,7 @@ import {
   RenameSavedComposite,
   SaveCompositeSemordnilap,
   SaveCompositionDraft,
+  SaveSelectedDataset,
   SaveWorkspacePreferences,
   UpdateSemordnilapTag,
   PreviewPersonalDataImport,
@@ -39,11 +41,14 @@ import {
   DexieSemordnilapStatusRepository,
   DexieSemordnilapTagRepository,
   DexieWorkspacePreferencesRepository,
+  BrowserSelectedDatasetRepository,
 } from '@/infrastructure/repositories'
 
 export type ApplicationDependencies = {
   listAvailableDatasets: ListAvailableDatasets
   loadAtomicSemordnilaps: LoadAtomicSemordnilaps
+  loadSelectedDataset: LoadSelectedDataset
+  saveSelectedDataset: SaveSelectedDataset
   listSemordnilapStatuses: ListSemordnilapStatuses
   addSemordnilapStatus: AddSemordnilapStatus
   removeSemordnilapStatus: RemoveSemordnilapStatus
@@ -79,6 +84,7 @@ export function createApplicationDependencies(): ApplicationDependencies {
   )
   const database = new SemordnilabDatabase()
   const statusRepository = new DexieSemordnilapStatusRepository(database)
+  const selectedDatasetRepository = new BrowserSelectedDatasetRepository()
   const tagRepository = new DexieSemordnilapTagRepository(database)
   const compositeRepository = new DexieSavedCompositeSemordnilapRepository(
     database,
@@ -92,6 +98,8 @@ export function createApplicationDependencies(): ApplicationDependencies {
   return {
     listAvailableDatasets: new ListAvailableDatasets(datasetSource),
     loadAtomicSemordnilaps: new LoadAtomicSemordnilaps(datasetSource),
+    loadSelectedDataset: new LoadSelectedDataset(selectedDatasetRepository),
+    saveSelectedDataset: new SaveSelectedDataset(selectedDatasetRepository),
     listSemordnilapStatuses: new ListSemordnilapStatuses(statusRepository),
     addSemordnilapStatus: new AddSemordnilapStatus(statusRepository),
     removeSemordnilapStatus: new RemoveSemordnilapStatus(statusRepository),

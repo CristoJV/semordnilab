@@ -8,7 +8,7 @@ import type {
 import type { DatasetId, SemordnilapId } from '@/domain/semordnilap'
 
 export interface SemordnilapTagRepository {
-  list(datasetId: DatasetId): Promise<SemordnilapTagCollection>
+  list(datasetId: DatasetId | ''): Promise<SemordnilapTagCollection>
   findByNormalizedName(name: string): Promise<SemordnilapTag | undefined>
   add(tag: SemordnilapTag): Promise<void>
   update(tag: SemordnilapTag): Promise<void>

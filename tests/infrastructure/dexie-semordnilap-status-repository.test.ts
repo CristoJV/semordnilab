@@ -204,4 +204,45 @@ describe('DexieSemordnilapStatusRepository', () => {
     expect(await upgraded.tags.count()).toBe(0)
     expect(await upgraded.semordnilapTags.count()).toBe(0)
   })
+
+  it('añade un icono neutro a las etiquetas de una base v4', async () => {
+    const databaseName = `semordnilab-v4-${Date.now()}`
+    const legacy = new Dexie(databaseName)
+    legacy.version(4).stores({
+      semordnilapStatuses:
+        '[datasetId+semordnilapId+status], datasetId, semordnilapId, status, [datasetId+status]',
+      savedComposites: 'id, datasetId, createdAt, updatedAt',
+      compositionDrafts: 'datasetId, updatedAt',
+      workspacePreferences: 'id, updatedAt',
+      tags: 'id, &normalizedName, createdAt, updatedAt',
+      semordnilapTags:
+        '[datasetId+semordnilapId+tagId], datasetId, semordnilapId, tagId, [datasetId+tagId]',
+    })
+    const legacyTag = {
+      id: 'tag:legacy',
+      name: 'Anterior',
+      normalizedName: 'anterior',
+      color: 'mustard',
+      createdAt: '2026-08-06T10:00:00.000Z',
+      updatedAt: '2026-08-06T10:00:00.000Z',
+    }
+    const assignment = {
+      datasetId: 'es-gl',
+      semordnilapId: 'atomic:uno',
+      tagId: legacyTag.id,
+      createdAt: '2026-08-06T10:01:00.000Z',
+    }
+    await legacy.table('tags').put(legacyTag)
+    await legacy.table('semordnilapTags').put(assignment)
+    legacy.close()
+
+    const upgraded = new SemordnilabDatabase(databaseName)
+    databases.push(upgraded)
+    await upgraded.open()
+
+    expect(await upgraded.tags.toArray()).toEqual([
+      { ...legacyTag, icon: 'tag' },
+    ])
+    expect(await upgraded.semordnilapTags.toArray()).toEqual([assignment])
+  })
 })

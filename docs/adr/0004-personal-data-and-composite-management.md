@@ -28,7 +28,7 @@ La base utiliza `DATABASE_VERSION = 3`. Se conservan sin cambios las declaracion
 workspacePreferences: id, updatedAt
 ```
 
-El registro contiene las opciones globales, el estado plegado y una vista por dataset. No se utiliza almacenamiento paralelo del navegador, por lo que una copia puede leer y reemplazar todos los datos personales dentro del mismo límite transaccional.
+El registro contiene las opciones globales, el estado plegado y una vista por dataset. Todos los datos personales continúan dentro del mismo límite transaccional. Solo la última selección de dataset se conserva aparte como sesión ligera en `localStorage`; no contiene trabajo del usuario y no forma parte de la copia.
 
 ## Formato de copia
 

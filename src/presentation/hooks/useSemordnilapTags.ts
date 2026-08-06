@@ -10,6 +10,7 @@ import type {
   SemordnilapTag,
   SemordnilapTagChange,
   TagColor,
+  TagIcon,
   TagId,
   UpdateSemordnilapTag,
 } from '@/application'
@@ -31,8 +32,13 @@ export type SemordnilapTagState = {
   ready: boolean
   errorMessage: string | null
   refresh: () => void
-  create: (name: string, color: TagColor) => Promise<void>
-  update: (tag: SemordnilapTag, name: string, color: TagColor) => Promise<void>
+  create: (name: string, color: TagColor, icon: TagIcon) => Promise<void>
+  update: (
+    tag: SemordnilapTag,
+    name: string,
+    color: TagColor,
+    icon: TagIcon,
+  ) => Promise<void>
   remove: (tagId: TagId) => Promise<void>
   addTo: (
     semordnilapIds: readonly SemordnilapId[],
@@ -61,7 +67,6 @@ export function useSemordnilapTags(
   const [revision, setRevision] = useState(0)
 
   useEffect(() => {
-    if (!datasetId) return undefined
     let active = true
     void useCases.listSemordnilapTags
       .execute(datasetId)
@@ -120,16 +125,16 @@ export function useSemordnilapTags(
   return {
     tags,
     assignments,
-    ready: Boolean(datasetId && loadedDatasetId === datasetId),
+    ready: loadedDatasetId === datasetId,
     errorMessage,
     refresh: reload,
-    create: (name, color) =>
+    create: (name, color, icon) =>
       runAndReload(() =>
-        useCases.createSemordnilapTag.execute({ name, color }),
+        useCases.createSemordnilapTag.execute({ name, color, icon }),
       ),
-    update: (tag, name, color) =>
+    update: (tag, name, color, icon) =>
       runAndReload(() =>
-        useCases.updateSemordnilapTag.execute(tag, { name, color }),
+        useCases.updateSemordnilapTag.execute(tag, { name, color, icon }),
       ),
     remove: (tagId) =>
       runAndReload(() => useCases.deleteSemordnilapTag.execute(tagId)),

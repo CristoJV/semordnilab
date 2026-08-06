@@ -1,39 +1,26 @@
 .intro,
 .empty,
 .message {
-  margin: 0 0 1rem;
+  margin: 0;
   color: var(--color-text-muted);
   font-size: 0.78rem;
   line-height: 1.45;
 }
 
-.create {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  gap: 0.5rem;
-  align-items: end;
+.overviewHeading {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 1rem;
-  padding: 0.8rem;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 0.8rem;
 }
 
-.create label {
-  display: grid;
-  gap: 0.3rem;
-  color: var(--color-text-muted);
-  font-size: 0.7rem;
-}
-
-.create input,
-.create select,
-.create button,
-.tagRow input,
-.tagRow select,
-.tagRow button {
+.overviewHeading button,
+.tagRow button,
+.editor button,
+.editor input {
   min-height: 2.2rem;
-  padding: 0.4rem 0.6rem;
+  padding: 0.4rem 0.7rem;
   color: var(--color-text);
   font: inherit;
   font-size: 0.76rem;
@@ -42,21 +29,18 @@
   border-radius: 0.55rem;
 }
 
-.create button,
-.tagRow button {
-  font-weight: 750;
-  cursor: pointer;
-}
-
-.create button {
+.overviewHeading button,
+.editorActions button:last-child {
+  flex: 0 0 auto;
   color: white;
+  font-weight: 750;
   background: var(--color-violet);
   border-color: var(--color-violet);
 }
 
 .list {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.45rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -64,23 +48,49 @@
 
 .tagRow {
   display: grid;
-  grid-template-columns: auto minmax(7rem, 1fr) auto auto auto auto;
-  gap: 0.45rem;
+  grid-template-columns: auto minmax(7rem, 1fr) auto auto;
+  gap: 0.55rem;
   align-items: center;
-  padding: 0.55rem;
-  border-bottom: 1px solid var(--color-border);
+  min-height: 3.4rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.7rem;
 }
 
-.tagRow > i {
-  width: 0.65rem;
-  height: 0.65rem;
-  background: var(--tag-color);
-  border-radius: 50%;
+.rowIcon,
+.preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tag-color);
 }
 
-.tagRow small {
+.rowIcon {
+  width: 1.45rem;
+  height: 1.45rem;
+}
+
+.rowIcon svg,
+.preview svg,
+.iconGrid svg {
+  width: 100%;
+  height: 100%;
+}
+
+.tagName {
+  display: grid;
+  gap: 0.08rem;
+}
+
+.tagName small {
   color: var(--color-text-muted);
-  white-space: nowrap;
+}
+
+.tagRow button,
+.editor button {
+  font-weight: 750;
+  cursor: pointer;
 }
 
 .confirmation {
@@ -88,7 +98,146 @@
   gap: 0.25rem;
 }
 
-.tagRow p {
+.editor {
+  display: grid;
+  gap: 1rem;
+}
+
+.editorHeading {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.8rem;
+}
+
+.preview {
+  flex: 0 0 auto;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0.42rem;
+  background: color-mix(in srgb, var(--tag-color) 13%, white);
+  border: 1px solid color-mix(in srgb, var(--tag-color) 35%, white);
+  border-radius: 0.7rem;
+}
+
+.editorHeading div {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.editorHeading span,
+.nameField {
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+}
+
+.nameField {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.nameField input {
+  color: var(--color-text);
+  font-size: 0.82rem;
+}
+
+.appearancePicker {
+  display: grid;
+  grid-template-columns: minmax(9rem, 0.7fr) minmax(15rem, 1.3fr);
+  gap: 1rem;
+}
+
+.appearancePicker fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+}
+
+.appearancePicker legend {
+  padding: 0 0.3rem;
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.colorGrid,
+.iconGrid {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.colorGrid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.colorChoice {
+  display: grid;
+  min-height: 2.5rem;
+  place-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0.6rem;
+  cursor: pointer;
+}
+
+.colorChoice span {
+  width: 1.25rem;
+  height: 1.25rem;
+  background: var(--tag-color);
+  border: 0.16rem solid var(--color-surface-strong);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px
+    color-mix(in srgb, var(--tag-color) 55%, var(--color-border));
+}
+
+.colorChoice[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--tag-color) 10%, transparent);
+  border-color: color-mix(in srgb, var(--tag-color) 45%, var(--color-border));
+}
+
+.colorChoice[aria-pressed='true'] span {
+  box-shadow: 0 0 0 2px var(--tag-color);
+}
+
+.iconGrid {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.iconGrid button {
+  display: grid;
+  min-height: 2.5rem;
+  padding: 0.55rem;
+  place-items: center;
+  color: var(--color-text-muted);
+  background: transparent;
+}
+
+.iconGrid button span {
+  display: inline-flex;
+  width: 1.15rem;
+  height: 1.15rem;
+  color: var(--tag-color);
+}
+
+.iconGrid button[data-selected='true'] {
+  color: var(--tag-color);
+  background: color-mix(in srgb, var(--tag-color) 10%, transparent);
+  border-color: color-mix(in srgb, var(--tag-color) 45%, var(--color-border));
+}
+
+.editorActions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.error {
   grid-column: 2 / -1;
   margin: 0;
   color: var(--color-error, #8c2430);
@@ -105,36 +254,38 @@
 [data-color='violet'] {
   --tag-color: #8461b5;
 }
-
 [data-color='mustard'] {
   --tag-color: #d2a633;
 }
-
 [data-color='terracotta'] {
   --tag-color: #c66b4f;
 }
-
 [data-color='green'] {
   --tag-color: #4f966d;
 }
-
 [data-color='blue'] {
   --tag-color: #4f86ad;
 }
-
 [data-color='rose'] {
   --tag-color: #b86784;
 }
 
 @media (max-width: 680px) {
-  .create,
+  .overviewHeading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .appearancePicker {
+    grid-template-columns: 1fr;
+  }
+
   .tagRow {
     grid-template-columns: auto minmax(0, 1fr) auto;
   }
 
-  .tagRow small,
-  .tagRow button,
-  .tagRow .confirmation {
+  .tagRow > button:last-of-type,
+  .confirmation {
     grid-column: 2 / -1;
   }
 }

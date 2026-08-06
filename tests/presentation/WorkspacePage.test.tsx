@@ -25,6 +25,7 @@ import {
   ListSemordnilapTags,
   LoadAtomicSemordnilaps,
   LoadCompositionDraft,
+  LoadSelectedDataset,
   LoadWorkspacePreferences,
   MigrateSemordnilapStatusReferences,
   RemoveAllSemordnilapStatuses,
@@ -33,6 +34,7 @@ import {
   RenameSavedComposite,
   SaveCompositeSemordnilap,
   SaveCompositionDraft,
+  SaveSelectedDataset,
   SaveWorkspacePreferences,
   CreateSemordnilapTag,
   UpdateSemordnilapTag,
@@ -50,6 +52,7 @@ import {
 } from '../support/fixtures'
 import { InMemorySemordnilapStatusRepository } from '../support/in-memory-semordnilap-status-repository'
 import { InMemorySemordnilapTagRepository } from '../support/in-memory-semordnilap-tag-repository'
+import { InMemorySelectedDatasetRepository } from '../support/in-memory-selected-dataset-repository'
 import {
   InMemoryCompositionDraftRepository,
   InMemoryPersonalDataRepository,
@@ -67,6 +70,7 @@ const loadedDataset: LoadedSemordnilapDataset = {
 
 function createDependencies(
   sourceOverrides: Partial<SemordnilapDatasetSource> = {},
+  selectedDatasetId: string = '',
 ): ApplicationDependencies {
   const source: SemordnilapDatasetSource = {
     listAvailable: () => [testDataset],
@@ -74,6 +78,9 @@ function createDependencies(
     ...sourceOverrides,
   }
   const statusRepository = new InMemorySemordnilapStatusRepository()
+  const selectedDatasetRepository = new InMemorySelectedDatasetRepository(
+    selectedDatasetId,
+  )
   const tagRepository = new InMemorySemordnilapTagRepository()
   const compositeRepository = new InMemorySavedCompositeSemordnilapRepository()
   const draftRepository = new InMemoryCompositionDraftRepository()
@@ -88,6 +95,8 @@ function createDependencies(
   return {
     listAvailableDatasets: new ListAvailableDatasets(source),
     loadAtomicSemordnilaps: new LoadAtomicSemordnilaps(source),
+    loadSelectedDataset: new LoadSelectedDataset(selectedDatasetRepository),
+    saveSelectedDataset: new SaveSelectedDataset(selectedDatasetRepository),
     listSemordnilapStatuses: new ListSemordnilapStatuses(statusRepository),
     addSemordnilapStatus: new AddSemordnilapStatus(statusRepository),
     removeSemordnilapStatus: new RemoveSemordnilapStatus(statusRepository),
@@ -147,6 +156,36 @@ function getComponentTexts(list: HTMLElement): string[] {
 }
 
 describe('WorkspacePage', () => {
+  it('restaura el conjunto lingüístico guardado al iniciar', async () => {
+    render(
+      <WorkspacePage dependencies={createDependencies({}, testDataset.id)} />,
+    )
+
+    expect(screen.getByLabelText('Conjunto lingüístico')).toHaveValue(
+      testDataset.id,
+    )
+    expect(
+      await screen.findByRole('region', { name: 'Catálogo bilingüe' }),
+    ).toBeInTheDocument()
+  })
+
+  it('abre la gestión global de etiquetas desde el menú', async () => {
+    const user = userEvent.setup()
+    render(<WorkspacePage dependencies={createDependencies()} />)
+
+    await user.click(screen.getByRole('button', { name: 'Menú' }))
+    await user.click(
+      screen.getByRole('button', { name: 'Gestionar etiquetas' }),
+    )
+
+    expect(
+      screen.getByRole('dialog', { name: 'Gestionar etiquetas' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('dialog', { name: 'Menú' }),
+    ).not.toBeInTheDocument()
+  })
+
   it('crea, asigna y filtra etiquetas sin romper la pareja bilingüe', async () => {
     const user = userEvent.setup()
     render(<WorkspacePage dependencies={createDependencies()} />)
@@ -163,12 +202,16 @@ describe('WorkspacePage', () => {
     )
     await user.click(within(catalog).getByRole('button', { name: 'Gestionar' }))
     const dialog = screen.getByRole('dialog', { name: 'Gestionar etiquetas' })
-    await user.type(within(dialog).getByLabelText('Nueva etiqueta'), 'Curioso')
-    await user.selectOptions(within(dialog).getByLabelText('Color'), 'green')
-    await user.click(within(dialog).getByRole('button', { name: 'Crear' }))
-    expect(
-      await within(dialog).findByDisplayValue('Curioso'),
-    ).toBeInTheDocument()
+    await user.click(
+      within(dialog).getByRole('button', { name: 'Nueva etiqueta' }),
+    )
+    await user.type(within(dialog).getByLabelText('Nombre'), 'Curioso')
+    await user.click(within(dialog).getByRole('button', { name: 'Verde' }))
+    await user.click(within(dialog).getByRole('button', { name: 'Estrella' }))
+    await user.click(
+      within(dialog).getByRole('button', { name: 'Crear etiqueta' }),
+    )
+    expect(await within(dialog).findByText('Curioso')).toBeInTheDocument()
     await user.click(
       within(dialog).getByRole('button', { name: 'Cerrar diálogo' }),
     )
@@ -176,22 +219,33 @@ describe('WorkspacePage', () => {
     await user.click(
       within(catalog).getByRole('button', { name: 'Seleccionar varios' }),
     )
+    const assignmentToggle = within(catalog).getByRole('button', {
+      name: 'Etiquetar',
+    })
+    expect(assignmentToggle).toBeDisabled()
     await user.click(
       within(catalog).getByRole('button', { name: 'Seleccionar ella' }),
     )
-    const assignmentToggle = within(catalog).getByText('Etiquetar', {
-      selector: 'summary',
-    })
+    expect(assignmentToggle).toBeEnabled()
     await user.click(assignmentToggle)
-    await user.click(within(catalog).getByRole('checkbox', { name: /Curioso/ }))
+    const assignmentDialog = within(catalog).getByRole('dialog', {
+      name: 'Etiquetar selección',
+    })
+    await user.click(
+      within(assignmentDialog).getByRole('checkbox', { name: /Curioso/ }),
+    )
     expect(
       within(catalog).getByRole('button', { name: 'Deseleccionar ella' }),
     ).not.toHaveAttribute(
       'title',
       expect.stringContaining('Etiquetas: Curioso'),
     )
-    await user.click(within(catalog).getByRole('button', { name: 'Aplicar' }))
-    expect(assignmentToggle.closest('details')).not.toHaveAttribute('open')
+    await user.click(
+      within(assignmentDialog).getByRole('button', { name: 'Aplicar' }),
+    )
+    expect(
+      within(catalog).queryByRole('dialog', { name: 'Etiquetar selección' }),
+    ).not.toBeInTheDocument()
     await waitFor(() =>
       expect(
         within(catalog).getByRole('button', {
@@ -199,7 +253,9 @@ describe('WorkspacePage', () => {
         }),
       ).toHaveAttribute('title', expect.stringContaining('Etiquetas: Curioso')),
     )
-    await user.click(within(catalog).getByRole('button', { name: 'Cerrar' }))
+    await user.click(
+      within(catalog).getByRole('button', { name: 'Cerrar selección' }),
+    )
 
     const filterToggle = within(catalog).getByText('Etiquetas', {
       selector: 'summary',

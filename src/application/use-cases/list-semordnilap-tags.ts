@@ -8,7 +8,7 @@ export class ListSemordnilapTags {
     this.repository = repository
   }
 
-  execute(datasetId: DatasetId) {
+  execute(datasetId: DatasetId | '') {
     return this.repository.list(datasetId)
   }
 }

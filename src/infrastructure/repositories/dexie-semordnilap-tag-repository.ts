@@ -15,13 +15,15 @@ export class DexieSemordnilapTagRepository implements SemordnilapTagRepository {
     this.database = database
   }
 
-  async list(datasetId: DatasetId) {
+  async list(datasetId: DatasetId | '') {
     const [tags, assignments] = await Promise.all([
       this.database.tags.orderBy('createdAt').toArray(),
-      this.database.semordnilapTags
-        .where('datasetId')
-        .equals(datasetId)
-        .toArray(),
+      datasetId
+        ? this.database.semordnilapTags
+            .where('datasetId')
+            .equals(datasetId)
+            .toArray()
+        : Promise.resolve([]),
     ])
     return { tags, assignments }
   }

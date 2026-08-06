@@ -22,7 +22,7 @@ El repositorio contiene actualmente:
 - gestión de composites con análisis transitivo y eliminación en cascada protegida;
 - copias JSON versionadas con inspección, combinación, validación semántica e importación atómica;
 - preferencias de vista persistentes por dataset;
-- esquema IndexedDB en versión 4 con migraciones comprobadas desde las versiones 1, 2 y 3;
+- esquema IndexedDB en versión 5 con migraciones comprobadas desde las versiones 1, 2, 3 y 4;
 - CSS Modules y estilos globales basados en tokens;
 - pruebas con Vitest para dominio, aplicación, infraestructura y presentación;
 - TypeScript estricto, alias `@/`, ESLint y Prettier;
@@ -424,7 +424,7 @@ La implementación no añade una librería de búsqueda ni una dependencia de vi
 
 ## Persistencia local
 
-Dexie implementa repositorios internos sobre IndexedDB. `DATABASE_VERSION` marca actualmente la versión 4. La declaración de la versión 1 permanece intacta y contiene `semordnilapStatuses`, con la clave compuesta:
+Dexie implementa repositorios internos sobre IndexedDB. `DATABASE_VERSION` marca actualmente la versión 5. La declaración de la versión 1 permanece intacta y contiene `semordnilapStatuses`, con la clave compuesta:
 
 ```text
 [datasetId + semordnilapId + status]
@@ -448,7 +448,9 @@ La versión 4 conserva las cuatro tablas y añade:
 - `tags`, indexada por su identidad y por el nombre normalizado único;
 - `semordnilapTags`, con clave compuesta `[datasetId + semordnilapId + tagId]` e índices para consultar por dataset y etiqueta.
 
-Las actualizaciones son aditivas. Las pruebas abren bases reales de versiones 1, 2 y 3, las actualizan a la versión actual y comprueban que los datos anteriores sobreviven. Las referencias de estado basadas en antiguas posiciones del TSV se reemplazan posteriormente dentro de una transacción, una vez que el dataset permite conocer la correspondencia segura.
+La versión 5 conserva los esquemas y completa cada etiqueta con un identificador de icono. La migración asigna `tag` a los registros de versión 4, sin modificar nombres, colores ni asignaciones.
+
+Las actualizaciones son aditivas. Las pruebas abren bases reales de versiones 1, 2, 3 y 4, las actualizan a la versión actual y comprueban que los datos anteriores sobreviven. Las referencias de estado basadas en antiguas posiciones del TSV se reemplazan posteriormente dentro de una transacción, una vez que el dataset permite conocer la correspondencia segura.
 
 La base local almacena únicamente aquello que no pueda reconstruirse de forma fiable. Actualmente persiste:
 
@@ -458,7 +460,9 @@ La base local almacena únicamente aquello que no pueda reconstruirse de forma f
 - preferencias globales y vistas de catálogo por dataset.
 - definiciones globales de etiquetas y sus asignaciones a semordnilaps.
 
-La copia de seguridad utiliza un sobre con nombre de formato, versión y fecha de exportación. La versión 2 incorpora etiquetas y asignaciones, y el analizador continúa aceptando copias de versión 1 como colecciones sin etiquetas. En una combinación, las etiquetas se reconcilian por identidad y nombre normalizado antes de unir sus asignaciones.
+La copia de seguridad utiliza un sobre con nombre de formato, versión y fecha de exportación. La versión 2 incorporó etiquetas y asignaciones. La versión 3 añade el icono de cada etiqueta. El analizador continúa aceptando las versiones 1 y 2, e incorpora el icono neutro al leer una etiqueta antigua. En una combinación, las etiquetas se reconcilian por identidad y nombre normalizado antes de unir sus asignaciones.
+
+La selección del dataset utiliza un puerto de aplicación independiente y una implementación pequeña sobre `localStorage`. La presentación solo conoce los casos de uso de lectura y escritura. Esta sesión ligera queda fuera de IndexedDB y de las copias personales porque puede reconstruirse y no contiene trabajo creado por el usuario.
 
 La capa de aplicación analiza datos desconocidos, construye el resultado de la estrategia elegida y vuelve a resolver todos los composites contra los datasets incluidos. La infraestructura solo sustituye las seis tablas después de completar esa validación y lo hace dentro de una transacción Dexie. Un error de escritura revierte también los vaciados previos.
 

@@ -18,7 +18,7 @@ export type PersonalDataSnapshot = {
 
 export type SemordnilabBackup = {
   format: 'semordnilab-personal-data'
-  version: 1 | 2
+  version: 1 | 2 | 3
   exportedAt: string
   data: PersonalDataSnapshot
 }

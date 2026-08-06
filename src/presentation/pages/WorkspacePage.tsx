@@ -222,6 +222,7 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
           preferences={preferences}
           onClose={() => setMenuOpen(false)}
           onImported={() => window.location.reload()}
+          onManageTags={() => setTagManagerOpen(true)}
         />
       )}
 

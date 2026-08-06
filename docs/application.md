@@ -136,13 +136,13 @@ La búsqueda sigue funcionando dentro de la vista activa o descartada y continú
 
 ## Etiquetas personales
 
-Las etiquetas son clasificaciones creadas por el usuario y se mantienen separadas de los estados funcionales. Cada etiqueta tiene una identidad estable, un nombre único normalizado y un color de la paleta disponible. Las etiquetas son globales para poder reutilizarlas en distintos pares lingüísticos, mientras que cada asignación identifica el dataset y el semordnilap etiquetado.
+Las etiquetas son clasificaciones creadas por el usuario y se mantienen separadas de los estados funcionales. Cada etiqueta tiene una identidad estable, un nombre único normalizado y una apariencia formada por un color y un icono de las paletas disponibles. Las etiquetas son globales para poder reutilizarlas en distintos pares lingüísticos, mientras que cada asignación identifica el dataset y el semordnilap etiquetado.
 
-La asignación se realiza desde la selección múltiple. Una misma etiqueta puede aplicarse a semordnilaps atómicos y composites, siempre sobre la unidad bilingüe completa. Marcar o desmarcar etiquetas prepara una edición temporal; `Aplicar` guarda todos los cambios en una única transacción y cierra el desplegable. `Cerrar` abandona después el modo de selección sin sugerir que se revierten cambios ya aplicados.
+La asignación se realiza desde la selección múltiple. Una misma etiqueta puede aplicarse a semordnilaps atómicos y composites, siempre sobre la unidad bilingüe completa. `Etiquetar` permanece deshabilitado hasta que exista una selección. Al activarlo abre un diálogo donde marcar o desmarcar etiquetas prepara una edición temporal; `Aplicar` guarda todos los cambios en una única transacción. Un botón compacto con una cruz abandona después el modo de selección sin sugerir que se revierten cambios ya aplicados.
 
-Las filas reservan un espacio fijo para mostrar hasta tres puntos de color en ambos idiomas; las etiquetas adicionales se resumen mediante un contador y los nombres permanecen disponibles como información textual.
+Las filas reservan un espacio fijo para mostrar hasta tres iconos coloreados en ambos idiomas; las etiquetas adicionales se resumen mediante un contador y los nombres permanecen disponibles como información textual.
 
-El control `Etiquetas` filtra por cualquiera de las etiquetas seleccionadas sin romper la alineación de las columnas. Las casillas preparan el filtro y el botón `Aplicar` lo activa y cierra el desplegable. Desde el mismo control se abre el gestor para crear, renombrar, recolorear o eliminar etiquetas. Eliminar una etiqueta retira sus asignaciones en todas las colecciones, pero no modifica los semordnilaps.
+El control `Etiquetas` filtra por cualquiera de las etiquetas seleccionadas sin romper la alineación de las columnas. Las casillas preparan el filtro y el botón `Aplicar` lo activa y cierra el desplegable. El gestor también está accesible desde el menú superior y permite crear, renombrar, cambiar el icono o el color y eliminar etiquetas. La apariencia se elige en una cuadrícula visual de opciones, no mediante selectores nativos. Eliminar una etiqueta retira sus asignaciones en todas las colecciones, pero no modifica los semordnilaps.
 
 ## Validación de una composición
 
@@ -185,9 +185,11 @@ La identidad de un composite se deriva de la secuencia expandida de componentes 
 
 La aplicación no requiere cuenta ni servidor. Guarda en el navegador los estados del catálogo, las etiquetas, un borrador por dataset y los composites. Los datasets incluidos se sirven como archivos estáticos y no se duplican en la base de datos local.
 
+El conjunto lingüístico seleccionado se conserva como estado ligero de sesión en `localStorage`. Al recargar se valida que siga perteneciendo al catálogo disponible antes de restaurarlo. Esta preferencia no forma parte de los datos personales ni de la copia de seguridad, y un fallo o bloqueo del almacenamiento no impide utilizar la aplicación.
+
 La base tiene una versión explícita y las actualizaciones conservan las tablas anteriores mediante migraciones aditivas. Los identificadores atómicos son estables aunque una fila cambie de posición en el TSV. Los estados guardados con los identificadores antiguos se convierten dentro de una transacción cuando se carga cada dataset.
 
-El menú de la barra superior separa `Datos` y `Preferencias`. La sección de datos resume el almacenamiento local y permite exportar una copia JSON versionada. La copia contiene estados, composites, borradores, etiquetas, asignaciones y preferencias, pero no duplica los TSV incluidos.
+El menú de la barra superior separa `Datos` y `Preferencias` e incluye un acceso directo al gestor de etiquetas. La sección de datos resume el almacenamiento local y permite exportar una copia JSON versionada. La copia contiene estados, composites, borradores, etiquetas, asignaciones y preferencias, pero no duplica los TSV incluidos.
 
 Antes de importar se analiza todo el archivo y se muestra un resumen. El usuario puede combinarlo con los datos actuales o sustituirlos, decidir cómo resolver conflictos de borradores y excluir las preferencias. La validación comprueba formato, versión, datasets, identificadores, referencias, ciclos e integridad de composites. Solo después se reemplazan las tablas dentro de una única transacción. La aplicación descarga automáticamente una copia del estado anterior antes de confirmar la escritura.
 

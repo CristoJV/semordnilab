@@ -5,6 +5,8 @@ import type {
   ListAvailableDatasets,
   LoadedSemordnilapDataset,
   LoadAtomicSemordnilaps,
+  LoadSelectedDataset,
+  SaveSelectedDataset,
 } from '@/application'
 import type { DatasetId } from '@/domain/semordnilap'
 
@@ -13,6 +15,8 @@ export type CatalogStatus = 'idle' | 'loading' | 'ready' | 'error'
 type CatalogUseCases = {
   listAvailableDatasets: ListAvailableDatasets
   loadAtomicSemordnilaps: LoadAtomicSemordnilaps
+  loadSelectedDataset: LoadSelectedDataset
+  saveSelectedDataset: SaveSelectedDataset
 }
 
 type SemordnilapCatalogState = {
@@ -32,10 +36,18 @@ export function useSemordnilapCatalog(
     () => useCases.listAvailableDatasets.execute(),
     [useCases.listAvailableDatasets],
   )
-  const [selectedDatasetId, setSelectedDatasetId] = useState<DatasetId | ''>('')
+  const initialDatasetId = useMemo(() => {
+    const saved = useCases.loadSelectedDataset.execute()
+    return datasets.some(({ id }) => id === saved) ? saved : ''
+  }, [datasets, useCases.loadSelectedDataset])
+  const [selectedDatasetId, setSelectedDatasetId] = useState<DatasetId | ''>(
+    initialDatasetId,
+  )
   const [loadedDataset, setLoadedDataset] =
     useState<LoadedSemordnilapDataset | null>(null)
-  const [status, setStatus] = useState<CatalogStatus>('idle')
+  const [status, setStatus] = useState<CatalogStatus>(
+    initialDatasetId ? 'loading' : 'idle',
+  )
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [reloadToken, setReloadToken] = useState(0)
 
@@ -68,12 +80,17 @@ export function useSemordnilapCatalog(
     return () => controller.abort()
   }, [selectedDatasetId, reloadToken, useCases.loadAtomicSemordnilaps])
 
-  const selectDataset = useCallback((datasetId: DatasetId | '') => {
-    setSelectedDatasetId(datasetId)
-    setLoadedDataset(null)
-    setErrorMessage(null)
-    setStatus(datasetId ? 'loading' : 'idle')
-  }, [])
+  const selectDataset = useCallback(
+    (datasetId: DatasetId | '') => {
+      if (datasetId === selectedDatasetId) return
+      useCases.saveSelectedDataset.execute(datasetId)
+      setSelectedDatasetId(datasetId)
+      setLoadedDataset(null)
+      setErrorMessage(null)
+      setStatus(datasetId ? 'loading' : 'idle')
+    },
+    [selectedDatasetId, useCases.saveSelectedDataset],
+  )
 
   const retry = useCallback(() => {
     setLoadedDataset(null)

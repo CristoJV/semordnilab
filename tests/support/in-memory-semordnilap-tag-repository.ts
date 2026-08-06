@@ -11,7 +11,7 @@ export class InMemorySemordnilapTagRepository implements SemordnilapTagRepositor
   private readonly tags = new Map<TagId, SemordnilapTag>()
   private readonly assignments = new Map<string, SemordnilapTagAssignment>()
 
-  async list(datasetId: DatasetId) {
+  async list(datasetId: DatasetId | '') {
     return {
       tags: [...this.tags.values()],
       assignments: [...this.assignments.values()].filter(

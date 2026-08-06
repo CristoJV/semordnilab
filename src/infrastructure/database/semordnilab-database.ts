@@ -12,7 +12,7 @@ import type {
 } from '@/application'
 import type { DatasetId, SemordnilapId } from '@/domain/semordnilap'
 
-export const DATABASE_VERSION = 4
+export const DATABASE_VERSION = 5
 
 export type SemordnilapStatusKey = [
   DatasetId,
@@ -49,7 +49,7 @@ export class SemordnilabDatabase extends Dexie {
       savedComposites: 'id, datasetId, createdAt, updatedAt',
       compositionDrafts: 'datasetId, updatedAt',
     })
-    this.version(DATABASE_VERSION).stores({
+    this.version(4).stores({
       semordnilapStatuses: statusSchema,
       savedComposites: 'id, datasetId, createdAt, updatedAt',
       compositionDrafts: 'datasetId, updatedAt',
@@ -58,6 +58,24 @@ export class SemordnilabDatabase extends Dexie {
       semordnilapTags:
         '[datasetId+semordnilapId+tagId], datasetId, semordnilapId, tagId, [datasetId+tagId]',
     })
+    this.version(DATABASE_VERSION)
+      .stores({
+        semordnilapStatuses: statusSchema,
+        savedComposites: 'id, datasetId, createdAt, updatedAt',
+        compositionDrafts: 'datasetId, updatedAt',
+        workspacePreferences: 'id, updatedAt',
+        tags: 'id, &normalizedName, createdAt, updatedAt',
+        semordnilapTags:
+          '[datasetId+semordnilapId+tagId], datasetId, semordnilapId, tagId, [datasetId+tagId]',
+      })
+      .upgrade((transaction) =>
+        transaction
+          .table<SemordnilapTag, TagId>('tags')
+          .toCollection()
+          .modify((tag) => {
+            if (!tag.icon) tag.icon = 'tag'
+          }),
+      )
 
     this.semordnilapStatuses = this.table('semordnilapStatuses')
     this.savedComposites = this.table('savedComposites')

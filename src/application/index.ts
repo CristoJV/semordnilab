@@ -9,12 +9,14 @@ export type { CompositionDraftRecord } from './dto/composition-draft'
 export type { SavedCompositeSemordnilapRecord } from './dto/saved-composite'
 export {
   TAG_COLORS,
+  TAG_ICONS,
   type SemordnilapTag,
   type SemordnilapTagAssignment,
   type SemordnilapTagCollection,
   type SemordnilapTagChange,
   type TagColor,
   type TagId,
+  type TagIcon,
 } from './dto/semordnilap-tag'
 export type {
   PersonalDataImportOptions,
@@ -44,6 +46,7 @@ export type { CompositionDraftRepository } from './ports/composition-draft-repos
 export type { SavedCompositeSemordnilapRepository } from './ports/saved-composite-semordnilap-repository'
 export type { SemordnilapStatusRepository } from './ports/semordnilap-status-repository'
 export type { SemordnilapTagRepository } from './ports/semordnilap-tag-repository'
+export type { SelectedDatasetRepository } from './ports/selected-dataset-repository'
 export type {
   CompositeDeletionPlan,
   PersonalDataRepository,
@@ -96,3 +99,7 @@ export {
   RemoveSemordnilapTagAssignments,
 } from './use-cases/change-semordnilap-tag-assignments'
 export { createCompositeCatalogItem } from './composites/create-composite-catalog-item'
+export {
+  LoadSelectedDataset,
+  SaveSelectedDataset,
+} from './use-cases/selected-dataset'

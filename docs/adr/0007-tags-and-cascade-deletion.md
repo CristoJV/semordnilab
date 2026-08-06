@@ -12,13 +12,13 @@ Ambas ampliaciones deben preservar las bases IndexedDB existentes y viajar en la
 
 ### Etiquetas
 
-Una etiqueta es una entidad global con identidad estable, nombre normalizado único, color de una paleta cerrada y fechas. La relación `SemordnilapTagAssignment` contiene `datasetId`, `semordnilapId`, `tagId` y la fecha de asignación. No contiene un lado lingüístico porque el semordnilap es una unidad bilingüe indivisible.
+Una etiqueta es una entidad global con identidad estable, nombre normalizado único, color e icono de paletas cerradas y fechas. La relación `SemordnilapTagAssignment` contiene `datasetId`, `semordnilapId`, `tagId` y la fecha de asignación. No contiene un lado lingüístico porque el semordnilap es una unidad bilingüe indivisible.
 
-Los estados funcionales y las etiquetas permanecen separados. Favorito y descartado determinan vistas y acciones, mientras que las etiquetas solo clasifican y filtran. La selección múltiple permite preparar varias modificaciones y aplicarlas mediante una única escritura transaccional. El filtro también conserva una selección temporal hasta que `Aplicar` la activa. Ambos desplegables se cierran después de confirmar para devolver el foco al catálogo.
+Los estados funcionales y las etiquetas permanecen separados. Favorito y descartado determinan vistas y acciones, mientras que las etiquetas solo clasifican y filtran. La selección múltiple permite preparar varias modificaciones y aplicarlas mediante una única escritura transaccional. Su acción permanece deshabilitada sin elementos seleccionados y abre un diálogo propio. El filtro conserva una selección temporal hasta que `Aplicar` la activa y cierra su panel.
 
-El catálogo muestra puntos compactos en un espacio fijo y combina con una operación inclusiva las etiquetas elegidas en el filtro.
+El catálogo muestra iconos compactos y coloreados en un espacio fijo y combina con una operación inclusiva las etiquetas elegidas en el filtro.
 
-El gestor permite crear, renombrar, recolorear y eliminar etiquetas. Eliminar una definición retira todas sus asignaciones dentro de la misma transacción, sin modificar unidades atómicas ni composites.
+El gestor permite crear, renombrar, cambiar la combinación visual y eliminar etiquetas. Los colores aparecen como círculos y los iconos como una cuadrícula visual. El gestor está disponible tanto desde el catálogo como desde el menú superior. Eliminar una definición retira todas sus asignaciones dentro de la misma transacción, sin modificar unidades atómicas ni composites.
 
 ### Eliminación de composites
 
@@ -32,7 +32,9 @@ Cuando el plan sigue vigente se eliminan la raíz, todos sus derivados, sus esta
 
 La versión 4 de IndexedDB añade `tags` y `semordnilapTags` sin cambiar los esquemas anteriores. No necesita una transformación de registros porque ambas tablas comienzan vacías. Las pruebas actualizan bases de versión 3 y verifican que el contenido anterior se conserva.
 
-La versión 2 de la copia personal incluye definiciones y asignaciones. El importador continúa aceptando la versión 1 y la interpreta sin etiquetas. En modo de combinación, una etiqueta importada se reconcilia primero por identidad y después por nombre normalizado. Las asignaciones se remapean y se unen sin duplicados.
+La versión 5 añade el icono a la definición sin cambiar índices ni asignaciones. La migración escribe el icono neutro `tag` únicamente en etiquetas que todavía no lo tienen. Las pruebas parten de una base de versión 4 con una etiqueta asignada y comprueban que ambos registros sobreviven.
+
+La versión 2 de la copia personal incluye definiciones y asignaciones. La versión 3 incorpora el icono. El importador continúa aceptando las versiones 1 y 2; una etiqueta de versión 2 recibe el icono neutro. En modo de combinación, una etiqueta importada se reconcilia primero por identidad y después por nombre normalizado. Las asignaciones se remapean y se unen sin duplicados.
 
 ## Consecuencias
 

@@ -6,7 +6,12 @@ import type {
   PersonalDataSummary,
   SemordnilabBackup,
 } from '@/application/dto/personal-data'
-import { TAG_COLORS, type TagColor } from '@/application/dto/semordnilap-tag'
+import {
+  TAG_COLORS,
+  TAG_ICONS,
+  type TagColor,
+  type TagIcon,
+} from '@/application/dto/semordnilap-tag'
 import type { SemordnilapDatasetSource } from '@/application/ports/semordnilap-dataset-source'
 import {
   cleanTagName,
@@ -19,8 +24,8 @@ import type {
 } from '@/domain/semordnilap'
 
 const BACKUP_FORMAT = 'semordnilab-personal-data'
-const BACKUP_VERSION = 2
-const LEGACY_BACKUP_VERSION = 1
+const BACKUP_VERSION = 3
+const LEGACY_BACKUP_VERSIONS = [1, 2] as const
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -70,7 +75,10 @@ function parseReference(value: unknown, context: string): SemordnilapReference {
   }
 }
 
-function parseSnapshot(value: unknown, version: 1 | 2): PersonalDataSnapshot {
+function parseSnapshot(
+  value: unknown,
+  version: 1 | 2 | 3,
+): PersonalDataSnapshot {
   if (!isRecord(value)) throw new Error('La copia no contiene datos válidos.')
   const statusesValue = value.statuses
   const compositesValue = value.savedComposites
@@ -194,11 +202,16 @@ function parseSnapshot(value: unknown, version: 1 | 2): PersonalDataSnapshot {
     if (!TAG_COLORS.includes(color as TagColor)) {
       throw new Error(`${context}: color desconocido.`)
     }
+    const icon = version >= 3 ? requiredString(entry, 'icon', context) : 'tag'
+    if (!TAG_ICONS.includes(icon as TagIcon)) {
+      throw new Error(`${context}: icono desconocido.`)
+    }
     return {
       id: requiredString(entry, 'id', context),
       name,
       normalizedName,
       color: color as TagColor,
+      icon: icon as TagIcon,
       createdAt: timestamp(
         requiredString(entry, 'createdAt', context),
         context,
@@ -326,11 +339,11 @@ export function parseSemordnilabBackup(input: string): SemordnilabBackup {
   }
   if (
     value.version !== BACKUP_VERSION &&
-    value.version !== LEGACY_BACKUP_VERSION
+    !LEGACY_BACKUP_VERSIONS.includes(value.version as 1 | 2)
   ) {
     throw new Error('La versión de la copia no es compatible.')
   }
-  const version = value.version as 1 | 2
+  const version = value.version as 1 | 2 | 3
   const exportedAt = timestamp(
     requiredString(value, 'exportedAt', 'Copia'),
     'Copia',

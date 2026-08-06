@@ -94,6 +94,23 @@
   opacity: 0.45;
 }
 
+.toolbar .closeSelection {
+  display: inline-grid;
+  width: 2rem;
+  height: 2rem;
+  padding: 0.42rem;
+  place-items: center;
+}
+
+.closeSelection svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
 .resetView {
   flex: none;
 }
