@@ -22,9 +22,14 @@
   border-color: color-mix(in srgb, var(--color-mustard) 45%, transparent);
 }
 
-.remove {
+.controls {
+  display: flex;
+  gap: 0.1rem;
+}
+
+.controls button {
   display: grid;
-  width: 1.7rem;
+  width: 1.45rem;
   height: 1.7rem;
   padding: 0;
   color: currentColor;
@@ -36,11 +41,16 @@
   place-items: center;
 }
 
-.remove:hover {
+.controls button:hover:not(:disabled) {
   background: color-mix(in srgb, currentColor 10%, transparent);
 }
 
-.remove:focus-visible {
+.controls button:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 1px;
+}
+
+.controls button:disabled {
+  cursor: default;
+  opacity: 0.2;
 }

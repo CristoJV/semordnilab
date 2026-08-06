@@ -1,5 +1,6 @@
 import type {
   SemordnilapCatalogStatus,
+  SemordnilapIdAlias,
   SemordnilapStatusRecord,
   SemordnilapStatusReference,
   SemordnilapStatusRepository,
@@ -43,5 +44,37 @@ export class DexieSemordnilapStatusRepository implements SemordnilapStatusReposi
       .where('[datasetId+status]')
       .equals([datasetId, status])
       .delete()
+  }
+
+  async migrateReferences(
+    datasetId: DatasetId,
+    aliases: readonly SemordnilapIdAlias[],
+  ): Promise<void> {
+    const aliasByPreviousId = new Map(
+      aliases.map(({ previousId, currentId }) => [previousId, currentId]),
+    )
+    await this.database.transaction(
+      'rw',
+      this.database.semordnilapStatuses,
+      async () => {
+        const records = await this.database.semordnilapStatuses
+          .where('datasetId')
+          .equals(datasetId)
+          .toArray()
+        for (const record of records) {
+          const currentId = aliasByPreviousId.get(record.semordnilapId)
+          if (!currentId || currentId === record.semordnilapId) continue
+          await this.database.semordnilapStatuses.put({
+            ...record,
+            semordnilapId: currentId,
+          })
+          await this.database.semordnilapStatuses.delete([
+            record.datasetId,
+            record.semordnilapId,
+            record.status,
+          ])
+        }
+      },
+    )
   }
 }

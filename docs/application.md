@@ -10,7 +10,7 @@ El propósito es ofrecer un espacio creativo de exploración lingüística. No h
 
 ## Plataforma
 
-La aplicación funciona completamente en el navegador, sin un backend propio, y se publica mediante GitHub Pages. Los datasets incluidos forman parte de los recursos estáticos. Los estados del catálogo, como favorito o descartado, permanecen en IndexedDB. El guardado local de semordnilaps compuestos forma parte del diseño, pero todavía no está disponible.
+La aplicación funciona completamente en el navegador, sin un backend propio, y se publica mediante GitHub Pages. Los datasets incluidos forman parte de los recursos estáticos. Los estados del catálogo, los borradores y los composites guardados permanecen en IndexedDB.
 
 El funcionamiento sin conexión se ofrecerá cuando los recursos necesarios ya estén disponibles en el navegador. Una experiencia offline garantizada requerirá definir y verificar una estrategia de caché.
 
@@ -43,7 +43,7 @@ La pantalla se organiza verticalmente para aprovechar una ventana más ancha que
 3. Un catálogo inferior con los dos idiomas en columnas paralelas.
 4. Un pie de página compacto con la marca `SemordniLAB`.
 
-El área de composición ocupa todo el ancho disponible y permanece por encima de las listas. Muestra dos secuencias relacionadas. La secuencia de origen conserva el orden de selección y la secuencia de destino se presenta en orden inverso.
+El área de composición ocupa todo el ancho disponible y permanece por encima de las listas. Muestra dos secuencias relacionadas. La secuencia de origen conserva el orden de selección y la secuencia de destino se presenta en orden inverso. El documento ocupa la altura de la ventana y el desplazamiento vertical pertenece al catálogo. En pantallas estrechas el área puede plegarse para dejar más espacio a las listas.
 
 ```text
 origen:  [A]  [B]  [C]
@@ -56,7 +56,9 @@ Debajo aparecen los dos exploradores. La columna izquierda alinea sus semordnila
 
 Cada explorador dispone de búsqueda y ordenación propias. Al seleccionar una expresión, el semordnilap completo se añade al área de composición y su expresión correspondiente aparece en la secuencia inversa. Las acciones situadas entre ambas columnas actúan sobre el semordnilap completo.
 
-Desde el constructor actual se añaden componentes al final de la secuencia canónica, se retira cualquier componente concreto y se puede vaciar el borrador. Cada cambio actualiza simultáneamente los dos idiomas. La inserción por ambos extremos y el reordenamiento todavía no están disponibles.
+Los espacios situados antes, después y entre componentes permiten elegir la posición de la siguiente inserción. El espacio final está activo inicialmente y el cursor avanza después de cada incorporación. Seleccionar un espacio en el idioma de destino activa su posición canónica equivalente en origen.
+
+Cada componente se puede mover hacia la izquierda o la derecha, retirar o recuperar mediante el historial. Deshacer y rehacer cubren inserciones, movimientos, retiradas y vaciado. Cada cambio actualiza simultáneamente los dos idiomas y conserva automáticamente el borrador del dataset activo.
 
 La correspondencia visual entre componentes debe permanecer visible para que se entienda cómo se forma el resultado.
 
@@ -98,7 +100,7 @@ La búsqueda actual admite:
 - coincidencias parciales y por varias palabras;
 - consulta sobre el texto visible y la forma normalizada.
 
-Cada cabecera permite ordenar por el texto o por su longitud. Un control recorre tres estados: ascendente, descendente y desactivado. El idioma cuyo control se utiliza determina qué expresión se compara, pero la fila bilingüe sigue siendo indivisible. Los favoritos conservan prioridad sobre el orden elegido.
+Cada cabecera permite ordenar por el texto o por la longitud en caracteres. Un control recorre tres estados: ascendente, descendente y desactivado. Los criterios se acumulan según su orden de activación y muestran su prioridad numérica. Pueden combinar comparaciones de ambos idiomas, pero la fila bilingüe sigue siendo indivisible. Los favoritos conservan prioridad y los composites guardados aparecen antes que los atómicos dentro de su grupo.
 
 ## Estados del catálogo
 
@@ -111,7 +113,7 @@ La interfaz utiliza actualmente dos estados:
 
 Los estados son independientes. Por ejemplo, un favorito puede descartarse sin perder la marca de favorito. Este modelo permite incorporar otros estados sin cambiar la identidad del registro ni crear una estructura específica para cada uno.
 
-Descartar o restaurar una fila actualiza las dos expresiones a la vez. Los botones de descartados de ambas cabeceras abren la misma colección compartida. Desde ella se puede restaurar una unidad, seleccionar varias o restaurarlas todas. La selección múltiple también permite aplicar favoritos o descartes por lotes desde la vista activa.
+Descartar o restaurar una fila actualiza las dos expresiones a la vez. Los botones de descartados de ambas cabeceras abren la misma colección compartida. Desde ella se puede restaurar una unidad, seleccionar varias o restaurarlas todas. La selección múltiple también permite aplicar favoritos o descartes por lotes desde la vista activa. Después de descartar, un aviso temporal permite deshacer inmediatamente la operación.
 
 La búsqueda sigue funcionando dentro de la vista activa o descartada y continúa aplicando la intersección de ambos idiomas. Restablecer los filtros elimina consultas y ordenación, pero no borra estados persistentes.
 
@@ -128,22 +130,23 @@ La repetición de un componente no se considera inválida por defecto: puede ser
 
 ## Guardado y reutilización
 
-El diseño de guardado de un semordnilap compuesto válido contempla:
+Un semordnilap compuesto válido se guarda con:
 
 - la lista ordenada de referencias a sus componentes;
 - un título opcional;
-- etiquetas, descripción u observaciones opcionales;
 - la fecha de creación y de última modificación.
 
 Las expresiones resultantes se derivan de los componentes y no constituyen una fuente de verdad independiente.
 
-Cuando se implemente, los semordnilaps compuestos guardados formarán una colección local y podrán reutilizarse como componentes de otras composiciones. La reutilización conservará la procedencia, permitirá resolver los componentes individuales originales y rechazará cualquier ciclo.
+Los composites guardados aparecen directamente en el catálogo con un indicador propio. Pueden buscarse, marcarse como favoritos, descartarse e insertarse como una sola pieza dentro de otra composición. La resolución recursiva conserva la procedencia atómica y comprueba la integridad antes de mostrar cada resultado.
+
+La identidad de un composite se deriva de la secuencia expandida de componentes atómicos. Guardar de nuevo la misma construcción no crea un duplicado. Los registros son inmutables desde la interfaz actual, por lo que una composición nueva no puede modificar indirectamente otra ya guardada ni introducir referencias circulares.
 
 ## Persistencia y exportación
 
-La aplicación no requiere cuenta ni servidor. Actualmente guarda en el navegador los estados del catálogo. Los datasets incluidos se sirven como archivos estáticos y no se duplican en la base de datos local.
+La aplicación no requiere cuenta ni servidor. Guarda en el navegador los estados del catálogo, un borrador por dataset y los composites. Los datasets incluidos se sirven como archivos estáticos y no se duplican en la base de datos local.
 
-El mismo límite arquitectónico permitirá guardar preferencias, datasets externos y semordnilaps compuestos cuando esas funciones se incorporen.
+La base tiene una versión explícita y las actualizaciones conservan las tablas anteriores mediante migraciones aditivas. Los identificadores atómicos son estables aunque una fila cambie de posición en el TSV. Las preferencias guardadas con los identificadores antiguos se convierten dentro de una transacción cuando se carga cada dataset.
 
 El usuario podrá exportar su colección para conservarla o trasladarla. El formato de intercambio deberá incluir referencias suficientes para reconstruir y validar las composiciones anidadas.
 

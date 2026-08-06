@@ -1,14 +1,16 @@
 .page {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  min-height: 100dvh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
   color: var(--color-text);
   background: var(--color-surface);
 }
 
 .main {
   display: grid;
-  grid-template-rows: auto minmax(20rem, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   min-height: 0;
 }
 
@@ -99,16 +101,17 @@
 
 @media (max-width: 760px) {
   .page {
-    display: block;
+    display: grid;
   }
 
   .main {
-    display: block;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
   }
 
   .catalog {
-    padding: 1rem;
-    overflow: visible;
+    padding: 0.5rem;
+    overflow: hidden;
   }
 }
 

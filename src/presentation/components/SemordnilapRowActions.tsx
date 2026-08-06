@@ -7,6 +7,7 @@ type SemordnilapRowActionsProps = {
   selectionMode: boolean
   selected: boolean
   disabled: boolean
+  composite: boolean
   onToggleFavorite: () => void
   onDiscard: () => void
   onRestore: () => void
@@ -20,6 +21,7 @@ export function SemordnilapRowActions({
   selectionMode,
   selected,
   disabled,
+  composite,
   onToggleFavorite,
   onDiscard,
   onRestore,
@@ -40,6 +42,11 @@ export function SemordnilapRowActions({
 
   return (
     <div className={styles.actions}>
+      {composite && (
+        <span className={styles.composite} title="Composite guardado">
+          C
+        </span>
+      )}
       <button
         type="button"
         className={styles.action}

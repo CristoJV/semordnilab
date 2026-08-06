@@ -5,9 +5,10 @@ import { AppFooter } from '@/presentation/components/AppFooter'
 import { AppHeader } from '@/presentation/components/AppHeader'
 import { CompositionWorkspace } from '@/presentation/components/CompositionWorkspace'
 import { PairedSemordnilapCatalog } from '@/presentation/components/PairedSemordnilapCatalog'
-import { useCompositionWorkspace } from '@/presentation/hooks/useCompositionWorkspace'
+import { usePersistentCompositionWorkspace } from '@/presentation/hooks/usePersistentCompositionWorkspace'
 import { useSemordnilapCatalog } from '@/presentation/hooks/useSemordnilapCatalog'
 import { useSemordnilapStatuses } from '@/presentation/hooks/useSemordnilapStatuses'
+import { useSavedCompositeSemordnilaps } from '@/presentation/hooks/useSavedCompositeSemordnilaps'
 
 import styles from './WorkspacePage.module.css'
 
@@ -15,24 +16,53 @@ type WorkspacePageProps = {
   dependencies: ApplicationDependencies
 }
 
+const EMPTY_CATALOG_ITEMS = [] as const
+
 export function WorkspacePage({ dependencies }: WorkspacePageProps) {
   const catalog = useSemordnilapCatalog(dependencies)
+  const statusAliases = useMemo(
+    () =>
+      (catalog.loadedDataset?.items ?? []).flatMap((item) =>
+        item.legacyIds.map((previousId) => ({
+          previousId,
+          currentId: item.semordnilap.id,
+        })),
+      ),
+    [catalog.loadedDataset],
+  )
   const statusState = useSemordnilapStatuses(
     catalog.selectedDatasetId,
     dependencies,
+    statusAliases,
   )
-  const composition = useCompositionWorkspace()
+  const atomicItems = catalog.loadedDataset?.items ?? EMPTY_CATALOG_ITEMS
+  const savedComposites = useSavedCompositeSemordnilaps(
+    catalog.selectedDatasetId,
+    atomicItems,
+    dependencies,
+  )
+  const catalogItems = useMemo(
+    () => [...savedComposites.items, ...atomicItems],
+    [atomicItems, savedComposites.items],
+  )
+  const library = useMemo(
+    () => catalogItems.map(({ semordnilap }) => semordnilap),
+    [catalogItems],
+  )
+  const composition = usePersistentCompositionWorkspace(
+    catalog.selectedDatasetId,
+    library,
+    catalog.status === 'ready' && savedComposites.ready,
+    dependencies,
+  )
   const selectDataset = catalog.selectDataset
   const clearComposition = composition.clear
   const removeComponent = composition.remove
   const addComponent = composition.add
 
   const handleDatasetChange = useCallback(
-    (datasetId: string) => {
-      clearComposition()
-      selectDataset(datasetId)
-    },
-    [clearComposition, selectDataset],
+    (datasetId: string) => selectDataset(datasetId),
+    [selectDataset],
   )
 
   const selectedCounts = useMemo(() => {
@@ -51,7 +81,7 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
         datasets={catalog.datasets}
         selectedDatasetId={catalog.selectedDatasetId}
         status={catalog.status}
-        itemCount={loadedDataset?.items.length ?? 0}
+        itemCount={catalogItems.length}
         onDatasetChange={handleDatasetChange}
       />
 
@@ -61,22 +91,42 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
           components={composition.components}
           snapshot={composition.snapshot}
           onRemove={removeComponent}
+          onMove={composition.move}
+          insertionIndex={composition.insertionIndex}
+          onSelectInsertion={composition.selectInsertion}
           onClear={clearComposition}
+          canUndo={composition.canUndo}
+          canRedo={composition.canRedo}
+          onUndo={composition.undo}
+          onRedo={composition.redo}
+          persistenceError={composition.persistenceError}
+          onDiscardIncompatibleDraft={composition.discardIncompatibleDraft}
+          onSave={(title) =>
+            savedComposites.save(
+              composition.components.map(({ semordnilap }) => semordnilap),
+              title,
+            )
+          }
         />
 
         <div
           className={styles.catalog}
           aria-busy={catalog.status === 'loading'}
         >
-          {catalog.status === 'ready' && loadedDataset ? (
+          {catalog.status === 'ready' &&
+          loadedDataset &&
+          savedComposites.ready &&
+          composition.ready ? (
             <PairedSemordnilapCatalog
               key={loadedDataset.dataset.id}
               dataset={loadedDataset.dataset}
-              items={loadedDataset.items}
+              items={catalogItems}
               selectedCounts={selectedCounts}
               statuses={statusState.statuses}
               statusesReady={statusState.ready}
-              statusError={statusState.errorMessage}
+              statusError={
+                statusState.errorMessage ?? savedComposites.errorMessage
+              }
               onAdd={addComponent}
               onAddStatus={statusState.addStatus}
               onRemoveStatus={statusState.removeStatus}
@@ -88,6 +138,12 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
                 <>
                   <span className={styles.loader} aria-hidden="true" />
                   <p>Cargando y validando semordnilaps…</p>
+                </>
+              )}
+              {catalog.status === 'ready' && !composition.ready && (
+                <>
+                  <span className={styles.loader} aria-hidden="true" />
+                  <p>Recuperando tu espacio de trabajo...</p>
                 </>
               )}
               {catalog.status === 'idle' && (

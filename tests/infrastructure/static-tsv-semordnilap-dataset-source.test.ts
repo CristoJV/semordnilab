@@ -21,11 +21,39 @@ describe('StaticTsvSemordnilapDatasetSource', () => {
     expect(result.dataset.label).toBe('Español / Gallego')
     expect(result.items).toHaveLength(1)
     expect(result.items[0]?.semordnilap).toMatchObject({
-      id: 'es-gl:2',
+      id: expect.stringMatching(/^atomic:es-gl:/),
       source: { text: 'ella', normalized: 'ella' },
       target: { text: 'a lle', normalized: 'alle' },
     })
-    expect(result.items[0]?.metadata.sourceFrequency).toBe(76529)
+    expect(result.items[0]?.legacyIds).toEqual(['es-gl:2'])
+    expect(result.items[0]?.metadata?.sourceFrequency).toBe(76529)
+  })
+
+  it('mantiene el identificador cuando una fila cambia de posición', async () => {
+    const secondRow =
+      'es\twikisource\tno se\t2\t57928\tnose\tgl\twikisource\te son\t2\t65\teson\t15.15'
+    const firstOrder = `${validTsv}\n${secondRow}`
+    const lines = firstOrder.split('\n')
+    const secondOrder = [lines[0], lines[2], lines[1]].join('\n')
+    const source = new StaticTsvSemordnilapDatasetSource(
+      '/',
+      vi
+        .fn()
+        .mockResolvedValueOnce(firstOrder)
+        .mockResolvedValueOnce(secondOrder),
+    )
+
+    const first = await source.load('es-gl')
+    const second = await source.load('es-gl')
+    const idByText = (items: typeof first.items) =>
+      new Map(
+        items.map(({ semordnilap }) => [
+          semordnilap.source.text,
+          semordnilap.id,
+        ]),
+      )
+
+    expect(idByText(second.items)).toEqual(idByText(first.items))
   })
 
   it('rechaza un identificador desconocido', async () => {

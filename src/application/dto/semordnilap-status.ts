@@ -13,3 +13,8 @@ export type SemordnilapStatusReference = {
   semordnilapId: SemordnilapId
   status: SemordnilapCatalogStatus
 }
+
+export type SemordnilapIdAlias = {
+  previousId: SemordnilapId
+  currentId: SemordnilapId
+}

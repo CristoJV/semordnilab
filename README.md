@@ -14,15 +14,17 @@ El proyecto se encuentra en su fase inicial. Actualmente incluye:
 - carga y validación de todos los semordnilaps de un conjunto seleccionado;
 - exploración bilingüe con filtros combinados y filas siempre alineadas;
 - favoritos, descarte y restauración persistentes por semordnilap;
-- selección múltiple y ordenación alfabética o por longitud en ambos idiomas;
-- composición en memoria con actualización inversa automática;
+- selección múltiple y criterios de ordenación combinables en ambos idiomas;
+- cursor de inserción, movimiento, deshacer y rehacer en la composición;
+- borradores conservados automáticamente por conjunto lingüístico;
+- guardado, deduplicación y reutilización de composites anidados;
 - una interfaz adaptable con paleta violeta y mostaza;
 - pruebas de dominio, aplicación, infraestructura y presentación;
-- persistencia de estados del catálogo con Dexie e IndexedDB;
+- persistencia versionada de estados, composites y borradores con Dexie e IndexedDB;
 - configuración de Vite y GitHub Actions para desplegar en GitHub Pages;
 - documentación funcional y técnica.
 
-El guardado de semordnilaps compuestos, su anidamiento y la persistencia de preferencias distintas a los estados del catálogo todavía no están implementados.
+La importación de datasets externos y la exportación de la colección local todavía no están implementadas.
 
 ## Arquitectura
 
@@ -49,6 +51,7 @@ Infrastructure
 - [Arquitectura y diseño de implementación](docs/architecture.md)
 - [ADR 0001: primera interfaz](docs/adr/0001-first-interface.md)
 - [ADR 0002: estados del catálogo](docs/adr/0002-catalog-statuses.md)
+- [ADR 0003: composites y espacio de trabajo persistente](docs/adr/0003-persistent-composites.md)
 
 La documentación distingue entre el estado actual y las decisiones previstas. Debe actualizarse junto con la implementación para continuar siendo una referencia del comportamiento real.
 

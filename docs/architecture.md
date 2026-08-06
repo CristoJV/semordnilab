@@ -11,11 +11,13 @@ El repositorio contiene actualmente:
 - tres datasets TSV servidos desde `public/datasets`;
 - carga, parseo y validación de los datasets incluidos;
 - casos de uso para listar conjuntos y cargar `AtomicSemordnilap`;
-- un área de composición en memoria con inversión derivada;
+- un área de composición persistente con cursor, movimiento e historial;
 - un catálogo bilingüe con filas alineadas y filtros combinados;
 - estados genéricos de catálogo persistidos con Dexie e IndexedDB;
 - favoritos prioritarios, vista de descartados, restauración y selección múltiple;
-- ordenación alfabética o por longitud desde cualquiera de los idiomas;
+- criterios de ordenación combinables desde cualquiera de los idiomas;
+- guardado, deduplicación y resolución recursiva de composites;
+- esquema IndexedDB en versión 2 con migración comprobada desde la versión 1;
 - CSS Modules y estilos globales basados en tokens;
 - pruebas con Vitest para dominio, aplicación, infraestructura y presentación;
 - TypeScript estricto, alias `@/`, ESLint y Prettier;
@@ -23,7 +25,7 @@ El repositorio contiene actualmente:
 - la ruta base de Vite para publicar en `/semordnilab/`;
 - un workflow de GitHub Actions para desplegar en GitHub Pages.
 
-La persistencia local está conectada para los estados del catálogo. Todavía no están implementados el guardado, el anidamiento de `CompositeSemordnilap`, la importación externa ni la exportación.
+La persistencia local está conectada para estados del catálogo, composites y borradores. Todavía no están implementadas la importación de datasets externos ni la exportación de la colección.
 
 ## Stack y política de dependencias
 
@@ -270,12 +272,14 @@ Representa un semordnilap formado por una secuencia ordenada de otros semordnila
 type CompositeSemordnilap = {
   kind: 'composite'
   id: SemordnilapId
+  datasetId: DatasetId
   components: readonly SemordnilapReference[]
+  atomicComponents: readonly AtomicSemordnilapReference[]
+  source: SemordnilapExpression
+  target: SemordnilapExpression
   title?: string
-  tags: readonly string[]
-  notes?: string
-  createdAt: Date
-  updatedAt: Date
+  createdAt: string
+  updatedAt: string
 }
 
 type SemordnilapReference =
@@ -286,17 +290,20 @@ type SemordnilapReference =
     }
   | {
       kind: 'composite'
+      datasetId: DatasetId
       semordnilapId: SemordnilapId
     }
 ```
 
-La referencia a un semordnilap individual incluye el dataset porque su identificador solo necesita ser único dentro de ese conjunto. La referencia a un composite apunta a la colección local.
+Todas las referencias incluyen el dataset. La primera implementación restringe cada composite a un único conjunto lingüístico.
 
 `components` conserva el orden canónico del idioma de origen. Las expresiones resultantes se derivan de esta secuencia y no se mantienen como una segunda fuente de verdad.
 
-Un composite puede compartirse entre varias composiciones. Por tanto, las relaciones persistidas forman un grafo dirigido y no únicamente un árbol. El dominio rechaza referencias circulares antes de aceptar o guardar un cambio.
+Un composite puede compartirse entre varias composiciones. Por tanto, las relaciones persistidas forman un grafo dirigido y no únicamente un árbol. Los composites guardados son inmutables desde la interfaz y el resolutor rechaza referencias circulares, ausentes o inconsistentes.
 
 La expansión recursiva obtiene una secuencia plana de `AtomicSemordnilap`. Esta secuencia permite calcular las expresiones completas, validar la inversión y conservar la procedencia.
+
+Los identificadores atómicos utilizan una huella determinista del dataset y del contenido lingüístico estable de la fila. No incorporan la posición ni cantidades que puedan variar al regenerar el corpus. El cargador rechaza colisiones dentro de un dataset. El identificador de un composite se deriva de la secuencia expandida de identificadores atómicos, lo que permite detectar duplicados antes de escribir.
 
 ## Representaciones de datos
 
@@ -336,6 +343,10 @@ destino: [C′, B′, A′]
 
 Añadir un componente a la derecha del origen coloca su expresión correspondiente a la izquierda del destino. Añadirlo a la izquierda produce la operación opuesta. Una selección iniciada desde el panel de destino se traduce a la misma secuencia canónica.
 
+La presentación mantiene un índice de inserción canónico entre cero y el número de componentes. El espacio `i` de origen corresponde al espacio `n - i` de destino. Insertar desplaza el cursor a la posición siguiente. Los movimientos intercambian componentes en la secuencia canónica y el destino vuelve a derivarse.
+
+El historial conserva hasta cien estados anteriores durante la sesión. Cambiar el cursor no añade una entrada al historial porque no modifica la composición. IndexedDB conserva el último estado y el índice de inserción de cada dataset después de un breve intervalo, además de intentar escribir el último cambio al desmontar o cambiar de conjunto.
+
 Antes de componer, cada referencia se resuelve recursivamente. Los composites anidados se tratan como una única pieza durante la interacción, pero el dominio puede expandirlos hasta sus semordnilaps atómicos para validar el resultado.
 
 La validación fundamental es:
@@ -372,13 +383,13 @@ La implementación actual mantiene dos consultas visuales, una para cada idioma.
 
 El filtrado sencillo pertenece a presentación porque solo adapta un catálogo ya cargado a la vista actual. Las reglas de normalización compartidas con la composición permanecen en el dominio. Si la búsqueda incorpora relevancia, indexación u otras reglas reutilizables, esa coordinación se trasladará a un caso de uso y el índice optimizado permanecerá en infraestructura.
 
-La implementación actual busca y ordena en memoria. La ordenación puede comparar el texto o la longitud de la expresión de cualquiera de los idiomas, pero siempre mueve la fila bilingüe completa. Los favoritos forman un grupo prioritario y el criterio elegido se aplica dentro de los grupos favorito y ordinario. Si las mediciones muestran bloqueos con conjuntos mayores, un adaptador de infraestructura trasladará el trabajo a un Web Worker sin cambiar el contrato utilizado por la aplicación.
+La implementación actual busca y ordena en memoria. La ordenación mantiene una lista de criterios con lado, campo y dirección. Se evalúan según su prioridad de activación y el orden original resuelve el último empate. Los favoritos forman un grupo prioritario y los composites preceden a los atómicos dentro de cada grupo. Si las mediciones muestran bloqueos con conjuntos mayores, un adaptador de infraestructura trasladará el trabajo a un Web Worker sin cambiar el contrato utilizado por la aplicación.
 
 No se añadirá inicialmente una librería de búsqueda. Una dependencia solo se evaluará cuando el comportamiento requerido y las mediciones demuestren que la implementación propia no es suficiente.
 
 ## Persistencia local
 
-Dexie implementa repositorios internos sobre IndexedDB. La primera versión del esquema contiene `semordnilapStatuses`, con la clave compuesta:
+Dexie implementa repositorios internos sobre IndexedDB. `DATABASE_VERSION` marca actualmente la versión 2. La declaración de la versión 1 permanece intacta y contiene `semordnilapStatuses`, con la clave compuesta:
 
 ```text
 [datasetId + semordnilapId + status]
@@ -388,16 +399,20 @@ El registro no contiene `source` ni `target`. Un `SemordnilapId` dentro de su da
 
 El puerto `SemordnilapStatusRepository` y los casos de uso de consulta, alta, retirada y retirada por estado mantienen Dexie fuera de presentación. `useSemordnilapStatuses` conserva una instantánea para renderizar, aplica cambios optimistas y vuelve a consultar el repositorio si una escritura falla.
 
+La versión 2 conserva esa tabla y añade:
+
+- `savedComposites`, indexada por `id` y `datasetId`;
+- `compositionDrafts`, con `datasetId` como clave primaria.
+
+La actualización es aditiva. Una prueba abre una base real de versión 1 con estados, la actualiza a la versión 2 y comprueba que los registros sobreviven y que las tablas nuevas están disponibles. Las referencias de estado basadas en antiguas posiciones del TSV se reemplazan posteriormente dentro de una transacción, una vez que el dataset permite conocer la correspondencia segura.
+
 La base local almacena únicamente aquello que no pueda reconstruirse de forma fiable. Actualmente persiste:
 
-- estados genéricos del catálogo mediante referencias estables.
+- estados genéricos del catálogo mediante referencias estables;
+- registros de composites con referencias, identidad atómica, título y fechas;
+- un borrador y su posición de inserción por dataset.
 
-El diseño contempla más adelante:
-
-- preferencias y último dataset utilizado;
-- `CompositeSemordnilap` y su secuencia ordenada de componentes;
-- datasets externos que deban restaurarse entre sesiones;
-- versión del esquema local.
+Las expresiones derivadas de los composites y el contenido completo de los TSV no se guardan en IndexedDB.
 
 El diseño incluye desde el comienzo versionado, migraciones, manejo de errores, exportación, importación, eliminación de datos y recuperación ante información incompatible.
 

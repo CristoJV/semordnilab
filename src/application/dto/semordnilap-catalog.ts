@@ -1,7 +1,8 @@
 import type {
-  AtomicSemordnilap,
   DatasetId,
   LanguageCode,
+  Semordnilap,
+  SemordnilapId,
 } from '@/domain/semordnilap'
 
 export type LanguageDescriptor = {
@@ -27,10 +28,11 @@ export type SemordnilapCatalogMetadata = {
 }
 
 export type SemordnilapCatalogItem = {
-  semordnilap: AtomicSemordnilap
-  metadata: SemordnilapCatalogMetadata
+  semordnilap: Semordnilap
+  metadata: SemordnilapCatalogMetadata | null
   sourceSearchText: string
   targetSearchText: string
+  legacyIds: readonly SemordnilapId[]
 }
 
 export type LoadedSemordnilapDataset = {

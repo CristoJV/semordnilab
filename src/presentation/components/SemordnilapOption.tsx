@@ -22,10 +22,11 @@ export function SemordnilapOption({
   onToggleSelection,
 }: SemordnilapOptionProps) {
   const expression = item.semordnilap[side]
-  const frequency =
-    side === 'source'
+  const frequency = item.metadata
+    ? side === 'source'
       ? item.metadata.sourceFrequency
       : item.metadata.targetFrequency
+    : null
 
   return (
     <button
@@ -34,7 +35,11 @@ export function SemordnilapOption({
       data-selected={selected}
       type="button"
       onClick={() => (selectionMode ? onToggleSelection() : onAdd(item))}
-      title={`Frecuencia en el corpus: ${frequency.toLocaleString('es-ES')}`}
+      title={
+        frequency === null
+          ? 'Semordnilap compuesto guardado'
+          : `Frecuencia en el corpus: ${frequency.toLocaleString('es-ES')}`
+      }
       aria-label={
         selectionMode
           ? `${selected ? 'Deseleccionar' : 'Seleccionar'} ${expression.text}`

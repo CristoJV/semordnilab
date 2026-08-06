@@ -1,8 +1,10 @@
 .workspace {
   display: grid;
   gap: 1rem;
-  min-height: 15rem;
+  min-height: 0;
+  max-height: 47dvh;
   padding: clamp(1rem, 2.2vw, 1.75rem) clamp(1rem, 3vw, 2.5rem);
+  overflow: auto;
   background:
     radial-gradient(
       circle at 18% 0%,
@@ -16,6 +18,17 @@
     ),
     var(--color-surface-strong);
   border-bottom: 1px solid var(--color-border);
+}
+
+.workspace[data-collapsed='true'] {
+  gap: 0.35rem;
+  padding-block: 0.65rem;
+}
+
+.compactSummary {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
 }
 
 .heading {
@@ -41,7 +54,12 @@
   text-transform: uppercase;
 }
 
-.clear {
+.headingActions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.headingActions button {
   padding: 0.45rem 0.8rem;
   color: var(--color-text-muted);
   font: inherit;
@@ -53,14 +71,19 @@
   cursor: pointer;
 }
 
-.clear:hover {
+.headingActions button:hover:not(:disabled) {
   color: var(--color-text);
   border-color: var(--color-text-muted);
 }
 
-.clear:focus-visible {
+.headingActions button:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--color-violet) 35%, transparent);
   outline-offset: 2px;
+}
+
+.headingActions button:disabled {
+  cursor: default;
+  opacity: 0.35;
 }
 
 .empty {
@@ -152,9 +175,75 @@
   white-space: nowrap;
 }
 
+.saveRow {
+  display: flex;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.saveRow label {
+  display: grid;
+  gap: 0.25rem;
+  min-width: min(18rem, 50vw);
+  color: var(--color-text-muted);
+  font-size: 0.68rem;
+  font-weight: 750;
+}
+
+.saveRow input,
+.saveRow button {
+  min-height: 2.35rem;
+  padding: 0.45rem 0.7rem;
+  color: var(--color-text);
+  font: inherit;
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-border);
+  border-radius: 0.65rem;
+}
+
+.saveRow button {
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 750;
+  background: var(--color-violet);
+  border-color: var(--color-violet);
+  cursor: pointer;
+}
+
+.saveRow button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.saveRow output {
+  align-self: center;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+}
+
+.persistenceError {
+  display: flex;
+  gap: 0.7rem;
+  align-items: center;
+  color: var(--color-error, #8c2430);
+  font-size: 0.72rem;
+}
+
+.persistenceError button {
+  padding: 0.3rem 0.5rem;
+  color: inherit;
+  font: inherit;
+  font-weight: 750;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
 @media (max-width: 680px) {
   .workspace {
-    min-height: 17rem;
+    max-height: 45dvh;
+    padding: 0.8rem;
   }
 
   .lane {
@@ -169,5 +258,10 @@
 
   .validation code {
     max-width: 100%;
+  }
+
+  .saveRow {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

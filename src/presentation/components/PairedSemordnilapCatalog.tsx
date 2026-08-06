@@ -1,15 +1,26 @@
-import { useCallback, useDeferredValue, useMemo, useState } from 'react'
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 
 import type {
   AvailableDataset,
   SemordnilapCatalogItem,
   SemordnilapCatalogStatus,
 } from '@/application'
-import type { AtomicSemordnilap, SemordnilapId } from '@/domain/semordnilap'
+import type { Semordnilap, SemordnilapId } from '@/domain/semordnilap'
 import type { SemordnilapStatusMap } from '@/presentation/hooks/useSemordnilapStatuses'
 
 import { CatalogLanguageHeader } from './CatalogLanguageHeader'
-import type { CatalogSide, CatalogSort, CatalogSortField } from './catalog-view'
+import type {
+  CatalogSide,
+  CatalogSort,
+  CatalogSortCriterion,
+  CatalogSortField,
+} from './catalog-view'
 import { SemordnilapOption } from './SemordnilapOption'
 import { SemordnilapRowActions } from './SemordnilapRowActions'
 import styles from './PairedSemordnilapCatalog.module.css'
@@ -21,7 +32,7 @@ type PairedSemordnilapCatalogProps = {
   statuses: SemordnilapStatusMap
   statusesReady: boolean
   statusError: string | null
-  onAdd: (semordnilap: AtomicSemordnilap) => void
+  onAdd: (semordnilap: Semordnilap) => void
   onAddStatus: (
     semordnilapIds: readonly SemordnilapId[],
     status: SemordnilapCatalogStatus,
@@ -48,13 +59,37 @@ function cycleSort(
   field: CatalogSortField,
   side: CatalogSide,
 ): CatalogSort {
-  if (!current || current.field !== field || current.side !== side) {
-    return { field, side, direction: 'ascending' }
+  const index = current.findIndex(
+    (criterion) => criterion.field === field && criterion.side === side,
+  )
+  if (index < 0) {
+    return [...current, { field, side, direction: 'ascending' }]
   }
-  if (current.direction === 'ascending') {
-    return { field, side, direction: 'descending' }
+  const active = current[index]!
+  if (active.direction === 'ascending') {
+    return current.map((criterion, criterionIndex) =>
+      criterionIndex === index
+        ? { ...criterion, direction: 'descending' }
+        : criterion,
+    )
   }
-  return null
+  return current.filter((_, criterionIndex) => criterionIndex !== index)
+}
+
+function compareByCriterion(
+  first: SemordnilapCatalogItem,
+  second: SemordnilapCatalogItem,
+  criterion: CatalogSortCriterion,
+  collator: Intl.Collator,
+): number {
+  const firstExpression = first.semordnilap[criterion.side]
+  const secondExpression = second.semordnilap[criterion.side]
+  const comparison =
+    criterion.field === 'alphabetical'
+      ? collator.compare(firstExpression.text, secondExpression.text)
+      : Array.from(firstExpression.normalized).length -
+        Array.from(secondExpression.normalized).length
+  return criterion.direction === 'descending' ? comparison * -1 : comparison
 }
 
 export function PairedSemordnilapCatalog({
@@ -72,14 +107,23 @@ export function PairedSemordnilapCatalog({
   const [sourceQuery, setSourceQuery] = useState('')
   const [targetQuery, setTargetQuery] = useState('')
   const [viewMode, setViewMode] = useState<ViewMode>('active')
-  const [sort, setSort] = useState<CatalogSort>(null)
+  const [sort, setSort] = useState<CatalogSort>([])
   const [selectionMode, setSelectionMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<SemordnilapId>>(
     new Set(),
   )
+  const [lastDiscardedIds, setLastDiscardedIds] = useState<
+    readonly SemordnilapId[]
+  >([])
   const deferredSourceQuery = normalizeQuery(useDeferredValue(sourceQuery))
   const deferredTargetQuery = normalizeQuery(useDeferredValue(targetQuery))
   const discardedView = viewMode === 'discarded'
+
+  useEffect(() => {
+    if (lastDiscardedIds.length === 0) return undefined
+    const timeout = window.setTimeout(() => setLastDiscardedIds([]), 6000)
+    return () => window.clearTimeout(timeout)
+  }, [lastDiscardedIds])
 
   const hasStatus = useCallback(
     (semordnilapId: SemordnilapId, status: SemordnilapCatalogStatus) =>
@@ -98,12 +142,16 @@ export function PairedSemordnilapCatalog({
   )
 
   const visibleItems = useMemo(() => {
-    const collator = new Intl.Collator(
-      sort?.side === 'target'
-        ? dataset.targetLanguage.code
-        : dataset.sourceLanguage.code,
-      { sensitivity: 'base', numeric: true },
-    )
+    const collators = {
+      source: new Intl.Collator(dataset.sourceLanguage.code, {
+        sensitivity: 'base',
+        numeric: true,
+      }),
+      target: new Intl.Collator(dataset.targetLanguage.code, {
+        sensitivity: 'base',
+        numeric: true,
+      }),
+    }
     const originalPositions = new Map(
       items.map((item, index) => [item.semordnilap.id, index]),
     )
@@ -120,23 +168,23 @@ export function PairedSemordnilapCatalog({
       const firstFavorite = hasStatus(first.semordnilap.id, 'favorite')
       const secondFavorite = hasStatus(second.semordnilap.id, 'favorite')
       if (firstFavorite !== secondFavorite) return firstFavorite ? -1 : 1
+      if (first.semordnilap.kind !== second.semordnilap.kind) {
+        return first.semordnilap.kind === 'composite' ? -1 : 1
+      }
 
-      let comparison = 0
-      if (sort) {
-        const firstExpression = first.semordnilap[sort.side]
-        const secondExpression = second.semordnilap[sort.side]
-        comparison =
-          sort.field === 'alphabetical'
-            ? collator.compare(firstExpression.text, secondExpression.text)
-            : Array.from(firstExpression.normalized).length -
-              Array.from(secondExpression.normalized).length
-        if (sort.direction === 'descending') comparison *= -1
+      for (const criterion of sort) {
+        const comparison = compareByCriterion(
+          first,
+          second,
+          criterion,
+          collators[criterion.side],
+        )
+        if (comparison !== 0) return comparison
       }
 
       return (
-        comparison ||
         (originalPositions.get(first.semordnilap.id) ?? 0) -
-          (originalPositions.get(second.semordnilap.id) ?? 0)
+        (originalPositions.get(second.semordnilap.id) ?? 0)
       )
     })
   }, [
@@ -172,13 +220,20 @@ export function PairedSemordnilapCatalog({
   }
 
   const applySelectedStatus = (status: SemordnilapCatalogStatus) => {
-    void onAddStatus([...selectedIds], status)
+    const ids = [...selectedIds]
+    void onAddStatus(ids, status)
+    if (status === 'discarded') setLastDiscardedIds(ids)
     leaveSelectionMode()
   }
 
   const removeSelectedStatus = (status: SemordnilapCatalogStatus) => {
     void onRemoveStatus([...selectedIds], status)
     leaveSelectionMode()
+  }
+
+  const discard = (ids: readonly SemordnilapId[]) => {
+    setLastDiscardedIds(ids)
+    void onAddStatus(ids, 'discarded')
   }
 
   return (
@@ -241,14 +296,14 @@ export function PairedSemordnilapCatalog({
             </>
           )}
         </div>
-        {(sourceQuery || targetQuery || sort) && !selectionMode && (
+        {(sourceQuery || targetQuery || sort.length > 0) && !selectionMode && (
           <button
             className={styles.resetView}
             type="button"
             onClick={() => {
               setSourceQuery('')
               setTargetQuery('')
-              setSort(null)
+              setSort([])
             }}
           >
             Restablecer filtros
@@ -330,12 +385,13 @@ export function PairedSemordnilapCatalog({
                     selectionMode={selectionMode}
                     selected={selected}
                     disabled={!statusesReady}
+                    composite={item.semordnilap.kind === 'composite'}
                     onToggleFavorite={() =>
                       void (favorite
                         ? onRemoveStatus([id], 'favorite')
                         : onAddStatus([id], 'favorite'))
                     }
-                    onDiscard={() => void onAddStatus([id], 'discarded')}
+                    onDiscard={() => discard([id])}
                     onRestore={() => void onRemoveStatus([id], 'discarded')}
                     onToggleSelection={() => toggleSelection(id)}
                   />
@@ -354,6 +410,24 @@ export function PairedSemordnilapCatalog({
           </ol>
         )}
       </div>
+      {lastDiscardedIds.length > 0 && !discardedView && (
+        <div className={styles.undoNotice} role="status">
+          <span>
+            {lastDiscardedIds.length === 1
+              ? 'Semordnilap descartado.'
+              : `${lastDiscardedIds.length} semordnilaps descartados.`}
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              void onRemoveStatus(lastDiscardedIds, 'discarded')
+              setLastDiscardedIds([])
+            }}
+          >
+            Deshacer descarte
+          </button>
+        </div>
+      )}
     </section>
   )
 }

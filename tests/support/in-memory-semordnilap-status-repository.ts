@@ -1,5 +1,6 @@
 import type {
   SemordnilapCatalogStatus,
+  SemordnilapIdAlias,
   SemordnilapStatusRecord,
   SemordnilapStatusReference,
   SemordnilapStatusRepository,
@@ -42,6 +43,22 @@ export class InMemorySemordnilapStatusRepository implements SemordnilapStatusRep
       if (record.datasetId === datasetId && record.status === status) {
         this.records.delete(key)
       }
+    }
+  }
+
+  async migrateReferences(
+    datasetId: DatasetId,
+    aliases: readonly SemordnilapIdAlias[],
+  ): Promise<void> {
+    const aliasByPreviousId = new Map(
+      aliases.map(({ previousId, currentId }) => [previousId, currentId]),
+    )
+    for (const [key, record] of [...this.records]) {
+      const currentId = aliasByPreviousId.get(record.semordnilapId)
+      if (record.datasetId !== datasetId || !currentId) continue
+      this.records.delete(key)
+      const migrated = { ...record, semordnilapId: currentId }
+      this.records.set(recordKey(migrated), migrated)
     }
   }
 }

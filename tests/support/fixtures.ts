@@ -48,5 +48,6 @@ export function createCatalogItem(
     },
     sourceSearchText: `${semordnilap.source.text} ${semordnilap.source.normalized}`,
     targetSearchText: `${semordnilap.target.text} ${semordnilap.target.normalized}`,
+    legacyIds: [],
   }
 }

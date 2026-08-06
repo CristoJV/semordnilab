@@ -29,22 +29,33 @@ export function CatalogLanguageHeader({
   onToggleDiscardedView,
 }: CatalogLanguageHeaderProps) {
   const searchId = `${side}-catalog-search`
+  const activeCriterion = (field: CatalogSortField) =>
+    sort.find(
+      (criterion) => criterion.field === field && criterion.side === side,
+    )
+  const criterionPriority = (field: CatalogSortField) =>
+    sort.findIndex(
+      (criterion) => criterion.field === field && criterion.side === side,
+    ) + 1
   const sortLabel = (field: CatalogSortField) => {
-    if (!sort || sort.field !== field || sort.side !== side) {
+    const active = activeCriterion(field)
+    if (!active) {
       return field === 'alphabetical' ? 'A/Z' : '1/9'
     }
-    if (sort.direction === 'ascending') {
-      return field === 'alphabetical' ? 'A→Z' : '1→9'
+    const priority = criterionPriority(field)
+    if (active.direction === 'ascending') {
+      return `${priority} · ${field === 'alphabetical' ? 'A→Z' : '1→9'}`
     }
-    return field === 'alphabetical' ? 'Z→A' : '9→1'
+    return `${priority} · ${field === 'alphabetical' ? 'Z→A' : '9→1'}`
   }
 
   const sortDescription = (field: CatalogSortField) => {
     const name = field === 'alphabetical' ? 'alfabético' : 'por longitud'
-    if (!sort || sort.field !== field || sort.side !== side) {
+    const active = activeCriterion(field)
+    if (!active) {
       return `Activar orden ${name} ascendente en ${languageLabel}`
     }
-    return sort.direction === 'ascending'
+    return active.direction === 'ascending'
       ? `Cambiar orden ${name} a descendente en ${languageLabel}`
       : `Desactivar orden ${name} en ${languageLabel}`
   }
@@ -99,7 +110,7 @@ export function CatalogLanguageHeader({
           <button
             key={field}
             type="button"
-            data-active={sort?.field === field && sort.side === side}
+            data-active={Boolean(activeCriterion(field))}
             onClick={() => onCycleSort(field, side)}
             aria-label={sortDescription(field)}
           >

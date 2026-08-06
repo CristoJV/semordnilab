@@ -5,6 +5,7 @@ import type {
   SemordnilapDatasetSource,
 } from '@/application'
 import {
+  createStableSemordnilapId,
   validateAtomicSemordnilap,
   type AtomicSemordnilap,
   type DatasetId,
@@ -77,7 +78,14 @@ function mapRecord(
 
   const semordnilap: AtomicSemordnilap = {
     kind: 'atomic',
-    id: `${definition.id}:${index + 2}`,
+    id: createStableSemordnilapId('atomic', definition.id, [
+      record.sourceLang,
+      record.sourceText,
+      record.sourceNormalized,
+      record.targetLang,
+      record.targetText,
+      record.targetNormalized,
+    ]),
     datasetId: definition.id,
     source: {
       language: record.sourceLang,
@@ -117,6 +125,7 @@ function mapRecord(
     targetSearchText: normalizeSearchText(
       `${record.targetText} ${record.targetNormalized}`,
     ),
+    legacyIds: [`${definition.id}:${index + 2}`],
   }
 }
 
@@ -158,6 +167,16 @@ export class StaticTsvSemordnilapDatasetSource implements SemordnilapDatasetSour
     )
     const records = parseSemordnilapTsv(content)
 
+    const items = records.map((record, index) =>
+      mapRecord(definition, record, index),
+    )
+    const ids = new Set(items.map(({ semordnilap }) => semordnilap.id))
+    if (ids.size !== items.length) {
+      throw new DatasetLoadError(
+        'El dataset contiene identificadores estables duplicados.',
+      )
+    }
+
     return {
       dataset: {
         id: definition.id,
@@ -165,9 +184,7 @@ export class StaticTsvSemordnilapDatasetSource implements SemordnilapDatasetSour
         sourceLanguage: definition.sourceLanguage,
         targetLanguage: definition.targetLanguage,
       },
-      items: records.map((record, index) =>
-        mapRecord(definition, record, index),
-      ),
+      items,
     }
   }
 }

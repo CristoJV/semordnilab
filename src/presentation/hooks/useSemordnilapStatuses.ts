@@ -3,9 +3,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type {
   AddSemordnilapStatus,
   ListSemordnilapStatuses,
+  MigrateSemordnilapStatusReferences,
   RemoveAllSemordnilapStatuses,
   RemoveSemordnilapStatus,
   SemordnilapCatalogStatus,
+  SemordnilapIdAlias,
   SemordnilapStatusRecord,
 } from '@/application'
 import type { DatasetId, SemordnilapId } from '@/domain/semordnilap'
@@ -15,6 +17,7 @@ type StatusUseCases = {
   addSemordnilapStatus: AddSemordnilapStatus
   removeSemordnilapStatus: RemoveSemordnilapStatus
   removeAllSemordnilapStatuses: RemoveAllSemordnilapStatuses
+  migrateSemordnilapStatusReferences: MigrateSemordnilapStatusReferences
 }
 
 type StatusSnapshot = {
@@ -45,6 +48,7 @@ type SemordnilapStatusesState = {
 export function useSemordnilapStatuses(
   datasetId: DatasetId | '',
   useCases: StatusUseCases,
+  aliases: readonly SemordnilapIdAlias[] = [],
 ): SemordnilapStatusesState {
   const [snapshot, setSnapshot] = useState<StatusSnapshot | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -55,8 +59,9 @@ export function useSemordnilapStatuses(
     }
 
     let active = true
-    void useCases.listSemordnilapStatuses
-      .execute(datasetId)
+    void useCases.migrateSemordnilapStatusReferences
+      .execute(datasetId, aliases)
+      .then(() => useCases.listSemordnilapStatuses.execute(datasetId))
       .then((records) => {
         if (active) {
           setSnapshot({ datasetId, records })
@@ -76,7 +81,12 @@ export function useSemordnilapStatuses(
     return () => {
       active = false
     }
-  }, [datasetId, useCases.listSemordnilapStatuses])
+  }, [
+    aliases,
+    datasetId,
+    useCases.listSemordnilapStatuses,
+    useCases.migrateSemordnilapStatusReferences,
+  ])
 
   const ready = Boolean(datasetId && snapshot?.datasetId === datasetId)
 

@@ -2,8 +2,10 @@ export type CatalogSide = 'source' | 'target'
 export type CatalogSortField = 'alphabetical' | 'length'
 export type CatalogSortDirection = 'ascending' | 'descending'
 
-export type CatalogSort = {
+export type CatalogSortCriterion = {
   field: CatalogSortField
   side: CatalogSide
   direction: CatalogSortDirection
-} | null
+}
+
+export type CatalogSort = readonly CatalogSortCriterion[]

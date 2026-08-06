@@ -1,5 +1,6 @@
 import type {
   SemordnilapCatalogStatus,
+  SemordnilapIdAlias,
   SemordnilapStatusRecord,
   SemordnilapStatusReference,
 } from '@/application/dto/semordnilap-status'
@@ -14,5 +15,9 @@ export interface SemordnilapStatusRepository {
   removeAll(
     datasetId: DatasetId,
     status: SemordnilapCatalogStatus,
+  ): Promise<void>
+  migrateReferences(
+    datasetId: DatasetId,
+    aliases: readonly SemordnilapIdAlias[],
   ): Promise<void>
 }

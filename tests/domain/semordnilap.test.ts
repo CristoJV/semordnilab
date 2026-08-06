@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   composeAtomicSemordnilaps,
+  createStableSemordnilapId,
   InvalidSemordnilapError,
   reverseUnicode,
   validateAtomicSemordnilap,
@@ -13,6 +14,19 @@ describe('reverseUnicode', () => {
   it('invierte grafemas completos', () => {
     expect(reverseUnicode('a👩‍💻b')).toBe('b👩‍💻a')
     expect(reverseUnicode('áb')).toBe('bá')
+  })
+})
+
+describe('createStableSemordnilapId', () => {
+  it('conserva la identidad cuando cambia la posición del registro', () => {
+    const parts = ['es', 'amor', 'amor', 'gl', 'roma', 'roma']
+
+    expect(createStableSemordnilapId('atomic', 'es-gl', parts)).toBe(
+      createStableSemordnilapId('atomic', 'es-gl', [...parts]),
+    )
+    expect(createStableSemordnilapId('atomic', 'es-gl', parts)).toMatch(
+      /^atomic:es-gl:/,
+    )
   })
 })
 

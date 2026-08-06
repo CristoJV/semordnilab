@@ -16,11 +16,35 @@ export type AtomicSemordnilap = {
   target: SemordnilapExpression
 }
 
-export type SemordnilapReference = {
+export type AtomicSemordnilapReference = {
   kind: 'atomic'
   datasetId: DatasetId
   semordnilapId: SemordnilapId
 }
+
+export type CompositeSemordnilapReference = {
+  kind: 'composite'
+  datasetId: DatasetId
+  semordnilapId: SemordnilapId
+}
+
+export type SemordnilapReference =
+  AtomicSemordnilapReference | CompositeSemordnilapReference
+
+export type CompositeSemordnilap = {
+  kind: 'composite'
+  id: SemordnilapId
+  datasetId: DatasetId
+  components: readonly SemordnilapReference[]
+  atomicComponents: readonly AtomicSemordnilapReference[]
+  source: SemordnilapExpression
+  target: SemordnilapExpression
+  title?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type Semordnilap = AtomicSemordnilap | CompositeSemordnilap
 
 export type CompositionSnapshot = {
   source: readonly SemordnilapExpression[]
