@@ -15,6 +15,33 @@ Esta carpeta reúne la documentación funcional y técnica del proyecto. Su prop
 
 ## Estado del proyecto
 
-Semordnilab está en una fase inicial funcional. El repositorio dispone de una interfaz de exploración y composición persistente, carga los tres datasets bilingües en TSV y separa dominio, aplicación, infraestructura, presentación y composición. Los estados del catálogo, los borradores, los composites anidados y las preferencias se conservan localmente. El menú superior permite exportar e importar estos datos mediante una copia versionada.
+Semordnilab está en una fase inicial funcional. La aplicación permite explorar tres colecciones lingüísticas, mantiene alineados los dos lados de cada semordnilap y ofrece búsqueda, descubrimiento, ordenación, favoritos y descarte. El espacio de trabajo admite inserción y reordenación directa, historial de cambios y composites anidados.
+
+Los estados del catálogo, los borradores, los composites y las preferencias se conservan en IndexedDB. El menú superior permite exportar e importar estos datos mediante una copia versionada. La importación de colecciones lingüísticas externas todavía no está disponible: la importación actual restaura únicamente los datos personales generados por la aplicación.
+
+La aplicación se verifica mediante pruebas de dominio, aplicación, infraestructura y presentación, además de comprobaciones de formato, lint, tipos y construcción. El flujo de integración continua publica la versión de `main` en GitHub Pages cuando todas las comprobaciones finalizan correctamente.
+
+## Arquitectura
+
+El código sigue Clean Architecture y separa las reglas del producto de los detalles de interfaz y persistencia:
+
+```text
+Presentation
+     |
+     v
+Application
+     |
+     v
+Domain
+     ^
+     |
+Infrastructure
+```
+
+`app` actúa como punto de composición. El dominio no depende de frameworks, los casos de uso trabajan contra contratos del dominio y la presentación no accede directamente a Dexie ni a IndexedDB. La infraestructura implementa la carga de datasets y la persistencia local sin trasladar esos detalles a las reglas de negocio.
+
+La descripción completa de responsabilidades, dependencias, modelos y persistencia está en la [documentación de arquitectura](architecture.md). Los ADR registran las decisiones relevantes y el contexto que motivó cada una.
+
+## Mantenimiento de la documentación
 
 La documentación debe mantenerse como una descripción fiel del producto. Cuando una decisión técnica o el comportamiento de la aplicación cambien, los documentos correspondientes deberán actualizarse para reflejarlo.

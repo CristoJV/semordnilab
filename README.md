@@ -1,107 +1,56 @@
 # Semordnilab
 
-Semordnilab es una aplicación web para explorar y componer semordnilaps bilingües encontrados en corpus lingüísticos.
+**Un laboratorio para descubrir, ordenar y combinar palabras que esconden otra expresión al leerse en sentido inverso.**
 
-La interfaz combina dos exploradores de idioma con un constructor central. Al combinar semordnilaps individuales en un lado, la aplicación ordena sus expresiones correspondientes de forma inversa en el otro.
+Semordnilab convierte colecciones de semordnilaps en un espacio de exploración bilingüe. Cada resultado mantiene alineadas sus dos caras para que puedas comparar palabras, guardar hallazgos y construir composiciones más largas sin perder la relación entre idiomas.
 
-## Estado
+[Probar Semordnilab](https://cristojv.github.io/semordnilab/) · [Conocer el proyecto](docs/README.md)
 
-El proyecto se encuentra en su fase inicial. Actualmente incluye:
+## Explora palabras en ambos sentidos
 
-- una SPA con React, TypeScript y Vite;
-- una estructura funcional basada en Clean Architecture;
-- datasets de español con español, gallego y portugués en TSV;
-- carga y validación de todos los semordnilaps de un conjunto seleccionado;
-- exploración bilingüe con filtros combinados y filas siempre alineadas;
-- búsqueda sencilla con relevancia, resaltado y renderizado virtual;
-- grupos variados para descubrir semordnilaps sin una consulta previa;
-- favoritos estables, descarte y restauración persistentes por semordnilap;
-- selección múltiple y criterios de ordenación combinables en ambos idiomas;
-- cursor de inserción, reordenación directa, deshacer y rehacer en la composición;
-- interacción unificada para ratón, pantalla táctil y teclado;
-- avisos transitorios compactos con confirmación y recuperación de acciones;
-- borradores conservados automáticamente por conjunto lingüístico;
-- guardado, deduplicación y reutilización de composites anidados;
-- vistas específicas para composites guardados, favoritos y descartados;
-- gestión de composites con inserción, apertura como borrador, renombrado y eliminación protegida;
-- un menú de datos y preferencias integrado en la barra superior;
-- exportación e importación validada de copias de seguridad locales;
-- preferencias de vista persistentes por conjunto lingüístico;
-- una interfaz adaptable con paleta violeta y mostaza;
-- pruebas de dominio, aplicación, infraestructura y presentación;
-- persistencia versionada de estados, composites, borradores y preferencias con Dexie e IndexedDB;
-- configuración de Vite y GitHub Actions para desplegar en GitHub Pages;
-- documentación funcional y técnica.
+Un semordnilap relaciona dos expresiones distintas: al invertir una aparece la otra. La aplicación muestra cada par en dos columnas coordinadas y deja el centro para trabajar con ellos.
 
-La importación de datasets lingüísticos externos todavía no está implementada. La importación disponible actualmente recupera copias de los datos personales de la aplicación, no incorpora nuevos TSV.
+Con Semordnilab puedes:
 
-## Arquitectura
+- recorrer colecciones de español, gallego y portugués sin perder la alineación entre pares;
+- buscar, ordenar y descubrir resultados desde cualquiera de los dos idiomas;
+- marcar favoritos o apartar temporalmente palabras que no te interesan;
+- arrastrar semordnilaps hasta el área de trabajo y colocarlos en el punto exacto de una composición;
+- guardar composites y reutilizarlos como nuevas piezas;
+- conservar borradores y preferencias directamente en el navegador;
+- exportar una copia de seguridad e importarla cuando la necesites.
 
-El proyecto sigue Clean Architecture con cinco áreas principales:
+No requiere una cuenta ni envía tu trabajo a un servidor. Las preferencias, los borradores y las composiciones guardadas permanecen en el almacenamiento local del navegador.
 
-```text
-Presentation
-     |
-     v
-Application
-     |
-     v
-Domain
-     ^
-     |
-Infrastructure
-```
+## Colecciones disponibles
 
-`app` actúa como punto de composición. El dominio no depende de frameworks, los casos de uso solo dependen del dominio y React nunca accede directamente a Dexie o IndexedDB. La [documentación de arquitectura](docs/architecture.md) define las responsabilidades y los límites completos.
+La primera colección reúne más de doce mil semordnilaps distribuidos entre tres pares de idiomas:
 
-## Documentación
+| Par de idiomas      | Semordnilaps |
+| ------------------- | -----------: |
+| Español y español   |        6.642 |
+| Español y gallego   |        1.091 |
+| Español y portugués |        4.513 |
 
-- [Guía de la aplicación](docs/application.md)
-- [Arquitectura y diseño de implementación](docs/architecture.md)
-- [ADR 0001: primera interfaz](docs/adr/0001-first-interface.md)
-- [ADR 0002: estados del catálogo](docs/adr/0002-catalog-statuses.md)
-- [ADR 0003: composites y espacio de trabajo persistente](docs/adr/0003-persistent-composites.md)
-- [ADR 0004: copias, preferencias y gestión de composites](docs/adr/0004-personal-data-and-composite-management.md)
-- [ADR 0005: interacción directa en la composición](docs/adr/0005-direct-composition-interaction.md)
-- [ADR 0006: exploración eficiente del catálogo](docs/adr/0006-efficient-catalog-exploration.md)
+## Hacia dónde va
 
-La documentación distingue entre el estado actual y las decisiones previstas. Debe actualizarse junto con la implementación para continuar siendo una referencia del comportamiento real.
+- [x] Explorar pares lingüísticos con listas siempre alineadas
+- [x] Crear, guardar y reutilizar composites
+- [x] Conservar preferencias y copias de seguridad en local
+- [ ] Afinar la experiencia táctil y la accesibilidad
+- [ ] Ampliar las herramientas para revisar y organizar colecciones
+- [ ] Preparar una experiencia instalable y disponible sin conexión
+
+El roadmap muestra la dirección general del producto, no compromete fechas ni versiones. Las decisiones y el comportamiento implementado se explican en la [documentación del proyecto](docs/README.md).
 
 ## Desarrollo local
-
-Requisitos:
-
-- Node.js;
-- npm.
-
-Instalación e inicio del servidor de desarrollo:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Verificaciones disponibles actualmente:
-
-```bash
-npm run format:check
-npm run lint
-npm run typecheck
-npm test
-npm run build
-```
-
-## Datos incluidos
-
-Los conjuntos de referencia están en `public/datasets`:
-
-| Archivo     | Idiomas             | Semordnilaps |
-| ----------- | ------------------- | -----------: |
-| `es_es.tsv` | Español y español   |        6.642 |
-| `es_gl.tsv` | Español y gallego   |        1.091 |
-| `es_pt.tsv` | Español y portugués |        4.513 |
-
-Cada fila incluye el texto y la forma normalizada de ambos idiomas, corpus, frecuencia, número de palabras y una puntuación asociada al semordnilap. El esquema técnico y el comportamiento previsto de importación se explican en la [documentación de arquitectura](docs/architecture.md#carga-de-datasets).
+Las comprobaciones disponibles son `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm test` y `npm run build`.
 
 ## Licencia
 
