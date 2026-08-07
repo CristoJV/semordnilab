@@ -156,6 +156,73 @@ function getComponentTexts(list: HTMLElement): string[] {
 }
 
 describe('WorkspacePage', () => {
+  it('ofrece los controles esenciales en la disposición móvil', async () => {
+    const matchMedia = vi.fn((query: string) => ({
+      media: query,
+      matches: query === '(max-width: 560px)',
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }))
+    vi.stubGlobal('matchMedia', matchMedia)
+    const user = userEvent.setup()
+    render(<WorkspacePage dependencies={createDependencies()} />)
+
+    expect(
+      screen.queryByRole('combobox', { name: 'Conjunto lingüístico' }),
+    ).not.toBeInTheDocument()
+    await user.click(
+      screen.getByRole('button', { name: 'Elegir conjunto lingüístico' }),
+    )
+    const datasetDialog = screen.getByRole('dialog', {
+      name: 'Conjunto lingüístico',
+    })
+    await user.click(
+      within(datasetDialog).getByRole('button', {
+        name: /Español \/ Gallego/,
+      }),
+    )
+
+    const catalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
+    expect(screen.getByRole('heading', { name: 'Compón' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', {
+        name: /Cambiar conjunto lingüístico, actual Español \/ Gallego/,
+      }),
+    ).toHaveTextContent('ES ⇄ GL')
+    expect(
+      within(catalog).getByRole('button', { name: 'Ordenar Español' }),
+    ).toBeInTheDocument()
+    const viewNavigation = within(catalog).getByRole('navigation', {
+      name: 'Vistas del catálogo',
+    })
+    expect(
+      within(viewNavigation)
+        .getAllByRole('button')
+        .map((button) => button.textContent?.trim()),
+    ).toEqual(['Todos 2', 'Guardados 0', 'Favoritos 0', 'Descartados 0'])
+    expect(viewNavigation.nextElementSibling).toHaveTextContent('Etiquetas')
+    expect(
+      within(catalog).getByRole('searchbox', { name: 'Buscar en Español' }),
+    ).toHaveAttribute('placeholder', 'Buscar')
+
+    await user.click(
+      within(catalog).getByRole('button', {
+        name: 'Añadir ella a la composición',
+      }),
+    )
+    expect(screen.getByRole('button', { name: 'Vaciar' })).toContainHTML('svg')
+    expect(
+      screen.getByRole('button', { name: 'Guardar composite' }),
+    ).toContainHTML('svg')
+    const persistenceStatus = await screen.findByText(
+      'Borrador guardado localmente',
+    )
+    expect(getComputedStyle(persistenceStatus).position).toBe('absolute')
+    expect(getComputedStyle(persistenceStatus).overflow).toBe('hidden')
+  })
+
   it('restaura el conjunto lingüístico guardado al iniciar', async () => {
     render(
       <WorkspacePage dependencies={createDependencies({}, testDataset.id)} />,
@@ -228,7 +295,7 @@ describe('WorkspacePage', () => {
     )
     expect(assignmentToggle).toBeEnabled()
     await user.click(assignmentToggle)
-    const assignmentDialog = within(catalog).getByRole('dialog', {
+    const assignmentDialog = screen.getByRole('dialog', {
       name: 'Etiquetar selección',
     })
     await user.click(
@@ -244,7 +311,7 @@ describe('WorkspacePage', () => {
       within(assignmentDialog).getByRole('button', { name: 'Aplicar' }),
     )
     expect(
-      within(catalog).queryByRole('dialog', { name: 'Etiquetar selección' }),
+      screen.queryByRole('dialog', { name: 'Etiquetar selección' }),
     ).not.toBeInTheDocument()
     await waitFor(() =>
       expect(

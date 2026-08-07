@@ -185,6 +185,29 @@
 }
 
 @media (max-width: 480px) {
+  .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tabs button,
+  .dataActions button,
+  .fileButton,
+  .importButton,
+  .reset {
+    flex: none;
+    min-height: 2.75rem;
+  }
+
+  .tabs button:last-child {
+    margin-left: 0;
+  }
+
   .summary {
     grid-template-columns: 1fr 1fr;
   }

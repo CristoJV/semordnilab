@@ -54,7 +54,7 @@ Cuando todavía no hay componentes, el área ofrece una indicación breve para e
 
 Debajo aparecen los dos exploradores. La columna izquierda alinea sus semordnilaps hacia la derecha y la columna derecha los alinea hacia la izquierda. Las expresiones quedan orientadas visualmente hacia el punto de encuentro entre ambos idiomas.
 
-Cada explorador dispone de búsqueda y ordenación propias. Los controles de ordenación se sitúan junto al título del idioma para reducir la altura de las cabeceras. Al seleccionar una expresión, el semordnilap completo se añade al área de composición y su expresión correspondiente aparece en la secuencia inversa. Las acciones situadas entre ambas columnas actúan sobre el semordnilap completo.
+Cada explorador dispone de búsqueda y ordenación propias. En una pantalla amplia los controles de ordenación se sitúan junto al título del idioma. En una pantalla estrecha se reúnen en un botón que abre un panel táctil y permite combinar los mismos criterios. Al seleccionar una expresión, el semordnilap completo se añade al área de composición y su expresión correspondiente aparece en la secuencia inversa. Las acciones situadas entre ambas columnas actúan sobre el semordnilap completo.
 
 Los espacios situados antes, después y entre componentes permiten elegir la posición de la siguiente inserción. El espacio final está activo inicialmente y el cursor avanza después de cada incorporación. Seleccionar un espacio en el idioma de destino activa su posición canónica equivalente en origen.
 
@@ -62,9 +62,25 @@ Los componentes se presentan como fragmentos de texto compactos. No muestran fle
 
 Retirar una pieza muestra un aviso temporal de color naranja claro con la acción `Deshacer`. Guardar correctamente muestra un aviso verde claro. Los avisos aparecen en la zona inferior, no cambian la distribución del contenido y desaparecen después de unos segundos. Si el conjunto activo ha cambiado y la pieza ya no puede recuperarse con seguridad, la aplicación lo comunica sin insertar una referencia incompatible.
 
-El teclado ofrece la misma funcionalidad sin depender de los gestos: `Intro`, espacio, Suprimir o Retroceso retiran la pieza, mientras que `Mayús` con las flechas laterales la desplaza. Deshacer y rehacer cubren inserciones, movimientos, retiradas y vaciado. Cada cambio actualiza simultáneamente los dos idiomas y conserva automáticamente el borrador del dataset activo. El encabezado del área distingue entre recuperación, guardado en curso, guardado correcto y error de persistencia.
+El teclado ofrece la misma funcionalidad sin depender de los gestos: `Intro`, espacio, Suprimir o Retroceso retiran la pieza, mientras que `Mayús` con las flechas laterales la desplaza. Deshacer y rehacer cubren inserciones, movimientos, retiradas y vaciado. Cada cambio actualiza simultáneamente los dos idiomas y conserva automáticamente el borrador del dataset activo. La persistencia correcta se anuncia de forma accesible sin ocupar una barra visible. Los errores continúan apareciendo junto al área porque sí requieren atención.
 
 La correspondencia visual entre componentes permanece visible para que se entienda cómo se forma el resultado. Al señalar o enfocar una pieza, su aparición relacionada se resalta simultáneamente en el otro idioma.
+
+## Experiencia en pantallas estrechas
+
+La versión móvil conserva la misma pantalla, los mismos datos y las mismas operaciones. No existe una página móvil independiente. La adaptación solo cambia cómo se presentan los controles:
+
+- el selector central muestra los códigos del par lingüístico y abre una hoja de selección;
+- el estado general de carga deja de ocupar espacio en la barra superior, aunque sigue disponible mediante anuncios accesibles;
+- el área se titula `Compón` y utiliza iconos para plegar, deshacer, rehacer, guardar y vaciar;
+- las acciones principales mantienen un área táctil mínima de 44 píxeles y un nombre accesible aunque oculten su etiqueta visual;
+- las vistas se presentan en el orden `Todos`, `Guardados`, `Favoritos`, `Descartados` y `Etiquetas`;
+- `Seleccionar varios` y `Restablecer` quedan en una segunda línea de acciones cuando son aplicables;
+- cada idioma abre su ordenación en una hoja inferior, con selección directa de dirección y prioridad visible;
+- los diálogos se montan sobre el documento, ocupan el ancho disponible y respetan las zonas seguras del dispositivo;
+- el documento utiliza la altura dinámica del navegador y mantiene el desplazamiento vertical dentro del catálogo.
+
+Las filas bilingües permanecen alineadas y la composición conserva desplazamiento horizontal propio. Los controles que no caben en una línea pueden desplazarse lateralmente sin ensanchar la página ni reducir el área de trabajo.
 
 ## Identidad visual
 
@@ -90,7 +106,7 @@ La aplicación incluye inicialmente estos datasets:
 | Español y gallego   | `public/datasets/es_gl.tsv` |          1.091 semordnilaps |
 | Español y portugués | `public/datasets/es_pt.tsv` |          4.513 semordnilaps |
 
-El usuario podrá elegir uno de los conjuntos disponibles. Los archivos incluidos marcan el esquema de referencia para incorporar otros conjuntos compatibles.
+El usuario puede elegir uno de los conjuntos disponibles. Los archivos incluidos marcan el esquema de referencia para incorporar otros conjuntos compatibles.
 
 ## Búsqueda y filtros
 
@@ -107,6 +123,8 @@ Cada campo interpreta su contenido como una consulta continua. La búsqueda actu
 Cuando no hay una ordenación explícita, una consulta muestra primero la coincidencia exacta, después las expresiones que empiezan por ella y finalmente las coincidencias parciales. El fragmento visible se resalta sin perder sus diacríticos. Una ordenación elegida por el usuario sustituye esa prioridad.
 
 Cada cabecera permite ordenar por el texto o por la longitud en caracteres. Un control recorre tres estados: ascendente, descendente y desactivado. Los criterios se acumulan según su orden de activación y muestran su prioridad numérica. Pueden combinar comparaciones de ambos idiomas, pero la fila bilingüe sigue siendo indivisible. Favoritos y composites no alteran por sí mismos el orden de `Todos`; sus indicadores permanecen en la posición correspondiente y sus vistas especializadas conservan el mismo criterio.
+
+En móvil el panel de ordenación muestra simultáneamente `Sin orden`, la dirección ascendente y la descendente para cada criterio. Elegir una opción aplica la misma lista ordenada que utilizan los controles de escritorio, por lo que cambiar de tamaño no altera el resultado ni las preferencias guardadas.
 
 La acción `Descubrir` selecciona un grupo pequeño y variado de la vista activa. Combina expresiones cortas, medias y largas, y `Otro grupo` permite renovar la selección. Empezar una búsqueda, elegir otra vista u ordenar vuelve al catálogo normal.
 

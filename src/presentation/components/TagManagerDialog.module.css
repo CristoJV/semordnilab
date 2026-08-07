@@ -288,4 +288,25 @@
   .confirmation {
     grid-column: 2 / -1;
   }
+
+  .overviewHeading button,
+  .tagRow button,
+  .editor button,
+  .editor input,
+  .colorChoice,
+  .iconGrid button {
+    min-height: 2.75rem;
+  }
+
+  .colorGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .iconGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .editorActions button {
+    flex: 1;
+  }
 }

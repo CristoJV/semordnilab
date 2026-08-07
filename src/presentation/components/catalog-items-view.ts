@@ -6,12 +6,7 @@ import type {
 import type { SemordnilapId } from '@/domain/semordnilap'
 
 import { scoreCatalogMatch } from './catalog-search'
-import type {
-  CatalogSide,
-  CatalogSort,
-  CatalogSortCriterion,
-  CatalogSortField,
-} from './catalog-view'
+import type { CatalogSort, CatalogSortCriterion } from './catalog-view'
 
 type SelectCatalogItemsOptions = {
   items: readonly SemordnilapCatalogItem[]
@@ -25,28 +20,6 @@ type SelectCatalogItemsOptions = {
     semordnilapId: SemordnilapId,
     status: SemordnilapCatalogStatus,
   ) => boolean
-}
-
-export function cycleCatalogSort(
-  current: CatalogSort,
-  field: CatalogSortField,
-  side: CatalogSide,
-): CatalogSort {
-  const index = current.findIndex(
-    (criterion) => criterion.field === field && criterion.side === side,
-  )
-  if (index < 0) {
-    return [...current, { field, side, direction: 'ascending' }]
-  }
-  const active = current[index]!
-  if (active.direction === 'ascending') {
-    return current.map((criterion, criterionIndex) =>
-      criterionIndex === index
-        ? { ...criterion, direction: 'descending' }
-        : criterion,
-    )
-  }
-  return current.filter((_, criterionIndex) => criterionIndex !== index)
 }
 
 function compareByCriterion(

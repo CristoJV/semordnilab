@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 
 import styles from './ModalDialog.module.css'
 
@@ -18,12 +19,17 @@ export function ModalDialog({
   const titleId = useId()
   const closeButton = useRef<HTMLButtonElement>(null)
   const dialog = useRef<HTMLElement>(null)
+  const onCloseRef = useRef(onClose)
+
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
 
   useEffect(() => {
     const previouslyFocused = document.activeElement as HTMLElement | null
     closeButton.current?.focus()
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape') onCloseRef.current()
       if (event.key !== 'Tab') return
       const focusable = dialog.current?.querySelectorAll<HTMLElement>(
         'button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [href], [tabindex]:not([tabindex="-1"])',
@@ -44,14 +50,14 @@ export function ModalDialog({
       window.removeEventListener('keydown', handleKeyDown)
       previouslyFocused?.focus()
     }
-  }, [onClose])
+  }, [])
 
-  return (
+  return createPortal(
     <div
       className={styles.backdrop}
       role="presentation"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose()
+        if (event.target === event.currentTarget) onCloseRef.current()
       }}
     >
       <section
@@ -67,7 +73,7 @@ export function ModalDialog({
           <button
             ref={closeButton}
             type="button"
-            onClick={onClose}
+            onClick={() => onCloseRef.current()}
             aria-label="Cerrar diálogo"
           >
             ×
@@ -75,6 +81,7 @@ export function ModalDialog({
         </header>
         <div className={styles.content}>{children}</div>
       </section>
-    </div>
+    </div>,
+    document.body,
   )
 }

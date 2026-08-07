@@ -1,0 +1,139 @@
+.inline {
+  display: flex;
+  gap: 0.35rem;
+  margin-left: auto;
+}
+
+.inline button {
+  min-width: 3.1rem;
+  padding: 0.3rem 0.5rem;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 750;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.inline button[data-active='true'] {
+  color: var(--color-violet-strong);
+  background: var(--color-violet-soft);
+  border-color: color-mix(in srgb, var(--color-violet) 40%, transparent);
+}
+
+.inline button:focus-visible,
+.compactTrigger:focus-visible,
+.directionGroup button:focus-visible,
+.done:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-violet) 35%, transparent);
+  outline-offset: 2px;
+}
+
+.compactTrigger {
+  position: relative;
+  display: grid;
+  flex: 0 0 auto;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0.65rem;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  place-items: center;
+}
+
+.compactTrigger svg {
+  width: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 1.7;
+}
+
+.compactTrigger span {
+  position: absolute;
+  top: -0.2rem;
+  right: -0.2rem;
+  display: grid;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 850;
+  background: var(--color-violet);
+  border: 2px solid var(--color-surface-strong);
+  border-radius: 50%;
+  place-items: center;
+}
+
+.dialogContent {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.dialogContent > p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.dialogContent fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.8rem;
+}
+
+.dialogContent legend {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding-inline: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.dialogContent legend span {
+  color: var(--color-violet-strong);
+  font-size: 0.65rem;
+}
+
+.directionGroup {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.directionGroup button,
+.done {
+  min-height: 2.75rem;
+  padding: 0.45rem;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 750;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.65rem;
+  cursor: pointer;
+}
+
+.directionGroup button[data-active='true'] {
+  color: white;
+  background: var(--color-violet);
+  border-color: var(--color-violet);
+}
+
+.done {
+  justify-self: end;
+  min-width: 5.5rem;
+  color: white;
+  background: var(--color-violet);
+  border-color: var(--color-violet);
+}

@@ -39,7 +39,8 @@ La primera colección reúne más de doce mil semordnilaps distribuidos entre tr
 - [x] Crear, guardar y reutilizar composites
 - [x] Conservar preferencias y copias de seguridad en local
 - [x] Organizar semordnilaps mediante etiquetas personales
-- [ ] Afinar la experiencia táctil y la accesibilidad
+- [x] Adaptar la experiencia táctil a pantallas móviles
+- [ ] Completar una revisión de accesibilidad con navegador real
 - [ ] Ampliar las herramientas para revisar y organizar colecciones
 - [ ] Preparar una experiencia instalable y disponible sin conexión
 

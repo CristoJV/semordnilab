@@ -220,4 +220,11 @@
   .danger .export {
     margin-left: 0;
   }
+
+  .actions button,
+  .rename button,
+  .rename input,
+  .danger button {
+    min-height: 2.75rem;
+  }
 }

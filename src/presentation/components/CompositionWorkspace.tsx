@@ -10,6 +10,7 @@ import { useCompositionPointerInteraction } from '@/presentation/hooks/useCompos
 import type { Notify } from '@/presentation/hooks/useTransientNotifications'
 
 import { CompositionLane } from './CompositionLane'
+import { CompositionToolbar } from './CompositionToolbar'
 import styles from './CompositionWorkspace.module.css'
 
 type CompositionWorkspaceProps = {
@@ -175,99 +176,79 @@ export function CompositionWorkspace({
       aria-labelledby="composition-title"
     >
       <div className={styles.heading}>
-        <div>
-          <p className={styles.eyebrow} aria-live="polite">
+        <div className={styles.titleBlock}>
+          <h1 id="composition-title">Compón</h1>
+          <p className={styles.persistenceStatus} aria-live="polite">
             {persistenceLabel}
           </p>
-          <h1 id="composition-title">Área de composición</h1>
         </div>
-        <div className={styles.headingActions}>
-          <button type="button" onClick={toggleCollapsed}>
-            {collapsed ? 'Expandir área' : 'Plegar área'}
-          </button>
-          <button type="button" disabled={!canUndo} onClick={onUndo}>
-            Deshacer
-          </button>
-          <button type="button" disabled={!canRedo} onClick={onRedo}>
-            Rehacer
-          </button>
-          {components.length > 0 && (
-            <button
-              className={styles.saveButton}
-              type="button"
-              disabled={!snapshot.isComposite || saving}
-              onClick={() => void handleSave()}
-              aria-label="Guardar composite"
-              title={
-                snapshot.isComposite
-                  ? 'Guardar composite'
-                  : 'Añade al menos dos componentes para guardar'
-              }
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M5 4h12l2 2v14H5V4Zm3 0v6h8V4M8 20v-6h8v6" />
-              </svg>
-              {saving ? 'Guardando...' : 'Guardar'}
-            </button>
-          )}
-          {components.length > 0 && (
-            <button className={styles.clear} type="button" onClick={onClear}>
-              Vaciar
-            </button>
-          )}
-        </div>
+        <CompositionToolbar
+          collapsed={collapsed}
+          canUndo={canUndo}
+          canRedo={canRedo}
+          hasComponents={components.length > 0}
+          canSave={snapshot.isComposite}
+          saving={saving}
+          onToggleCollapsed={toggleCollapsed}
+          onUndo={onUndo}
+          onRedo={onRedo}
+          onSave={() => void handleSave()}
+          onClear={onClear}
+        />
       </div>
 
-      {collapsed && (
-        <p className={styles.compactSummary}>
-          {components.length === 0
-            ? 'Borrador vacío'
-            : `${components.length} componentes, próxima inserción en la posición ${insertionIndex + 1}`}
-        </p>
-      )}
+      <div id="composition-content">
+        {collapsed && (
+          <p className={styles.compactSummary}>
+            {components.length === 0
+              ? 'Borrador vacío'
+              : `${components.length} componentes, próxima inserción en la posición ${insertionIndex + 1}`}
+          </p>
+        )}
 
-      {!collapsed &&
-        (components.length === 0 ? (
-          <div className={styles.empty}>
-            <span className={styles.emptyMark} aria-hidden="true">
-              ↔
-            </span>
-            <p>
-              Selecciona semordnilaps de las listas para empezar a componer.
-            </p>
-          </div>
-        ) : (
-          <div className={styles.lanes}>
-            <CompositionLane
-              side="source"
-              languageLabel={sourceLabel}
-              components={components}
-              insertionIndex={insertionIndex}
-              dragging={pointerInteraction.dragging}
-              highlightedInstanceId={highlightedInstanceId}
-              laneRef={sourceLane}
-              onSelectInsertion={onSelectInsertion}
-              onRemove={removeWithNotification}
-              onMove={onMove}
-              onHighlight={setHighlightedInstanceId}
-              bindPointer={pointerInteraction.bind}
-            />
-            <CompositionLane
-              side="target"
-              languageLabel={targetLabel}
-              components={components}
-              insertionIndex={insertionIndex}
-              dragging={pointerInteraction.dragging}
-              highlightedInstanceId={highlightedInstanceId}
-              laneRef={targetLane}
-              onSelectInsertion={onSelectInsertion}
-              onRemove={removeWithNotification}
-              onMove={onMove}
-              onHighlight={setHighlightedInstanceId}
-              bindPointer={pointerInteraction.bind}
-            />
-          </div>
-        ))}
+        {!collapsed &&
+          (components.length === 0 ? (
+            <div className={styles.empty}>
+              <span className={styles.emptyMark} aria-hidden="true">
+                ↔
+              </span>
+              <p>
+                Selecciona semordnilaps de las listas para empezar a componer.
+              </p>
+            </div>
+          ) : (
+            <div className={styles.lanes}>
+              <CompositionLane
+                side="source"
+                languageLabel={sourceLabel}
+                components={components}
+                insertionIndex={insertionIndex}
+                dragging={pointerInteraction.dragging}
+                highlightedInstanceId={highlightedInstanceId}
+                laneRef={sourceLane}
+                onSelectInsertion={onSelectInsertion}
+                onRemove={removeWithNotification}
+                onMove={onMove}
+                onHighlight={setHighlightedInstanceId}
+                bindPointer={pointerInteraction.bind}
+              />
+              <CompositionLane
+                side="target"
+                languageLabel={targetLabel}
+                components={components}
+                insertionIndex={insertionIndex}
+                dragging={pointerInteraction.dragging}
+                highlightedInstanceId={highlightedInstanceId}
+                laneRef={targetLane}
+                onSelectInsertion={onSelectInsertion}
+                onRemove={removeWithNotification}
+                onMove={onMove}
+                onHighlight={setHighlightedInstanceId}
+                bindPointer={pointerInteraction.bind}
+              />
+            </div>
+          ))}
+      </div>
 
       {pointerInteraction.dragging && (
         <div

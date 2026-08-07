@@ -1,56 +1,42 @@
+import type { ResponsiveLayout } from '@/presentation/responsive/useResponsiveLayout'
+
+import { CatalogSortControl } from './CatalogSortControl'
 import styles from './CatalogLanguageHeader.module.css'
-import type { CatalogSide, CatalogSort, CatalogSortField } from './catalog-view'
+import type {
+  CatalogSide,
+  CatalogSort,
+  CatalogSortDirection,
+  CatalogSortField,
+} from './catalog-view'
 
 type CatalogLanguageHeaderProps = {
   languageLabel: string
   query: string
   resultCount: number
+  layout: ResponsiveLayout
   side: CatalogSide
   sort: CatalogSort
   onQueryChange: (query: string) => void
   onCycleSort: (field: CatalogSortField, side: CatalogSide) => void
+  onSetSort: (
+    field: CatalogSortField,
+    side: CatalogSide,
+    direction: CatalogSortDirection | null,
+  ) => void
 }
 
 export function CatalogLanguageHeader({
   languageLabel,
   query,
   resultCount,
+  layout,
   side,
   sort,
   onQueryChange,
   onCycleSort,
+  onSetSort,
 }: CatalogLanguageHeaderProps) {
   const searchId = `${side}-catalog-search`
-  const activeCriterion = (field: CatalogSortField) =>
-    sort.find(
-      (criterion) => criterion.field === field && criterion.side === side,
-    )
-  const criterionPriority = (field: CatalogSortField) =>
-    sort.findIndex(
-      (criterion) => criterion.field === field && criterion.side === side,
-    ) + 1
-  const sortLabel = (field: CatalogSortField) => {
-    const active = activeCriterion(field)
-    if (!active) {
-      return field === 'alphabetical' ? 'A/Z' : '1/9'
-    }
-    const priority = criterionPriority(field)
-    if (active.direction === 'ascending') {
-      return `${priority} · ${field === 'alphabetical' ? 'A→Z' : '1→9'}`
-    }
-    return `${priority} · ${field === 'alphabetical' ? 'Z→A' : '9→1'}`
-  }
-
-  const sortDescription = (field: CatalogSortField) => {
-    const name = field === 'alphabetical' ? 'alfabético' : 'por longitud'
-    const active = activeCriterion(field)
-    if (!active) {
-      return `Activar orden ${name} ascendente en ${languageLabel}`
-    }
-    return active.direction === 'ascending'
-      ? `Cambiar orden ${name} a descendente en ${languageLabel}`
-      : `Desactivar orden ${name} en ${languageLabel}`
-  }
 
   return (
     <div className={styles.header} data-side={side}>
@@ -61,19 +47,14 @@ export function CatalogLanguageHeader({
           </p>
           <h2>{languageLabel}</h2>
         </div>
-        <div className={styles.sorts} aria-label={`Ordenar ${languageLabel}`}>
-          {(['alphabetical', 'length'] as const).map((field) => (
-            <button
-              key={field}
-              type="button"
-              data-active={Boolean(activeCriterion(field))}
-              onClick={() => onCycleSort(field, side)}
-              aria-label={sortDescription(field)}
-            >
-              {sortLabel(field)}
-            </button>
-          ))}
-        </div>
+        <CatalogSortControl
+          languageLabel={languageLabel}
+          layout={layout}
+          side={side}
+          sort={sort}
+          onCycle={onCycleSort}
+          onSet={onSetSort}
+        />
         <span className={styles.results} aria-live="polite">
           {resultCount.toLocaleString('es-ES')}
         </span>
@@ -92,7 +73,9 @@ export function CatalogLanguageHeader({
             type="search"
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
-            placeholder={`Buscar en ${languageLabel}`}
+            placeholder={
+              layout === 'compact' ? 'Buscar' : `Buscar en ${languageLabel}`
+            }
             autoComplete="off"
           />
         </label>

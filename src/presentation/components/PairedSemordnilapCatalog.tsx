@@ -14,6 +14,7 @@ import type {
   TagId,
   CatalogViewMode,
   DatasetCatalogViewPreference,
+  CatalogSortDirection,
 } from '@/application'
 import type {
   CompositeSemordnilap,
@@ -24,14 +25,14 @@ import type { SemordnilapStatusMap } from '@/presentation/hooks/useSemordnilapSt
 import type { Notify } from '@/presentation/hooks/useTransientNotifications'
 import type { SemordnilapTagState } from '@/presentation/hooks/useSemordnilapTags'
 import { useVirtualCatalogRows } from '@/presentation/hooks/useVirtualCatalogRows'
+import type { ResponsiveLayout } from '@/presentation/responsive/useResponsiveLayout'
 
 import { CatalogLanguageHeader } from './CatalogLanguageHeader'
+import { CatalogViewSwitcher } from './CatalogViewSwitcher'
 import { selectDiscoveryItems } from './catalog-discovery'
-import {
-  cycleCatalogSort,
-  selectVisibleCatalogItems,
-} from './catalog-items-view'
+import { selectVisibleCatalogItems } from './catalog-items-view'
 import { normalizeCatalogQuery } from './catalog-search'
+import { cycleCatalogSort, setCatalogSort } from './catalog-sort'
 import type { CatalogSide, CatalogSort, CatalogSortField } from './catalog-view'
 import { SemordnilapOption } from './SemordnilapOption'
 import { SemordnilapRowActions } from './SemordnilapRowActions'
@@ -62,6 +63,7 @@ type PairedSemordnilapCatalogProps = {
   onOpenComposite: (composite: CompositeSemordnilap) => void
   onManageTags: () => void
   onNotify: Notify
+  layout: ResponsiveLayout
 }
 
 export function PairedSemordnilapCatalog({
@@ -81,6 +83,7 @@ export function PairedSemordnilapCatalog({
   onOpenComposite,
   onManageTags,
   onNotify,
+  layout,
 }: PairedSemordnilapCatalogProps) {
   const [sourceQuery, setSourceQuery] = useState(initialView?.sourceQuery ?? '')
   const [targetQuery, setTargetQuery] = useState(initialView?.targetQuery ?? '')
@@ -206,6 +209,25 @@ export function PairedSemordnilapCatalog({
     virtualRows.reset()
   }
 
+  const changeSortDirection = (
+    field: CatalogSortField,
+    side: CatalogSide,
+    direction: CatalogSortDirection | null,
+  ) => {
+    setDiscoverySeed(null)
+    setSort((current) => setCatalogSort(current, field, side, direction))
+    virtualRows.reset()
+  }
+
+  const resetView = () => {
+    setSourceQuery('')
+    setTargetQuery('')
+    setSort([])
+    setDiscoverySeed(null)
+    setSelectedTagIds(new Set())
+    virtualRows.reset()
+  }
+
   const discover = () => {
     setSourceQuery('')
     setTargetQuery('')
@@ -271,76 +293,91 @@ export function PairedSemordnilapCatalog({
       aria-label="Catálogo bilingüe"
     >
       <div className={styles.toolbar}>
-        <div className={styles.toolbarMain}>
-          {selectionMode ? (
-            <>
-              <strong>{selectedIds.size} seleccionados</strong>
-              <button
-                type="button"
-                disabled={selectedIds.size === 0}
-                onClick={() => applySelectedStatus('favorite')}
-              >
-                Añadir a favoritos
-              </button>
-              <button
-                type="button"
-                disabled={selectedIds.size === 0}
-                onClick={() =>
-                  discardedView
-                    ? removeSelectedStatus('discarded')
-                    : applySelectedStatus('discarded')
-                }
-              >
-                {discardedView ? 'Restaurar' : 'Descartar'}
-              </button>
-              <TagAssignmentMenu
+        {selectionMode ? (
+          <div className={styles.selectionControls}>
+            <strong>{selectedIds.size} seleccionados</strong>
+            <button
+              type="button"
+              disabled={selectedIds.size === 0}
+              onClick={() => applySelectedStatus('favorite')}
+            >
+              Añadir a favoritos
+            </button>
+            <button
+              type="button"
+              disabled={selectedIds.size === 0}
+              onClick={() =>
+                discardedView
+                  ? removeSelectedStatus('discarded')
+                  : applySelectedStatus('discarded')
+              }
+            >
+              {discardedView ? 'Restaurar' : 'Descartar'}
+            </button>
+            <TagAssignmentMenu
+              tags={tagState.tags}
+              selectedIds={[...selectedIds]}
+              assignments={tagState.assignments}
+              onApply={(changes) => tagState.applyTo([...selectedIds], changes)}
+              onManage={onManageTags}
+            />
+            <button
+              className={styles.closeSelection}
+              type="button"
+              aria-label="Cerrar selección"
+              title="Cerrar selección"
+              onClick={leaveSelectionMode}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 6l12 12M18 6 6 18" />
+              </svg>
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className={styles.primaryControls}>
+              <CatalogViewSwitcher
+                current={viewMode}
+                counts={{
+                  active: items.length - discardedCount,
+                  saved: savedCount,
+                  favorites: favoriteCount,
+                  discarded: discardedCount,
+                }}
+                onChange={(mode) => {
+                  setDiscoverySeed(null)
+                  setViewMode(mode)
+                  leaveSelectionMode()
+                  virtualRows.reset()
+                }}
+              />
+              <TagFilterMenu
                 tags={tagState.tags}
-                selectedIds={[...selectedIds]}
-                assignments={tagState.assignments}
-                onApply={(changes) =>
-                  tagState.applyTo([...selectedIds], changes)
-                }
+                selectedTagIds={effectiveSelectedTagIds}
+                onApply={applyTagFilter}
                 onManage={onManageTags}
               />
+            </div>
+            <div className={styles.secondaryControls}>
               <button
-                className={styles.closeSelection}
                 type="button"
-                aria-label="Cerrar selección"
-                title="Cerrar selección"
-                onClick={leaveSelectionMode}
+                disabled={!statusesReady || visibleItems.length === 0}
+                onClick={() => setSelectionMode(true)}
               >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M6 6l12 12M18 6 6 18" />
-                </svg>
+                Seleccionar varios
               </button>
-            </>
-          ) : (
-            <>
-              <nav className={styles.viewTabs} aria-label="Vistas del catálogo">
-                {(
-                  [
-                    ['active', 'Todos', items.length - discardedCount],
-                    ['saved', 'Guardados', savedCount],
-                    ['favorites', 'Favoritos', favoriteCount],
-                    ['discarded', 'Descartados', discardedCount],
-                  ] as const
-                ).map(([mode, label, count]) => (
-                  <button
-                    key={mode}
-                    type="button"
-                    data-active={viewMode === mode}
-                    aria-pressed={viewMode === mode}
-                    onClick={() => {
-                      setDiscoverySeed(null)
-                      setViewMode(mode)
-                      leaveSelectionMode()
-                      virtualRows.reset()
-                    }}
-                  >
-                    {label} <span>{count}</span>
-                  </button>
-                ))}
-              </nav>
+              {(sourceQuery ||
+                targetQuery ||
+                sort.length > 0 ||
+                effectiveSelectedTagIds.size > 0) && (
+                <button
+                  className={styles.resetView}
+                  type="button"
+                  onClick={resetView}
+                >
+                  Restablecer
+                </button>
+              )}
               <button
                 className={styles.discovery}
                 type="button"
@@ -355,19 +392,6 @@ export function PairedSemordnilapCatalog({
                   {displayedItems.length} de {visibleItems.length}
                 </strong>
               )}
-              <button
-                type="button"
-                disabled={!statusesReady || visibleItems.length === 0}
-                onClick={() => setSelectionMode(true)}
-              >
-                Seleccionar varios
-              </button>
-              <TagFilterMenu
-                tags={tagState.tags}
-                selectedTagIds={effectiveSelectedTagIds}
-                onApply={applyTagFilter}
-                onManage={onManageTags}
-              />
               {discardedView && (
                 <>
                   <strong>Viendo descartados</strong>
@@ -380,29 +404,9 @@ export function PairedSemordnilapCatalog({
                   </button>
                 </>
               )}
-            </>
-          )}
-        </div>
-        {(sourceQuery ||
-          targetQuery ||
-          sort.length > 0 ||
-          effectiveSelectedTagIds.size > 0) &&
-          !selectionMode && (
-            <button
-              className={styles.resetView}
-              type="button"
-              onClick={() => {
-                setSourceQuery('')
-                setTargetQuery('')
-                setSort([])
-                setDiscoverySeed(null)
-                setSelectedTagIds(new Set())
-                virtualRows.reset()
-              }}
-            >
-              Restablecer filtros
-            </button>
-          )}
+            </div>
+          </>
+        )}
       </div>
 
       {(statusError || tagState.errorMessage) && (
@@ -416,20 +420,24 @@ export function PairedSemordnilapCatalog({
           languageLabel={dataset.sourceLanguage.label}
           query={sourceQuery}
           resultCount={displayedItems.length}
+          layout={layout}
           side="source"
           sort={sort}
           onQueryChange={(query) => changeQuery('source', query)}
           onCycleSort={changeSort}
+          onSetSort={changeSortDirection}
         />
         <div className={styles.headerGutter} aria-hidden="true" />
         <CatalogLanguageHeader
           languageLabel={dataset.targetLanguage.label}
           query={targetQuery}
           resultCount={displayedItems.length}
+          layout={layout}
           side="target"
           sort={sort}
           onQueryChange={(query) => changeQuery('target', query)}
           onCycleSort={changeSort}
+          onSetSort={changeSortDirection}
         />
       </div>
 

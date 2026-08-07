@@ -75,6 +75,11 @@
 
 @media (max-width: 560px) {
   .viewport {
-    bottom: 2.2rem;
+    bottom: calc(2.2rem + env(safe-area-inset-bottom));
+  }
+
+  .notification button {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
   }
 }

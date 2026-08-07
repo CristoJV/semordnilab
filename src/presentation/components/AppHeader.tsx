@@ -1,8 +1,9 @@
 import type { AvailableDataset } from '@/application'
 import type { DatasetId } from '@/domain/semordnilap'
 import type { CatalogStatus } from '@/presentation/hooks/useSemordnilapCatalog'
+import type { ResponsiveLayout } from '@/presentation/responsive/useResponsiveLayout'
 
-import { DatasetSelector } from './DatasetSelector'
+import { DatasetPicker } from './DatasetPicker'
 import styles from './AppHeader.module.css'
 
 type AppHeaderProps = {
@@ -12,6 +13,8 @@ type AppHeaderProps = {
   itemCount: number
   onDatasetChange: (datasetId: DatasetId | '') => void
   onOpenMenu: () => void
+  onOpenDatasetPicker: () => void
+  layout: ResponsiveLayout
 }
 
 export function AppHeader({
@@ -21,6 +24,8 @@ export function AppHeader({
   itemCount,
   onDatasetChange,
   onOpenMenu,
+  onOpenDatasetPicker,
+  layout,
 }: AppHeaderProps) {
   const statusText =
     status === 'loading'
@@ -40,10 +45,12 @@ export function AppHeader({
         <span>Semordnilab</span>
       </div>
 
-      <DatasetSelector
+      <DatasetPicker
         datasets={datasets}
         selectedDatasetId={selectedDatasetId}
+        layout={layout}
         onChange={onDatasetChange}
+        onOpenCompact={onOpenDatasetPicker}
       />
 
       <div className={styles.trailing}>

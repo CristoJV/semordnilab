@@ -17,6 +17,8 @@ import { useSavedCompositeSemordnilaps } from '@/presentation/hooks/useSavedComp
 import { useWorkspacePreferences } from '@/presentation/hooks/useWorkspacePreferences'
 import type { CompositeSemordnilap } from '@/domain/semordnilap'
 import { TagManagerDialog } from '@/presentation/components/TagManagerDialog'
+import { DatasetPickerDialog } from '@/presentation/components/DatasetPickerDialog'
+import { useResponsiveLayout } from '@/presentation/responsive/useResponsiveLayout'
 
 import styles from './WorkspacePage.module.css'
 
@@ -26,12 +28,16 @@ type WorkspacePageProps = {
 
 const EMPTY_CATALOG_ITEMS = [] as const
 
+type WorkspaceUtilityOverlay =
+  'app-menu' | 'dataset-picker' | 'tag-manager' | null
+
 export function WorkspacePage({ dependencies }: WorkspacePageProps) {
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [tagManagerOpen, setTagManagerOpen] = useState(false)
+  const [utilityOverlay, setUtilityOverlay] =
+    useState<WorkspaceUtilityOverlay>(null)
   const [selectedComposite, setSelectedComposite] =
     useState<CompositeSemordnilap | null>(null)
   const { notifications, notify, dismiss } = useTransientNotifications()
+  const layout = useResponsiveLayout()
   const preferences = useWorkspacePreferences(dependencies)
   const catalog = useSemordnilapCatalog(dependencies)
   const statusAliases = useMemo(
@@ -98,7 +104,9 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
         status={catalog.status}
         itemCount={catalogItems.length}
         onDatasetChange={handleDatasetChange}
-        onOpenMenu={() => setMenuOpen(true)}
+        onOpenMenu={() => setUtilityOverlay('app-menu')}
+        onOpenDatasetPicker={() => setUtilityOverlay('dataset-picker')}
+        layout={layout}
       />
 
       <main className={styles.main}>
@@ -166,8 +174,9 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
               initialView={preferences.catalogView(loadedDataset.dataset.id)}
               onViewChange={preferences.saveCatalogView}
               onOpenComposite={setSelectedComposite}
-              onManageTags={() => setTagManagerOpen(true)}
+              onManageTags={() => setUtilityOverlay('tag-manager')}
               onNotify={notify}
+              layout={layout}
             />
           ) : (
             <div className={styles.catalogState}>
@@ -216,13 +225,13 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
       <AppFooter />
       <NotificationViewport notifications={notifications} onDismiss={dismiss} />
 
-      {menuOpen && (
+      {utilityOverlay === 'app-menu' && (
         <AppMenuDialog
           useCases={dependencies}
           preferences={preferences}
-          onClose={() => setMenuOpen(false)}
+          onClose={() => setUtilityOverlay(null)}
           onImported={() => window.location.reload()}
-          onManageTags={() => setTagManagerOpen(true)}
+          onManageTags={() => setUtilityOverlay('tag-manager')}
         />
       )}
 
@@ -281,10 +290,19 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
         />
       )}
 
-      {tagManagerOpen && (
+      {utilityOverlay === 'tag-manager' && (
         <TagManagerDialog
           state={tagState}
-          onClose={() => setTagManagerOpen(false)}
+          onClose={() => setUtilityOverlay(null)}
+        />
+      )}
+
+      {utilityOverlay === 'dataset-picker' && (
+        <DatasetPickerDialog
+          datasets={catalog.datasets}
+          selectedDatasetId={catalog.selectedDatasetId}
+          onChange={handleDatasetChange}
+          onClose={() => setUtilityOverlay(null)}
         />
       )}
     </div>

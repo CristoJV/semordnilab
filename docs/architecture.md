@@ -18,6 +18,8 @@ El repositorio contiene actualmente:
 - favoritos de posición estable, vista de descartados, restauración y selección múltiple;
 - búsqueda con relevancia visual, resaltado, descubrimiento y ventana virtual;
 - criterios de ordenación combinables desde cualquiera de los idiomas;
+- presentación adaptable con selector compacto, barras táctiles y ordenación móvil;
+- diálogos portados al documento con hoja inferior y zonas seguras en móvil;
 - guardado, deduplicación y resolución recursiva de composites;
 - gestión de composites con análisis transitivo y eliminación en cascada protegida;
 - copias JSON versionadas con inspección, combinación, validación semántica e importación atómica;
@@ -492,6 +494,14 @@ Cada componente tiene una responsabilidad clara. El renderizado, la coordinació
 
 Los estilos de componentes utilizan CSS Modules. Los tokens, el reset y los estilos verdaderamente globales permanecen en `presentation/styles`.
 
+La adaptación a pantallas estrechas pertenece únicamente a presentación. `useResponsiveLayout` observa una única consulta de medios y expone los modos `wide` y `compact`. `WorkspacePage` conserva una sola composición de hooks y casos de uso, y entrega ese modo únicamente a los componentes que necesitan cambiar de representación. No existe una página móvil paralela ni un segundo estado del catálogo.
+
+Las variantes comparten contratos semánticos. `DatasetPicker` alterna entre el selector amplio y un botón compacto, pero ambos terminan en el mismo callback de selección. `CatalogSortControl` presenta botones directos en escritorio y una hoja inferior en móvil, mientras que `catalog-sort` concentra las transiciones puras para establecer, recorrer y combinar criterios. `CompositionToolbar` recibe capacidades y comandos, sin conocer el borrador ni la persistencia.
+
+Los overlays generales de la pantalla se coordinan mediante una unión explícita de estados excluyentes. `ModalDialog` se monta en `document.body` para no quedar recortado por contenedores con scroll, conserva el foco y adopta forma de hoja inferior en pantallas estrechas. Este límite permite añadir nuevas variantes visuales sin ampliar los contratos de aplicación ni introducir referencias entre componentes hermanos.
+
+La estructura principal utiliza `100dvh`, áreas seguras y scroll interno. El catálogo contiene el desplazamiento vertical y las secuencias de composición contienen el horizontal. Los grupos de controles que pueden superar el ancho admiten desplazamiento lateral, de forma que los botones no se reduzcan por debajo de su tamaño táctil.
+
 ## Animación y accesibilidad
 
 Las interacciones sencillas utilizan CSS nativo con `transition`, `transform`, `opacity` y `@keyframes`. Las variables CSS comparten duraciones y curvas cuando resulte útil.
@@ -507,6 +517,8 @@ Toda animación debe:
 Motion no forma parte del stack inicial. Solo se evaluará si aparecen gestos, reordenaciones o transiciones coordinadas que CSS no pueda mantener de forma razonable. Si se incorpora, permanecerá exclusivamente en presentación.
 
 Arrastrar es una ayuda y no la única forma de componer. Los componentes admiten retirada con `Intro`, espacio, Suprimir o Retroceso, y movimiento con `Mayús` y las flechas laterales. El foco sigue siendo visible y cada pieza expone una descripción accesible de las acciones. Los estados de selección, error y confirmación tienen texto y semántica accesible y no dependen solo del color.
+
+En la disposición compacta, los controles principales utilizan objetivos táctiles de al menos 44 píxeles. Las acciones representadas solo mediante iconos conservan `aria-label`, estado de disponibilidad y foco visible. Los mensajes normales de persistencia se mantienen como una región viva visualmente oculta para no consumir altura; los errores continúan visibles. Las hojas inferiores conservan cierre mediante botón, fondo o tecla Escape y evitan que el contenido quede bajo las barras o recortes del dispositivo.
 
 ## Navegación y GitHub Pages
 

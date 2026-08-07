@@ -1,0 +1,23 @@
+.views {
+  display: flex;
+  flex: none;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.views button[data-active='true'] {
+  color: white;
+  background: var(--color-violet);
+  border-color: var(--color-violet);
+}
+
+.views button span {
+  margin-left: 0.15rem;
+  opacity: 0.72;
+}
+
+@media (max-width: 560px) {
+  .views button span {
+    display: none;
+  }
+}

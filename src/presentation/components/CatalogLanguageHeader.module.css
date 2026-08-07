@@ -90,36 +90,6 @@
   outline-offset: 1px;
 }
 
-.sorts button:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--color-violet) 35%, transparent);
-  outline-offset: 2px;
-}
-
-.sorts {
-  display: flex;
-  gap: 0.35rem;
-  margin-left: auto;
-}
-
-.sorts button {
-  min-width: 3.1rem;
-  padding: 0.3rem 0.5rem;
-  color: var(--color-text-muted);
-  font: inherit;
-  font-size: 0.68rem;
-  font-weight: 750;
-  background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  cursor: pointer;
-}
-
-.sorts button[data-active='true'] {
-  color: var(--color-violet-strong);
-  background: var(--color-violet-soft);
-  border-color: color-mix(in srgb, var(--color-violet) 40%, transparent);
-}
-
 .visuallyHidden {
   position: absolute;
   width: 1px;
@@ -145,16 +115,12 @@
     display: none;
   }
 
-  .sorts button {
-    min-width: 2.65rem;
-    padding-inline: 0.35rem;
-  }
-
   .results {
     font-size: 0.68rem;
   }
 
   .search input {
+    min-height: 2.75rem;
     padding-right: 0.45rem;
     font-size: 0.78rem;
   }
