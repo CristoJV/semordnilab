@@ -56,7 +56,7 @@ Debajo aparecen los dos exploradores. La columna izquierda alinea sus semordnila
 
 Cada explorador dispone de búsqueda y ordenación propias. En una pantalla amplia los controles de ordenación se sitúan junto al título del idioma. En una pantalla estrecha se reúnen en un botón que abre un panel táctil y permite combinar los mismos criterios. Al seleccionar una expresión, el semordnilap completo se añade al área de composición y su expresión correspondiente aparece en la secuencia inversa. Las acciones situadas entre ambas columnas actúan sobre el semordnilap completo.
 
-Los espacios situados antes, después y entre componentes permiten elegir la posición de la siguiente inserción. El espacio final está activo inicialmente y el cursor avanza después de cada incorporación. Seleccionar un espacio en el idioma de destino activa su posición canónica equivalente en origen.
+Los espacios situados antes, después y entre componentes permiten elegir la posición de la siguiente inserción. El espacio final está activo inicialmente y el cursor avanza después de cada incorporación. Seleccionar un espacio en el idioma de destino activa su posición canónica equivalente en origen. Los espacios conservan una anchura fija para que la frase no cambie de distribución durante un arrastre. Solo crece visualmente el signo `+` del destino actual, con violeta en origen o mostaza en destino.
 
 Los componentes se presentan como fragmentos de texto compactos. No muestran flechas ni un botón de cierre permanente. Con ratón, una pulsación breve retira el componente y un movimiento intencionado inicia el arrastre. En una pantalla táctil, un toque breve lo retira y una pulsación prolongada inicia el arrastre, de modo que un desplazamiento normal de la página no reorganiza la frase accidentalmente. Al acercar el puntero a un extremo durante el arrastre, la secuencia se desplaza horizontalmente para alcanzar posiciones que no están visibles.
 
@@ -76,7 +76,11 @@ La versión móvil conserva la misma pantalla, los mismos datos y las mismas ope
 - las acciones principales mantienen un área táctil mínima de 44 píxeles y un nombre accesible aunque oculten su etiqueta visual;
 - las vistas se presentan en el orden `Todos`, `Guardados`, `Favoritos`, `Descartados` y `Etiquetas`;
 - `Seleccionar varios` y `Restablecer` quedan en una segunda línea de acciones cuando son aplicables;
-- cada idioma abre su ordenación en una hoja inferior, con selección directa de dirección y prioridad visible;
+- una pulsación prolongada sobre cualquier expresión entra directamente en selección múltiple y selecciona su fila bilingüe; un toque normal sigue añadiendo la pieza a la composición y el inicio de un desplazamiento cancela la espera;
+- durante la selección múltiple, favorito, descarte y etiquetado se agrupan en una única superficie y se representan mediante estrella, papelera y etiqueta para conservar espacio sin reducir su zona táctil;
+- una cruz visualmente pequeña, situada en el extremo derecho, cierra la selección y conserva alrededor un objetivo táctil de 44 píxeles;
+- cada idioma coloca el contador junto a un menú de tres puntos en el extremo derecho y abre su ordenación en una hoja inferior;
+- el filtro de etiquetas aparece anclado justo debajo de su botón, aunque se monta fuera del contenedor de scroll para evitar recortes;
 - los diálogos se montan sobre el documento, ocupan el ancho disponible y respetan las zonas seguras del dispositivo;
 - el documento utiliza la altura dinámica del navegador y mantiene el desplazamiento vertical dentro del catálogo.
 

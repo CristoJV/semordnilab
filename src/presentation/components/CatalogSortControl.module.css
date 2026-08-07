@@ -1,7 +1,6 @@
 .inline {
   display: flex;
   gap: 0.35rem;
-  margin-left: auto;
 }
 
 .inline button {
@@ -48,10 +47,7 @@
 
 .compactTrigger svg {
   width: 100%;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-width: 1.7;
+  fill: currentColor;
 }
 
 .compactTrigger span {

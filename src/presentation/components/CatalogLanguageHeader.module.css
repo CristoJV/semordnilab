@@ -20,6 +20,14 @@
   min-width: 0;
 }
 
+.headingMeta {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.35rem;
+  align-items: center;
+  margin-left: auto;
+}
+
 .heading h2 {
   margin: 0;
   font-family: var(--font-display);

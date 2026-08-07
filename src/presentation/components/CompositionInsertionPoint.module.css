@@ -1,7 +1,10 @@
 .item {
   display: flex;
-  flex: 0 0 auto;
+  flex: 0 0 0.9rem;
   align-items: center;
+  justify-content: center;
+  width: 0.9rem;
+  overflow: visible;
 }
 
 .button {
@@ -18,36 +21,65 @@
   cursor: pointer;
   opacity: 0.35;
   place-items: center;
+  transform-origin: center;
+  transition:
+    color var(--motion-fast) var(--motion-easing),
+    background-color var(--motion-fast) var(--motion-easing),
+    border-color var(--motion-fast) var(--motion-easing),
+    opacity var(--motion-fast) var(--motion-easing),
+    transform var(--motion-fast) var(--motion-easing);
 }
 
 .button:hover,
-.button[data-active='true'],
-.button[data-drop-target='true'] {
+.item[data-active='true'] .button {
   color: var(--color-violet-strong);
   background: var(--color-violet-soft);
   border-color: var(--color-violet);
   opacity: 1;
 }
 
-.button[data-active='true'] {
-  width: 1.2rem;
+.item[data-tone='target'] .button:hover,
+.item[data-tone='target'][data-active='true'] .button {
+  color: var(--color-mustard-dark);
+  background: var(--color-mustard-soft);
+  border-color: var(--color-mustard-dark);
 }
 
-.button[data-dragging='true'] {
-  width: 1.8rem;
-  opacity: 0.7;
+.item[data-active='true'] .button {
+  transform: scaleX(1.35);
 }
 
-.button[data-drop-target='true'] {
-  width: 2.2rem;
+.item[data-dragging='true']:not([data-drop-target='true']) .button {
+  color: var(--color-text-muted);
+  background: transparent;
+  border-color: transparent;
+  opacity: 0.18;
+  transform: none;
+}
+
+.item[data-drop-target='true'] .button {
   color: white;
   background: var(--color-violet);
+  border-color: var(--color-violet);
   border-style: solid;
   opacity: 1;
+  transform: scale(1.65, 1.08);
+}
+
+.item[data-tone='target'][data-drop-target='true'] .button {
+  color: var(--color-text);
+  background: var(--color-mustard);
+  border-color: var(--color-mustard-dark);
 }
 
 .button:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--color-violet) 35%, transparent);
   outline-offset: 1px;
   opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
 }

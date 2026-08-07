@@ -47,17 +47,20 @@ export function CatalogLanguageHeader({
           </p>
           <h2>{languageLabel}</h2>
         </div>
-        <CatalogSortControl
-          languageLabel={languageLabel}
-          layout={layout}
-          side={side}
-          sort={sort}
-          onCycle={onCycleSort}
-          onSet={onSetSort}
-        />
-        <span className={styles.results} aria-live="polite">
-          {resultCount.toLocaleString('es-ES')}
-        </span>
+        <div className={styles.headingMeta}>
+          <span className={styles.results} aria-live="polite">
+            {resultCount.toLocaleString('es-ES')}
+          </span>
+          <CatalogSortControl
+            key={layout}
+            languageLabel={languageLabel}
+            layout={layout}
+            side={side}
+            sort={sort}
+            onCycle={onCycleSort}
+            onSet={onSetSort}
+          />
+        </div>
       </div>
 
       <div className={styles.searchRow}>

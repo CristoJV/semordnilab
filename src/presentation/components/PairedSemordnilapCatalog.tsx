@@ -22,6 +22,7 @@ import type {
   SemordnilapId,
 } from '@/domain/semordnilap'
 import type { SemordnilapStatusMap } from '@/presentation/hooks/useSemordnilapStatuses'
+import { useCatalogLongPressSelection } from '@/presentation/hooks/useCatalogLongPressSelection'
 import type { Notify } from '@/presentation/hooks/useTransientNotifications'
 import type { SemordnilapTagState } from '@/presentation/hooks/useSemordnilapTags'
 import { useVirtualCatalogRows } from '@/presentation/hooks/useVirtualCatalogRows'
@@ -286,6 +287,15 @@ export function PairedSemordnilapCatalog({
     virtualRows.reset()
   }
 
+  const longPressSelection = useCatalogLongPressSelection({
+    enabled: layout === 'compact' && statusesReady && !selectionMode,
+    onSelect: (semordnilapId) => {
+      setDiscoverySeed(null)
+      setSelectionMode(true)
+      setSelectedIds(new Set([semordnilapId]))
+    },
+  })
+
   return (
     <section
       className={styles.catalog}
@@ -295,32 +305,65 @@ export function PairedSemordnilapCatalog({
       <div className={styles.toolbar}>
         {selectionMode ? (
           <div className={styles.selectionControls}>
-            <strong>{selectedIds.size} seleccionados</strong>
-            <button
-              type="button"
-              disabled={selectedIds.size === 0}
-              onClick={() => applySelectedStatus('favorite')}
+            <strong>
+              {selectedIds.size}{' '}
+              {selectedIds.size === 1 ? 'seleccionado' : 'seleccionados'}
+            </strong>
+            <div
+              className={styles.selectionActions}
+              aria-label="Acciones para la selección"
             >
-              Añadir a favoritos
-            </button>
-            <button
-              type="button"
-              disabled={selectedIds.size === 0}
-              onClick={() =>
-                discardedView
-                  ? removeSelectedStatus('discarded')
-                  : applySelectedStatus('discarded')
-              }
-            >
-              {discardedView ? 'Restaurar' : 'Descartar'}
-            </button>
-            <TagAssignmentMenu
-              tags={tagState.tags}
-              selectedIds={[...selectedIds]}
-              assignments={tagState.assignments}
-              onApply={(changes) => tagState.applyTo([...selectedIds], changes)}
-              onManage={onManageTags}
-            />
+              <button
+                className={styles.selectionAction}
+                type="button"
+                aria-label="Añadir a favoritos"
+                title="Añadir a favoritos"
+                disabled={selectedIds.size === 0}
+                onClick={() => applySelectedStatus('favorite')}
+              >
+                <span className={styles.selectionActionIcon} aria-hidden="true">
+                  ★
+                </span>
+                <span className={styles.selectionActionLabel}>
+                  Añadir a favoritos
+                </span>
+              </button>
+              <button
+                className={styles.selectionAction}
+                data-kind={discardedView ? 'restore' : 'discard'}
+                type="button"
+                aria-label={discardedView ? 'Restaurar' : 'Descartar'}
+                title={discardedView ? 'Restaurar' : 'Descartar'}
+                disabled={selectedIds.size === 0}
+                onClick={() =>
+                  discardedView
+                    ? removeSelectedStatus('discarded')
+                    : applySelectedStatus('discarded')
+                }
+              >
+                <span className={styles.selectionActionIcon} aria-hidden="true">
+                  {discardedView ? (
+                    '↩'
+                  ) : (
+                    <svg viewBox="0 0 24 24">
+                      <path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5" />
+                    </svg>
+                  )}
+                </span>
+                <span className={styles.selectionActionLabel}>
+                  {discardedView ? 'Restaurar' : 'Descartar'}
+                </span>
+              </button>
+              <TagAssignmentMenu
+                tags={tagState.tags}
+                selectedIds={[...selectedIds]}
+                assignments={tagState.assignments}
+                onApply={(changes) =>
+                  tagState.applyTo([...selectedIds], changes)
+                }
+                onManage={onManageTags}
+              />
+            </div>
             <button
               className={styles.closeSelection}
               type="button"
@@ -352,8 +395,10 @@ export function PairedSemordnilapCatalog({
                 }}
               />
               <TagFilterMenu
+                key={layout}
                 tags={tagState.tags}
                 selectedTagIds={effectiveSelectedTagIds}
+                layout={layout}
                 onApply={applyTagFilter}
                 onManage={onManageTags}
               />
@@ -488,6 +533,10 @@ export function PairedSemordnilapCatalog({
                     selected={selected}
                     query={sourceQuery}
                     tags={itemTags}
+                    longPressPending={
+                      longPressSelection.pendingSemordnilapId === id
+                    }
+                    longPressBindings={longPressSelection.bind(id)}
                     onAdd={({ semordnilap }) => onAdd(semordnilap)}
                     onToggleSelection={() => toggleSelection(id)}
                   />
@@ -521,6 +570,10 @@ export function PairedSemordnilapCatalog({
                     selected={selected}
                     query={targetQuery}
                     tags={itemTags}
+                    longPressPending={
+                      longPressSelection.pendingSemordnilapId === id
+                    }
+                    longPressBindings={longPressSelection.bind(id)}
                     onAdd={({ semordnilap }) => onAdd(semordnilap)}
                     onToggleSelection={() => toggleSelection(id)}
                   />

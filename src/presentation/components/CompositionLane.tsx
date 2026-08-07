@@ -70,6 +70,7 @@ export function CompositionLane({
             <Fragment key={instanceId}>
               <CompositionInsertionPoint
                 index={gapIndex}
+                tone={side}
                 active={insertionIndex === gapIndex}
                 languageLabel={languageLabel}
                 onSelect={onSelectInsertion}
@@ -101,6 +102,7 @@ export function CompositionLane({
         })}
         <CompositionInsertionPoint
           index={trailingIndex}
+          tone={side}
           active={insertionIndex === trailingIndex}
           languageLabel={languageLabel}
           onSelect={onSelectInsertion}

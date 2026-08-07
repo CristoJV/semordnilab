@@ -26,7 +26,7 @@ dragging
 
 La función de transición solo recibe estado y evento. Como resultado devuelve un nuevo estado y efectos declarativos: programar o cancelar la espera, iniciar el arrastre, retirar, mover o cancelar. Los temporizadores, Pointer Events, captura del puntero, vibración opcional y referencias al DOM se mantienen en un hook de presentación.
 
-El índice de destino se obtiene a partir de los espacios visibles, pero siempre se expresa en el orden canónico del idioma de origen. Mover una pieza genera una única operación de historial. Soltar claramente fuera de la franja vertical cancela el movimiento.
+El índice de destino se obtiene a partir de los espacios visibles, pero siempre se expresa en el orden canónico del idioma de origen. Cada espacio conserva una caja de geometría fija. Durante el arrastre solo se amplía mediante `transform` el botón `+` correspondiente al destino actual, en violeta para origen y mostaza para destino. Los demás indicadores pierden protagonismo sin cambiar de anchura. Mover una pieza genera una única operación de historial. Soltar claramente fuera de la franja vertical cancela el movimiento.
 
 Mientras se arrastra, acercarse a los extremos del contenedor inicia un desplazamiento horizontal progresivo. El ciclo utiliza `requestAnimationFrame`, se detiene en el centro o al alcanzar el límite y recalcula el espacio de destino después de cada avance. Esto permite ordenar composites largos sin ampliar el área de trabajo.
 
@@ -45,4 +45,5 @@ La recuperación de una retirada conserva la instancia y la posición exactas. A
 - La máquina de estados y los cálculos geométricos se prueban sin renderizar React.
 - El dominio, los casos de uso y la persistencia no conocen eventos de puntero.
 - El arrastre largo puede alcanzar posiciones no visibles mediante desplazamiento lateral automático.
+- La indicación del destino no altera la longitud visual de la frase ni el cálculo de los espacios.
 - Retirar con una pulsación es una acción rápida, por lo que la recuperación temporal es parte necesaria de la interacción.

@@ -108,10 +108,9 @@ export function CatalogSortControl({
         onClick={() => setDialogOpen(true)}
       >
         <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M4 7h10M18 7h2M4 12h4M12 12h8M4 17h8M16 17h4" />
-          <circle cx="16" cy="7" r="2" />
-          <circle cx="10" cy="12" r="2" />
-          <circle cx="14" cy="17" r="2" />
+          <circle cx="12" cy="5" r="1.7" />
+          <circle cx="12" cy="12" r="1.7" />
+          <circle cx="12" cy="19" r="1.7" />
         </svg>
         {activeCount > 0 && <span>{activeCount}</span>}
       </button>

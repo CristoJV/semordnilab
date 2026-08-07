@@ -350,7 +350,7 @@ destino: [C′, B′, A′]
 
 Añadir un componente a la derecha del origen coloca su expresión correspondiente a la izquierda del destino. Añadirlo a la izquierda produce la operación opuesta. Una selección iniciada desde el panel de destino se traduce a la misma secuencia canónica.
 
-La presentación mantiene un índice de inserción canónico entre cero y el número de componentes. El espacio `i` de origen corresponde al espacio `n - i` de destino. Insertar desplaza el cursor a la posición siguiente. Los movimientos intercambian componentes en la secuencia canónica y el destino vuelve a derivarse.
+La presentación mantiene un índice de inserción canónico entre cero y el número de componentes. El espacio `i` de origen corresponde al espacio `n - i` de destino. Insertar desplaza el cursor a la posición siguiente. Los movimientos intercambian componentes en la secuencia canónica y el destino vuelve a derivarse. Los elementos que proporcionan la geometría de estos espacios tienen una anchura fija. La indicación del destino utiliza `transform` sobre el botón interior, por lo que resaltar un único `+` no desplaza el texto ni altera el cálculo del hueco más cercano.
 
 La interacción directa de cada componente pertenece exclusivamente a presentación y utiliza Pointer Events. Una máquina de estados pura modela las transiciones siguientes:
 
@@ -496,7 +496,9 @@ Los estilos de componentes utilizan CSS Modules. Los tokens, el reset y los esti
 
 La adaptación a pantallas estrechas pertenece únicamente a presentación. `useResponsiveLayout` observa una única consulta de medios y expone los modos `wide` y `compact`. `WorkspacePage` conserva una sola composición de hooks y casos de uso, y entrega ese modo únicamente a los componentes que necesitan cambiar de representación. No existe una página móvil paralela ni un segundo estado del catálogo.
 
-Las variantes comparten contratos semánticos. `DatasetPicker` alterna entre el selector amplio y un botón compacto, pero ambos terminan en el mismo callback de selección. `CatalogSortControl` presenta botones directos en escritorio y una hoja inferior en móvil, mientras que `catalog-sort` concentra las transiciones puras para establecer, recorrer y combinar criterios. `CompositionToolbar` recibe capacidades y comandos, sin conocer el borrador ni la persistencia.
+Las variantes comparten contratos semánticos. `DatasetPicker` alterna entre el selector amplio y un botón compacto, pero ambos terminan en el mismo callback de selección. `CatalogSortControl` presenta botones directos en escritorio y una hoja inferior en móvil, mientras que `catalog-sort` concentra las transiciones puras para establecer, recorrer y combinar criterios. `CompositionToolbar` recibe capacidades y comandos, sin conocer el borrador ni la persistencia. `AnchoredPopover` resuelve posición, portal, cambios del viewport y cierre exterior para paneles no modales que deben permanecer vinculados visualmente a su control.
+
+La entrada directa en selección múltiple también queda aislada en presentación. `catalog-selection-pointer-machine` distingue espera, activación, intención de scroll y cancelación sin conocer React. `useCatalogLongPressSelection` aporta el temporizador, la vibración opcional y la supresión del clic posterior. El catálogo solo recibe el identificador seleccionado y activa el mismo estado que utiliza el botón de selección múltiple. Esta separación mantiene el toque normal, el scroll y la selección por lotes como comportamientos comprobables sin añadir reglas al dominio.
 
 Los overlays generales de la pantalla se coordinan mediante una unión explícita de estados excluyentes. `ModalDialog` se monta en `document.body` para no quedar recortado por contenedores con scroll, conserva el foco y adopta forma de hoja inferior en pantallas estrechas. Este límite permite añadir nuevas variantes visuales sin ampliar los contratos de aplicación ni introducir referencias entre componentes hermanos.
 

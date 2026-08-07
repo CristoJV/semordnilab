@@ -1,4 +1,5 @@
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -194,6 +195,12 @@ describe('WorkspacePage', () => {
     expect(
       within(catalog).getByRole('button', { name: 'Ordenar Español' }),
     ).toBeInTheDocument()
+    const spanishHeading = within(catalog).getByRole('heading', {
+      name: 'Español',
+    })
+    const headingMeta = spanishHeading.parentElement?.nextElementSibling
+    expect(headingMeta?.children[0]).toHaveTextContent('2')
+    expect(headingMeta?.children[1]).toHaveAccessibleName('Ordenar Español')
     const viewNavigation = within(catalog).getByRole('navigation', {
       name: 'Vistas del catálogo',
     })
@@ -221,6 +228,43 @@ describe('WorkspacePage', () => {
     )
     expect(getComputedStyle(persistenceStatus).position).toBe('absolute')
     expect(getComputedStyle(persistenceStatus).overflow).toBe('hidden')
+
+    const longPressedOption = within(catalog).getByRole('button', {
+      name: 'Añadir ella a la composición',
+    })
+    vi.useFakeTimers()
+    fireEvent.pointerDown(longPressedOption, {
+      button: 0,
+      pointerId: 17,
+      pointerType: 'touch',
+      clientX: 20,
+      clientY: 20,
+    })
+    act(() => vi.advanceTimersByTime(420))
+    fireEvent.pointerUp(longPressedOption, {
+      button: 0,
+      pointerId: 17,
+      pointerType: 'touch',
+      clientX: 20,
+      clientY: 20,
+    })
+    fireEvent.click(longPressedOption)
+    expect(
+      within(catalog).getByRole('button', { name: 'Deseleccionar ella' }),
+    ).toBeInTheDocument()
+    vi.useRealTimers()
+    const addFavorite = within(catalog).getByRole('button', {
+      name: 'Añadir a favoritos',
+    })
+    const discard = within(catalog).getByRole('button', { name: 'Descartar' })
+    const assignTags = within(catalog).getByRole('button', {
+      name: 'Etiquetar',
+    })
+    expect(addFavorite).toHaveTextContent('★')
+    expect(discard).toContainHTML('svg')
+    expect(assignTags).toContainHTML('svg')
+    expect(addFavorite.firstElementChild).toHaveAttribute('aria-hidden', 'true')
+    expect(addFavorite.lastElementChild).toHaveTextContent('Añadir a favoritos')
   })
 
   it('restaura el conjunto lingüístico guardado al iniciar', async () => {
@@ -895,6 +939,20 @@ describe('WorkspacePage', () => {
       clientX: 310,
       clientY: 10,
     })
+    const draggingPoints = sourceComposition.querySelectorAll<HTMLElement>(
+      '[data-composition-index][data-dragging="true"]',
+    )
+    expect(draggingPoints).toHaveLength(3)
+    expect(
+      [...draggingPoints].filter(
+        (point) => point.dataset.dropTarget === 'true',
+      ),
+    ).toHaveLength(1)
+    expect(
+      sourceComposition.querySelector(
+        '[data-composition-index][data-drop-target="true"]',
+      ),
+    ).toHaveAttribute('data-tone', 'source')
     fireEvent.pointerUp(ellaComponent, {
       button: 0,
       pointerId: 5,

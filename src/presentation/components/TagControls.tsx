@@ -2,7 +2,9 @@ import { useCallback, useRef, useState } from 'react'
 
 import type { SemordnilapTag, SemordnilapTagChange, TagId } from '@/application'
 import type { SemordnilapId } from '@/domain/semordnilap'
+import type { ResponsiveLayout } from '@/presentation/responsive/useResponsiveLayout'
 
+import { AnchoredPopover } from './AnchoredPopover'
 import { ModalDialog } from './ModalDialog'
 import { TagIconGlyph } from './TagIconGlyph'
 import styles from './TagControls.module.css'
@@ -33,6 +35,7 @@ export function TagDots({ tags }: { tags: readonly SemordnilapTag[] }) {
 type TagFilterMenuProps = {
   tags: readonly SemordnilapTag[]
   selectedTagIds: ReadonlySet<TagId>
+  layout: ResponsiveLayout
   onApply: (tagIds: ReadonlySet<TagId>) => void
   onManage: () => void
 }
@@ -40,14 +43,18 @@ type TagFilterMenuProps = {
 export function TagFilterMenu({
   tags,
   selectedTagIds,
+  layout,
   onApply,
   onManage,
 }: TagFilterMenuProps) {
   const detailsRef = useRef<HTMLDetailsElement>(null)
+  const compactTriggerRef = useRef<HTMLButtonElement>(null)
   const [draftTagIds, setDraftTagIds] = useState<ReadonlySet<TagId>>(new Set())
+  const [compactOpen, setCompactOpen] = useState(false)
 
   const close = () => {
-    if (detailsRef.current) detailsRef.current.open = false
+    if (layout === 'compact') setCompactOpen(false)
+    else if (detailsRef.current) detailsRef.current.open = false
   }
 
   const toggleDraft = (tagId: TagId) => {
@@ -57,6 +64,90 @@ export function TagFilterMenu({
       else next.add(tagId)
       return next
     })
+  }
+
+  const panelContent = (
+    <>
+      <strong>Filtrar por cualquiera</strong>
+      {tags.length === 0 ? (
+        <p>Todavía no hay etiquetas.</p>
+      ) : (
+        tags.map((tag) => (
+          <label key={tag.id}>
+            <input
+              type="checkbox"
+              checked={draftTagIds.has(tag.id)}
+              onChange={() => toggleDraft(tag.id)}
+            />
+            <TagIconGlyph
+              className={styles.tagMark}
+              icon={tag.icon}
+              color={tag.color}
+            />
+            <span>{tag.name}</span>
+          </label>
+        ))
+      )}
+      <div className={styles.panelActions}>
+        <button
+          type="button"
+          disabled={draftTagIds.size === 0}
+          onClick={() => setDraftTagIds(new Set())}
+        >
+          Limpiar
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            close()
+            onManage()
+          }}
+        >
+          Gestionar
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            onApply(draftTagIds)
+            close()
+            compactTriggerRef.current?.focus()
+          }}
+        >
+          Aplicar
+        </button>
+      </div>
+    </>
+  )
+
+  if (layout === 'compact') {
+    return (
+      <>
+        <button
+          ref={compactTriggerRef}
+          className={styles.filterTrigger}
+          type="button"
+          aria-expanded={compactOpen}
+          aria-haspopup="dialog"
+          onClick={() => {
+            if (!compactOpen) setDraftTagIds(new Set(selectedTagIds))
+            setCompactOpen((current) => !current)
+          }}
+        >
+          Etiquetas
+          {selectedTagIds.size > 0 && <span>{selectedTagIds.size}</span>}
+        </button>
+        {compactOpen && (
+          <AnchoredPopover
+            anchorRef={compactTriggerRef}
+            ariaLabel="Filtrar por etiquetas"
+            className={styles.panel}
+            onClose={() => setCompactOpen(false)}
+          >
+            {panelContent}
+          </AnchoredPopover>
+        )}
+      </>
+    )
   }
 
   return (
@@ -71,55 +162,7 @@ export function TagFilterMenu({
         Etiquetas
         {selectedTagIds.size > 0 && <span>{selectedTagIds.size}</span>}
       </summary>
-      <div className={styles.panel}>
-        <strong>Filtrar por cualquiera</strong>
-        {tags.length === 0 ? (
-          <p>Todavía no hay etiquetas.</p>
-        ) : (
-          tags.map((tag) => (
-            <label key={tag.id}>
-              <input
-                type="checkbox"
-                checked={draftTagIds.has(tag.id)}
-                onChange={() => toggleDraft(tag.id)}
-              />
-              <TagIconGlyph
-                className={styles.tagMark}
-                icon={tag.icon}
-                color={tag.color}
-              />
-              <span>{tag.name}</span>
-            </label>
-          ))
-        )}
-        <div className={styles.panelActions}>
-          <button
-            type="button"
-            disabled={draftTagIds.size === 0}
-            onClick={() => setDraftTagIds(new Set())}
-          >
-            Limpiar
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              close()
-              onManage()
-            }}
-          >
-            Gestionar
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              onApply(draftTagIds)
-              close()
-            }}
-          >
-            Aplicar
-          </button>
-        </div>
-      </div>
+      <div className={styles.panel}>{panelContent}</div>
     </details>
   )
 }
@@ -170,6 +213,8 @@ export function TagAssignmentMenu({
       <button
         className={styles.trigger}
         type="button"
+        aria-label="Etiquetar"
+        title="Etiquetar"
         disabled={selectedIds.length === 0}
         onClick={() => {
           setChanges(new Map())
@@ -177,7 +222,11 @@ export function TagAssignmentMenu({
           setOpen(true)
         }}
       >
-        Etiquetar
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 5v6l8 8 7-7-8-8H5a1 1 0 0 1-1-1V5Z" />
+          <circle cx="8" cy="8" r="1" />
+        </svg>
+        <span>Etiquetar</span>
       </button>
       {open && (
         <ModalDialog title="Etiquetar selección" onClose={close}>
