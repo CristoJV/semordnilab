@@ -1,3 +1,9 @@
+.statuses {
+  display: flex;
+  gap: 0.22rem;
+  align-items: center;
+}
+
 .count {
   display: grid;
   flex: 0 0 1.45rem;
@@ -19,5 +25,21 @@
 }
 
 .count[data-visible='false'] {
+  visibility: hidden;
+}
+
+.favorite {
+  display: grid;
+  flex: 0 0 1rem;
+  width: 1rem;
+  height: 1.45rem;
+  color: var(--color-mustard-dark);
+  font-size: 0.9rem;
+  line-height: 1;
+  filter: drop-shadow(0 1px 0 color-mix(in srgb, white 60%, transparent));
+  place-items: center;
+}
+
+.favorite[data-visible='false'] {
   visibility: hidden;
 }

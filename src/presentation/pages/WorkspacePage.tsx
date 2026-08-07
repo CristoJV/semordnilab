@@ -178,8 +178,7 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
               }
               tagState={tagState}
               onAdd={addComponent}
-              onAddStatus={statusState.addStatus}
-              onRemoveStatus={statusState.removeStatus}
+              onSetStatuses={statusState.setStatuses}
               onRemoveAllStatus={statusState.removeAllStatus}
               initialView={preferences.catalogView(loadedDataset.dataset.id)}
               onViewChange={preferences.saveCatalogView}

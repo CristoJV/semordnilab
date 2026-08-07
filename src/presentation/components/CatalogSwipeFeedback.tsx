@@ -36,7 +36,12 @@ export function CatalogSwipeFeedback({
       <span className={styles.content}>
         <span className={styles.icon}>
           {action === 'favorite' && '★'}
-          {action === 'unfavorite' && '☆'}
+          {action === 'unfavorite' && (
+            <svg viewBox="0 0 24 24">
+              <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z" />
+              <path d="M9 12h6" />
+            </svg>
+          )}
           {action === 'discard' && (
             <svg viewBox="0 0 24 24">
               <path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5" />

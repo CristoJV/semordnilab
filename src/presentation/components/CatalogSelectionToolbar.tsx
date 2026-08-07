@@ -49,21 +49,23 @@ export function CatalogSelectionToolbar({
         className={styles.selectionActions}
         aria-label="Acciones para la selección"
       >
-        <button
-          className={styles.selectionAction}
-          type="button"
-          aria-label="Añadir a favoritos"
-          title="Añadir a favoritos"
-          disabled={selectedIds.length === 0}
-          onClick={onFavorite}
-        >
-          <span className={styles.selectionActionIcon} aria-hidden="true">
-            ★
-          </span>
-          <span className={styles.selectionActionLabel}>
-            Añadir a favoritos
-          </span>
-        </button>
+        {!discardedView && (
+          <button
+            className={styles.selectionAction}
+            type="button"
+            aria-label="Añadir a favoritos"
+            title="Añadir a favoritos"
+            disabled={selectedIds.length === 0}
+            onClick={onFavorite}
+          >
+            <span className={styles.selectionActionIcon} aria-hidden="true">
+              ★
+            </span>
+            <span className={styles.selectionActionLabel}>
+              Añadir a favoritos
+            </span>
+          </button>
+        )}
         <button
           className={styles.selectionAction}
           data-kind={discardedView ? 'restore' : 'discard'}

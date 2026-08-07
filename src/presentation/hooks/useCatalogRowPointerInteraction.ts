@@ -8,6 +8,7 @@ import {
 
 import type { SemordnilapId } from '@/domain/semordnilap'
 import {
+  DEFAULT_CATALOG_ROW_POINTER_CONFIG,
   IDLE_CATALOG_ROW_POINTER_STATE,
   transitionCatalogRowPointer,
   type CatalogRowPointerEffect,
@@ -27,6 +28,7 @@ export type CatalogRowPointerBindings = {
 
 type CatalogRowPointerInteractionOptions = {
   enabled: boolean
+  allowedSwipeDirections?: readonly CatalogSwipeDirection[]
   semordnilapId: SemordnilapId
   onSelect: (semordnilapId: SemordnilapId) => void
   onSwipe: (
@@ -39,6 +41,7 @@ export const CATALOG_ROW_LONG_PRESS_DELAY = 420
 
 export function useCatalogRowPointerInteraction({
   enabled,
+  allowedSwipeDirections = DEFAULT_CATALOG_ROW_POINTER_CONFIG.allowedDirections,
   semordnilapId,
   onSelect,
   onSwipe,
@@ -50,6 +53,7 @@ export function useCatalogRowPointerInteraction({
     IDLE_CATALOG_ROW_POINTER_STATE,
   )
   const enabledRef = useRef(enabled)
+  const allowedSwipeDirectionsRef = useRef(allowedSwipeDirections)
   const callbacksRef = useRef({ onSelect, onSwipe })
   const activeElementRef = useRef<HTMLDivElement | null>(null)
   const timerRef = useRef<number | null>(null)
@@ -60,8 +64,9 @@ export function useCatalogRowPointerInteraction({
 
   useEffect(() => {
     enabledRef.current = enabled
+    allowedSwipeDirectionsRef.current = allowedSwipeDirections
     callbacksRef.current = { onSelect, onSwipe }
-  }, [enabled, onSelect, onSwipe])
+  }, [allowedSwipeDirections, enabled, onSelect, onSwipe])
 
   const cancelTimer = () => {
     if (timerRef.current === null) return
@@ -108,7 +113,10 @@ export function useCatalogRowPointerInteraction({
   }
 
   const send = (event: CatalogRowPointerEvent): CatalogRowPointerState => {
-    const transition = transitionCatalogRowPointer(stateRef.current, event)
+    const transition = transitionCatalogRowPointer(stateRef.current, event, {
+      ...DEFAULT_CATALOG_ROW_POINTER_CONFIG,
+      allowedDirections: allowedSwipeDirectionsRef.current,
+    })
     stateRef.current = transition.state
     setState(transition.state)
     executeEffects(transition.effects)

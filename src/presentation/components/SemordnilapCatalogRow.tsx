@@ -13,6 +13,9 @@ import { SemordnilapRowActions } from './SemordnilapRowActions'
 import { SemordnilapRowMetadata } from './SemordnilapRowMetadata'
 import styles from './SemordnilapCatalogRow.module.css'
 
+const ACTIVE_SWIPE_DIRECTIONS = ['left', 'right'] as const
+const DISCARDED_SWIPE_DIRECTIONS = ['left'] as const
+
 type SemordnilapCatalogRowProps = {
   item: SemordnilapCatalogItem
   position: number
@@ -64,6 +67,9 @@ export function SemordnilapCatalogRow({
   const text = `${item.semordnilap.source.text} / ${item.semordnilap.target.text}`
   const interaction = useCatalogRowPointerInteraction({
     enabled: layout === 'compact' && statusesReady && !selectionMode,
+    allowedSwipeDirections: discardedView
+      ? DISCARDED_SWIPE_DIRECTIONS
+      : ACTIVE_SWIPE_DIRECTIONS,
     semordnilapId: id,
     onSelect: onEnterSelection,
     onSwipe: (_semordnilapId, direction) => onSwipe(direction),
@@ -71,12 +77,14 @@ export function SemordnilapCatalogRow({
   const swiping =
     interaction.state.value === 'swiping' ? interaction.state : null
   const swipeAction: CatalogSwipeAction | null = swiping
-    ? swiping.direction === 'right'
-      ? favorite
-        ? 'unfavorite'
-        : 'favorite'
-      : discardedView
+    ? discardedView
+      ? swiping.direction === 'left'
         ? 'restore'
+        : null
+      : swiping.direction === 'right'
+        ? favorite
+          ? 'unfavorite'
+          : 'favorite'
         : 'discard'
     : null
 
@@ -137,7 +145,11 @@ export function SemordnilapCatalogRow({
           query={targetQuery}
           tags={tags}
           metadata={
-            <SemordnilapRowMetadata kind="usage" count={selectedCount} />
+            <SemordnilapRowMetadata
+              kind="usage"
+              count={selectedCount}
+              favorite={favorite}
+            />
           }
           onAdd={onAdd}
           onToggleSelection={onToggleSelection}

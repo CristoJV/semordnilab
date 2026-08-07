@@ -16,6 +16,16 @@
   background: color-mix(in srgb, #e89a72 26%, var(--color-surface));
 }
 
+.feedback[data-action='favorite'] {
+  color: var(--color-mustard-dark);
+  background: var(--color-mustard-soft);
+}
+
+.feedback[data-action='unfavorite'] {
+  color: var(--color-violet-strong);
+  background: var(--color-violet-soft);
+}
+
 .feedback[data-action='restore'] {
   color: #376848;
   background: color-mix(in srgb, #75b68b 24%, var(--color-surface));

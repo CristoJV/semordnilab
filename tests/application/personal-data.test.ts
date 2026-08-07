@@ -59,6 +59,46 @@ const mergeOptions = {
 }
 
 describe('copias de datos personales', () => {
+  it('normaliza estados incompatibles al importar una copia antigua', async () => {
+    const target = createRepository()
+    const content = JSON.stringify({
+      format: 'semordnilab-personal-data',
+      version: 3,
+      exportedAt: '2026-08-06T12:00:00.000Z',
+      data: {
+        statuses: [
+          {
+            datasetId: testDataset.id,
+            semordnilapId: ella.id,
+            status: 'favorite',
+          },
+          {
+            datasetId: testDataset.id,
+            semordnilapId: ella.id,
+            status: 'discarded',
+          },
+        ],
+        savedComposites: [],
+        compositionDrafts: [],
+        tags: [],
+        semordnilapTags: [],
+      },
+    })
+
+    await new ImportPersonalData(target.repository, source).execute(content, {
+      ...mergeOptions,
+      mode: 'replace',
+    })
+
+    expect((await target.repository.readAll()).statuses).toEqual([
+      {
+        datasetId: testDataset.id,
+        semordnilapId: ella.id,
+        status: 'discarded',
+      },
+    ])
+  })
+
   it('exporta, valida y combina una copia compatible', async () => {
     const origin = createRepository()
     const saved = await new SaveCompositeSemordnilap(
@@ -69,11 +109,9 @@ describe('copias de datos personales', () => {
       components: [ella, noSe],
       title: 'Hallazgo',
     })
-    await origin.statuses.add({
-      datasetId: testDataset.id,
-      semordnilapId: saved.record.id,
-      status: 'favorite',
-    })
+    await origin.statuses.setForSemordnilaps(testDataset.id, [
+      { semordnilapId: saved.record.id, status: 'favorite' },
+    ])
     const originSnapshot = await origin.repository.readAll()
     await origin.repository.replaceAll({
       ...originSnapshot,
@@ -104,11 +142,9 @@ describe('copias de datos personales', () => {
     expect(JSON.parse(exported.content)).toMatchObject({ version: 3 })
 
     const target = createRepository()
-    await target.statuses.add({
-      datasetId: testDataset.id,
-      semordnilapId: ella.id,
-      status: 'discarded',
-    })
+    await target.statuses.setForSemordnilaps(testDataset.id, [
+      { semordnilapId: ella.id, status: 'discarded' },
+    ])
     const preview = await new PreviewPersonalDataImport(
       target.repository,
       source,
@@ -297,11 +333,9 @@ describe('gestión de composites', () => {
       datasetId: testDataset.id,
       components: [ella, noSe],
     })
-    await base.statuses.add({
-      datasetId: testDataset.id,
-      semordnilapId: saved.record.id,
-      status: 'favorite',
-    })
+    await base.statuses.setForSemordnilaps(testDataset.id, [
+      { semordnilapId: saved.record.id, status: 'favorite' },
+    ])
 
     await new DeleteSavedComposite(base.repository).execute(saved.record.id)
     expect(await base.repository.readAll()).toMatchObject({

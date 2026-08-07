@@ -47,21 +47,13 @@ export function SemordnilapRowActions({
   }
 
   if (layout === 'compact') {
-    const action = discardedView
-      ? onRestore
-      : composite
-        ? onOpenComposite
-        : null
-    const label = discardedView
-      ? `Restaurar: ${text}`
-      : composite
-        ? `Gestionar composite: ${text}`
-        : undefined
+    const action = !discardedView && composite ? onOpenComposite : null
+    const label = action ? `Gestionar composite: ${text}` : undefined
     const content = (
       <>
         <span aria-hidden="true">‹</span>
-        {discardedView ? <RestoreIcon /> : composite ? <EditNoteIcon /> : null}
-        <span aria-hidden="true">›</span>
+        {!discardedView && composite ? <EditNoteIcon /> : null}
+        {!discardedView && <span aria-hidden="true">›</span>}
       </>
     )
 
@@ -71,16 +63,18 @@ export function SemordnilapRowActions({
           <button
             type="button"
             className={styles.gesture}
-            data-discarded={discardedView}
-            disabled={discardedView && disabled}
             onClick={action}
             aria-label={label}
-            title={discardedView ? 'Restaurar' : 'Gestionar composite'}
+            title="Gestionar composite"
           >
             {content}
           </button>
         ) : (
-          <div className={styles.gesture} aria-hidden="true">
+          <div
+            className={styles.gesture}
+            data-discarded={discardedView}
+            aria-hidden="true"
+          >
             {content}
           </div>
         )}
@@ -103,17 +97,20 @@ export function SemordnilapRowActions({
           </svg>
         </button>
       )}
-      <button
-        type="button"
-        className={styles.action}
-        data-active={favorite}
-        disabled={disabled}
-        onClick={onToggleFavorite}
-        aria-label={`${favorite ? 'Quitar de favoritos' : 'Añadir a favoritos'}: ${text}`}
-        title={favorite ? 'Quitar de favoritos' : 'Añadir a favoritos'}
-      >
-        <span aria-hidden="true">{favorite ? '★' : '☆'}</span>
-      </button>
+      {!discardedView && (
+        <button
+          type="button"
+          className={styles.action}
+          data-kind="favorite"
+          data-mode={favorite ? 'remove' : 'add'}
+          disabled={disabled}
+          onClick={onToggleFavorite}
+          aria-label={`${favorite ? 'Quitar de favoritos' : 'Añadir a favoritos'}: ${text}`}
+          title={favorite ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+        >
+          <FavoriteActionIcon remove={favorite} />
+        </button>
+      )}
       <button
         type="button"
         className={styles.action}
@@ -135,10 +132,11 @@ export function SemordnilapRowActions({
   )
 }
 
-function RestoreIcon() {
+function FavoriteActionIcon({ remove }: { remove: boolean }) {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M5 8h8a6 6 0 1 1-5.2 9M5 8l3-3M5 8l3 3" />
+    <svg className={styles.favoriteIcon} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z" />
+      {remove && <path d="M9 12h6" />}
     </svg>
   )
 }

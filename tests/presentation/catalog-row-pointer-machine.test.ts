@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  DEFAULT_CATALOG_ROW_POINTER_CONFIG,
   IDLE_CATALOG_ROW_POINTER_STATE,
   transitionCatalogRowPointer,
 } from '@/presentation/interactions/catalog-row-pointer-machine'
@@ -115,6 +116,42 @@ describe('máquina de interacción de una fila del catálogo', () => {
       offsetX: -112,
       ready: true,
     })
+  })
+
+  it('no desplaza ni confirma una dirección sin acción asociada', () => {
+    const onlyLeft = {
+      ...DEFAULT_CATALOG_ROW_POINTER_CONFIG,
+      allowedDirections: ['left'] as const,
+    }
+    const blocked = transitionCatalogRowPointer(
+      press().state,
+      {
+        type: 'move',
+        pointerId: 4,
+        clientX: 190,
+        clientY: 30,
+      },
+      onlyLeft,
+    )
+
+    expect(blocked.state).toMatchObject({
+      value: 'swiping',
+      direction: 'right',
+      offsetX: 0,
+      ready: false,
+    })
+    expect(blocked.effects).not.toContainEqual({
+      type: 'indicate-swipe-ready',
+    })
+
+    const released = transitionCatalogRowPointer(
+      blocked.state,
+      { type: 'release', pointerId: 4 },
+      onlyLeft,
+    )
+    expect(released.effects).not.toContainEqual(
+      expect.objectContaining({ type: 'commit-swipe' }),
+    )
   })
 
   it('vuelve al centro sin ejecutar cuando no alcanza el umbral', () => {

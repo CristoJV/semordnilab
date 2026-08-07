@@ -77,10 +77,24 @@
   outline-offset: 1px;
 }
 
-.action:hover:not(:disabled),
-.action[data-active='true'] {
+.action:hover:not(:disabled) {
   color: var(--color-mustard-dark);
   background: var(--color-mustard-soft);
+}
+
+.action[data-kind='favorite'][data-mode='remove'] {
+  color: var(--color-violet-strong);
+  background: var(--color-violet-soft);
+}
+
+.favoriteIcon path:first-child {
+  fill: none;
+}
+
+.action[data-kind='favorite'][data-mode='remove']
+  .favoriteIcon
+  path:first-child {
+  fill: color-mix(in srgb, var(--color-violet) 20%, transparent);
 }
 
 .action:focus-visible,
@@ -142,7 +156,7 @@
     stroke-width: 1.65;
   }
 
-  .gesture[data-discarded='true'] svg {
+  .gesture[data-discarded='true'] {
     color: #4f8a62;
   }
 

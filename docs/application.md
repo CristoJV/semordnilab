@@ -81,10 +81,10 @@ La versión móvil conserva la misma pantalla, los mismos datos y las mismas ope
 - `Descubrir` se presenta como un botón flotante circular con dados en la esquina inferior derecha, respeta la zona segura y reserva espacio para no cubrir la última fila;
 - `Seleccionar` y `Restaurar todos` no ocupan una segunda barra; una pulsación prolongada abre la selección y el menú superior conserva una entrada accesible alternativa;
 - una pulsación prolongada sobre cualquier expresión entra directamente en selección múltiple y selecciona su fila bilingüe; un toque normal sigue añadiendo la pieza a la composición y el movimiento vertical cede el control al scroll;
-- desplazar una fila hacia la derecha añade o retira el favorito, mientras que desplazarla hacia la izquierda la descarta o la restaura según la vista; el fondo revelado muestra el icono y su etiqueta, y una vibración breve confirma que se ha alcanzado el umbral;
+- desplazar una fila activa hacia la derecha añade o retira el favorito, mientras que desplazarla hacia la izquierda la descarta; en `Descartados` solo el gesto izquierdo restaura y el movimiento derecho no desplaza la fila ni revela una acción;
 - el centro de cada fila muestra dos cheurones como indicación del gesto; en un composite aparece entre ellos una nota con lápiz en lugar del símbolo de agrupación;
-- los cheurones de una unidad atómica activa son solo una indicación; tocar la nota con lápiz abre directamente la gestión del composite y tocar la flecha central de una unidad descartada la restaura, también cuando sea un composite;
-- durante la selección múltiple, favorito, descarte y etiquetado se agrupan en una única superficie y se representan mediante estrella, papelera y etiqueta para conservar espacio sin reducir su zona táctil;
+- los cheurones de una unidad atómica activa son solo una indicación; tocar la nota con lápiz abre directamente la gestión del composite y una unidad descartada muestra únicamente el cheurón que sugiere el gesto izquierdo;
+- durante la selección múltiple, favorito, descarte y etiquetado se agrupan en una única superficie y se representan mediante estrella, papelera y etiqueta para conservar espacio sin reducir su zona táctil; en `Descartados` no se ofrece la acción de favorito;
 - una casilla triestado permite seleccionar o deseleccionar todos los resultados del filtro completo; muestra un estado parcial cuando solo se ha seleccionado una parte y permite restaurar en lote desde `Descartados`;
 - una cruz visualmente pequeña, situada en el extremo derecho, cierra la selección y conserva alrededor un objetivo táctil de 44 píxeles;
 - cada idioma coloca el contador junto a un menú de tres puntos en el extremo derecho y abre su ordenación en una hoja inferior;
@@ -146,14 +146,14 @@ El catálogo conserva todos los resultados en memoria, pero solo monta las filas
 
 ## Estados del catálogo
 
-Un semordnilap puede recibir uno o varios estados. La identidad persistida se compone de `datasetId`, `semordnilapId` y `status`. No contiene un lado de origen o destino porque ambos textos representan la misma unidad y la referencia ya la identifica por completo.
+Un semordnilap puede tener un único estado funcional del catálogo. La identidad persistida se compone de `datasetId`, `semordnilapId` y `status`. No contiene un lado de origen o destino porque ambos textos representan la misma unidad y la referencia ya la identifica por completo.
 
 La interfaz utiliza actualmente dos estados:
 
 - `favorite` muestra una estrella y permite encontrar el semordnilap en la vista de favoritos sin mover su fila;
 - `discarded` lo retira de la vista activa y lo muestra en la vista de descartados.
 
-Los estados son independientes. Por ejemplo, un favorito puede descartarse sin perder la marca de favorito. Este modelo permite incorporar otros estados sin cambiar la identidad del registro ni crear una estructura específica para cada uno.
+`favorite` y `discarded` son mutuamente excluyentes. Descartar retira el favorito dentro de la misma transición y restaurar deja la unidad activa sin convertirla de nuevo en favorita. Deshacer recupera el estado completo anterior. Las copias importadas y los registros antiguos que contengan ambos valores se normalizan dando prioridad a `discarded`.
 
 La barra del catálogo ofrece cuatro vistas compartidas:
 
@@ -172,7 +172,7 @@ Las etiquetas son clasificaciones creadas por el usuario y se mantienen separada
 
 La asignación se realiza desde la selección múltiple. Una misma etiqueta puede aplicarse a semordnilaps atómicos y composites, siempre sobre la unidad bilingüe completa. `Etiquetar` permanece deshabilitado hasta que exista una selección. Al activarlo abre un diálogo donde marcar o desmarcar etiquetas prepara una edición temporal; `Aplicar` guarda todos los cambios en una única transacción. Un botón compacto con una cruz abandona después el modo de selección sin sugerir que se revierten cambios ya aplicados.
 
-Las filas reservan dos carriles exteriores fijos para la información de la unidad bilingüe. El extremo izquierdo muestra hasta tres iconos coloreados y el extremo derecho muestra su contador de usos una sola vez. Las etiquetas adicionales se resumen mediante un contador y los nombres permanecen disponibles como información textual. Reservar ambos espacios incluso cuando están vacíos evita que la longitud de una palabra desplace esos indicadores.
+Las filas reservan dos carriles exteriores fijos para la información de la unidad bilingüe. El extremo izquierdo muestra hasta tres iconos coloreados. El extremo derecho muestra su contador de usos y, a continuación, una estrella mostaza cuando la unidad es favorita. Ambos indicadores aparecen una sola vez. Las etiquetas adicionales se resumen mediante un contador y los nombres permanecen disponibles como información textual. Reservar los espacios incluso cuando están vacíos evita que la longitud de una palabra desplace esos indicadores.
 
 El control `Etiquetas` filtra por cualquiera de las etiquetas seleccionadas sin romper la alineación de las columnas. Las casillas preparan el filtro y el botón `Aplicar` lo activa y cierra el desplegable. El gestor también está accesible desde el menú superior y permite crear, renombrar, cambiar el icono o el color y eliminar etiquetas. La apariencia se elige en una cuadrícula visual de opciones, no mediante selectores nativos. Eliminar una etiqueta retira sus asignaciones en todas las colecciones, pero no modifica los semordnilaps.
 

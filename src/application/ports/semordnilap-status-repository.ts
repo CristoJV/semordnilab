@@ -2,7 +2,7 @@ import type {
   SemordnilapCatalogStatus,
   SemordnilapIdAlias,
   SemordnilapStatusRecord,
-  SemordnilapStatusReference,
+  SemordnilapStatusSelection,
 } from '@/application/dto/semordnilap-status'
 import type { DatasetId } from '@/domain/semordnilap'
 
@@ -10,8 +10,10 @@ export interface SemordnilapStatusRepository {
   listByDataset(
     datasetId: DatasetId,
   ): Promise<readonly SemordnilapStatusRecord[]>
-  add(record: SemordnilapStatusRecord): Promise<void>
-  remove(reference: SemordnilapStatusReference): Promise<void>
+  setForSemordnilaps(
+    datasetId: DatasetId,
+    selections: readonly SemordnilapStatusSelection[],
+  ): Promise<void>
   removeAll(
     datasetId: DatasetId,
     status: SemordnilapCatalogStatus,

@@ -10,7 +10,6 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
 import {
-  AddSemordnilapStatus,
   AddSemordnilapTagAssignments,
   ApplySemordnilapTagChanges,
   ClearCompositionDraft,
@@ -29,14 +28,15 @@ import {
   LoadSelectedDataset,
   LoadWorkspacePreferences,
   MigrateSemordnilapStatusReferences,
+  NormalizeSemordnilapStatuses,
   RemoveAllSemordnilapStatuses,
-  RemoveSemordnilapStatus,
   RemoveSemordnilapTagAssignments,
   RenameSavedComposite,
   SaveCompositeSemordnilap,
   SaveCompositionDraft,
   SaveSelectedDataset,
   SaveWorkspacePreferences,
+  SetSemordnilapStatuses,
   CreateSemordnilapTag,
   UpdateSemordnilapTag,
   PreviewPersonalDataImport,
@@ -99,8 +99,10 @@ function createDependencies(
     loadSelectedDataset: new LoadSelectedDataset(selectedDatasetRepository),
     saveSelectedDataset: new SaveSelectedDataset(selectedDatasetRepository),
     listSemordnilapStatuses: new ListSemordnilapStatuses(statusRepository),
-    addSemordnilapStatus: new AddSemordnilapStatus(statusRepository),
-    removeSemordnilapStatus: new RemoveSemordnilapStatus(statusRepository),
+    setSemordnilapStatuses: new SetSemordnilapStatuses(statusRepository),
+    normalizeSemordnilapStatuses: new NormalizeSemordnilapStatuses(
+      statusRepository,
+    ),
     removeAllSemordnilapStatuses: new RemoveAllSemordnilapStatuses(
       statusRepository,
     ),
@@ -345,7 +347,35 @@ describe('WorkspacePage', () => {
         within(catalog).getByRole('button', { name: /Favoritos 1/ }),
       ).toBeInTheDocument(),
     )
+    expect(
+      within(row as HTMLElement).getByTitle('Favorito'),
+    ).toBeInTheDocument()
     expect(within(row as HTMLElement).queryByLabelText('1 añadidos')).toBeNull()
+
+    fireEvent.pointerDown(option, {
+      button: 0,
+      pointerId: 35,
+      pointerType: 'touch',
+      clientX: 100,
+      clientY: 20,
+    })
+    fireEvent.pointerMove(option, {
+      buttons: 1,
+      pointerId: 35,
+      pointerType: 'touch',
+      clientX: 180,
+      clientY: 21,
+    })
+    const removeFavoriteFeedback = within(row as HTMLElement).getByText(
+      'Quitar favorito',
+    )
+    expect(
+      removeFavoriteFeedback.parentElement?.querySelector('svg'),
+    ).toBeInTheDocument()
+    fireEvent.pointerCancel(option, {
+      pointerId: 35,
+      pointerType: 'touch',
+    })
 
     option = within(catalog).getByRole('button', {
       name: 'Añadir ella a la composición',
@@ -383,6 +413,9 @@ describe('WorkspacePage', () => {
         }),
       ).not.toBeInTheDocument(),
     )
+    expect(
+      within(catalog).getByRole('button', { name: /Favoritos 0/ }),
+    ).toBeInTheDocument()
 
     await userEvent
       .setup()
@@ -394,11 +427,59 @@ describe('WorkspacePage', () => {
     expect(
       within(catalog).queryByRole('button', { name: 'Restaurar todos' }),
     ).not.toBeInTheDocument()
-    await userEvent.setup().click(
-      within(row as HTMLElement).getByRole('button', {
-        name: 'Restaurar: ella / a lle',
-      }),
-    )
+    expect(within(row as HTMLElement).queryByTitle('Favorito')).toBeNull()
+    expect(
+      within(row as HTMLElement).queryByRole('button', { name: /Restaurar/ }),
+    ).toBeNull()
+    fireEvent.pointerDown(option, {
+      button: 0,
+      pointerId: 33,
+      pointerType: 'touch',
+      clientX: 100,
+      clientY: 20,
+    })
+    fireEvent.pointerMove(option, {
+      buttons: 1,
+      pointerId: 33,
+      pointerType: 'touch',
+      clientX: 180,
+      clientY: 21,
+    })
+    expect((row as HTMLElement).querySelector('[data-swiping]')).toHaveStyle({
+      transform: 'translate3d(0px, 0, 0)',
+    })
+    expect(within(row as HTMLElement).queryByText(/Favorito/)).toBeNull()
+    fireEvent.pointerUp(option, {
+      button: 0,
+      pointerId: 33,
+      pointerType: 'touch',
+      clientX: 180,
+      clientY: 21,
+    })
+    fireEvent.pointerDown(option, {
+      button: 0,
+      pointerId: 34,
+      pointerType: 'touch',
+      clientX: 100,
+      clientY: 20,
+    })
+    fireEvent.pointerMove(option, {
+      buttons: 1,
+      pointerId: 34,
+      pointerType: 'touch',
+      clientX: 20,
+      clientY: 21,
+    })
+    expect(
+      within(row as HTMLElement).getByText('Restaurar'),
+    ).toBeInTheDocument()
+    fireEvent.pointerUp(option, {
+      button: 0,
+      pointerId: 34,
+      pointerType: 'touch',
+      clientX: 20,
+      clientY: 21,
+    })
     expect(
       screen.queryByRole('dialog', { name: 'Acciones del semordnilap' }),
     ).not.toBeInTheDocument()
@@ -946,6 +1027,9 @@ describe('WorkspacePage', () => {
     const discardedRow = await within(catalog).findByRole('listitem')
     expect(discardedRow).toHaveTextContent('ella')
     expect(discardedRow).toHaveTextContent('a lle')
+    expect(
+      within(discardedRow).queryByRole('button', { name: /favoritos/i }),
+    ).not.toBeInTheDocument()
 
     await user.click(
       within(catalog).getByRole('button', {
@@ -956,6 +1040,57 @@ describe('WorkspacePage', () => {
       await within(catalog).findByText(
         'No hay semordnilaps descartados que coincidan con ambas búsquedas.',
       ),
+    ).toBeInTheDocument()
+  })
+
+  it('descarta un favorito de forma exclusiva y deshacer recupera su estado', async () => {
+    const user = userEvent.setup()
+    render(<WorkspacePage dependencies={createDependencies()} />)
+    await user.selectOptions(
+      screen.getByLabelText('Conjunto lingüístico'),
+      testDataset.id,
+    )
+    const catalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
+
+    await user.click(
+      within(catalog).getByRole('button', {
+        name: 'Añadir a favoritos: ella / a lle',
+      }),
+    )
+    await user.click(
+      await within(catalog).findByRole('button', {
+        name: 'Descartar: ella / a lle',
+      }),
+    )
+
+    await waitFor(() => {
+      expect(
+        within(catalog).getByRole('button', { name: /Favoritos 0/ }),
+      ).toBeInTheDocument()
+      expect(
+        within(catalog).getByRole('button', { name: /Descartados 1/ }),
+      ).toBeInTheDocument()
+    })
+    expect(
+      await screen.findByText(
+        'Semordnilap descartado y retirado de favoritos.',
+      ),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Deshacer descarte' }))
+
+    expect(
+      await within(catalog).findByRole('button', {
+        name: 'Quitar de favoritos: ella / a lle',
+      }),
+    ).toBeInTheDocument()
+    expect(
+      within(catalog).getByRole('button', { name: /Favoritos 1/ }),
+    ).toBeInTheDocument()
+    expect(
+      within(catalog).getByRole('button', { name: /Descartados 0/ }),
     ).toBeInTheDocument()
   })
 

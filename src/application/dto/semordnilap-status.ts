@@ -1,6 +1,9 @@
 import type { DatasetId, SemordnilapId } from '@/domain/semordnilap'
 
-export type SemordnilapCatalogStatus = 'favorite' | 'discarded'
+export const SEMORDNILAP_CATALOG_STATUSES = ['favorite', 'discarded'] as const
+
+export type SemordnilapCatalogStatus =
+  (typeof SEMORDNILAP_CATALOG_STATUSES)[number]
 
 export type SemordnilapStatusRecord = {
   datasetId: DatasetId
@@ -8,10 +11,9 @@ export type SemordnilapStatusRecord = {
   status: SemordnilapCatalogStatus
 }
 
-export type SemordnilapStatusReference = {
-  datasetId: DatasetId
+export type SemordnilapStatusSelection = {
   semordnilapId: SemordnilapId
-  status: SemordnilapCatalogStatus
+  status: SemordnilapCatalogStatus | null
 }
 
 export type SemordnilapIdAlias = {

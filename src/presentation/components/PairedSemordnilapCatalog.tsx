@@ -11,6 +11,7 @@ import type {
   AvailableDataset,
   SemordnilapCatalogItem,
   SemordnilapCatalogStatus,
+  SemordnilapStatusSelection,
   TagId,
   CatalogViewMode,
   DatasetCatalogViewPreference,
@@ -58,13 +59,8 @@ type PairedSemordnilapCatalogProps = {
   statusError: string | null
   tagState: SemordnilapTagState
   onAdd: (semordnilap: Semordnilap) => void
-  onAddStatus: (
-    semordnilapIds: readonly SemordnilapId[],
-    status: SemordnilapCatalogStatus,
-  ) => Promise<void>
-  onRemoveStatus: (
-    semordnilapIds: readonly SemordnilapId[],
-    status: SemordnilapCatalogStatus,
+  onSetStatuses: (
+    selections: readonly SemordnilapStatusSelection[],
   ) => Promise<void>
   onRemoveAllStatus: (status: SemordnilapCatalogStatus) => Promise<void>
   initialView?: DatasetCatalogViewPreference
@@ -87,8 +83,7 @@ export function PairedSemordnilapCatalog({
   statusError,
   tagState,
   onAdd,
-  onAddStatus,
-  onRemoveStatus,
+  onSetStatuses,
   onRemoveAllStatus,
   initialView,
   onViewChange,
@@ -309,34 +304,61 @@ export function PairedSemordnilapCatalog({
   const applySelectedStatus = (status: SemordnilapCatalogStatus) => {
     const ids = [...selectedIds]
     if (status === 'discarded') discard(ids)
-    else void onAddStatus(ids, status)
+    else
+      void onSetStatuses(
+        ids.map((semordnilapId) => ({ semordnilapId, status })),
+      )
     leaveSelectionMode()
   }
 
   const removeSelectedStatus = (status: SemordnilapCatalogStatus) => {
     if (status === 'discarded') restore([...selectedIds])
-    else void onRemoveStatus([...selectedIds], status)
+    else
+      void onSetStatuses(
+        [...selectedIds].map((semordnilapId) => ({
+          semordnilapId,
+          status: null,
+        })),
+      )
     leaveSelectionMode()
   }
 
   const discard = (ids: readonly SemordnilapId[]) => {
-    void onAddStatus(ids, 'discarded')
+    const previousStatuses = ids.map((semordnilapId) => ({
+      semordnilapId,
+      status: hasStatus(semordnilapId, 'favorite')
+        ? ('favorite' as const)
+        : null,
+    }))
+    const removedFavorites = previousStatuses.filter(
+      ({ status }) => status === 'favorite',
+    ).length
+    void onSetStatuses(
+      ids.map((semordnilapId) => ({
+        semordnilapId,
+        status: 'discarded',
+      })),
+    )
     onNotify({
       tone: 'warning',
       message:
         ids.length === 1
-          ? 'Semordnilap descartado.'
-          : `${ids.length} semordnilaps descartados.`,
+          ? removedFavorites > 0
+            ? 'Semordnilap descartado y retirado de favoritos.'
+            : 'Semordnilap descartado.'
+          : `${ids.length} semordnilaps descartados${removedFavorites > 0 ? ` (${removedFavorites} retirados de favoritos)` : ''}.`,
       action: {
         label: 'Deshacer descarte',
-        run: () => void onRemoveStatus(ids, 'discarded'),
+        run: () => void onSetStatuses(previousStatuses),
       },
       lifetime: 4200,
     })
   }
 
   const restore = (ids: readonly SemordnilapId[]) => {
-    void onRemoveStatus(ids, 'discarded')
+    void onSetStatuses(
+      ids.map((semordnilapId) => ({ semordnilapId, status: null })),
+    )
     onNotify({
       tone: 'success',
       message:
@@ -345,16 +367,22 @@ export function PairedSemordnilapCatalog({
           : `${ids.length} semordnilaps restaurados.`,
       action: {
         label: 'Deshacer restauración',
-        run: () => void onAddStatus(ids, 'discarded'),
+        run: () =>
+          void onSetStatuses(
+            ids.map((semordnilapId) => ({
+              semordnilapId,
+              status: 'discarded',
+            })),
+          ),
       },
       lifetime: 4200,
     })
   }
 
   const toggleFavorite = (semordnilapId: SemordnilapId, favorite: boolean) => {
-    const ids = [semordnilapId]
-    if (favorite) void onRemoveStatus(ids, 'favorite')
-    else void onAddStatus(ids, 'favorite')
+    void onSetStatuses([
+      { semordnilapId, status: favorite ? null : 'favorite' },
+    ])
     onNotify({
       tone: 'success',
       message: favorite
@@ -363,9 +391,9 @@ export function PairedSemordnilapCatalog({
       action: {
         label: 'Deshacer favorito',
         run: () =>
-          void (favorite
-            ? onAddStatus(ids, 'favorite')
-            : onRemoveStatus(ids, 'favorite')),
+          void onSetStatuses([
+            { semordnilapId, status: favorite ? 'favorite' : null },
+          ]),
       },
       lifetime: 4200,
     })
@@ -382,7 +410,13 @@ export function PairedSemordnilapCatalog({
       message: `${ids.length} semordnilaps restaurados.`,
       action: {
         label: 'Deshacer restauración',
-        run: () => void onAddStatus(ids, 'discarded'),
+        run: () =>
+          void onSetStatuses(
+            ids.map((semordnilapId) => ({
+              semordnilapId,
+              status: 'discarded',
+            })),
+          ),
       },
       lifetime: 5200,
     })
@@ -401,8 +435,9 @@ export function PairedSemordnilapCatalog({
     favorite: boolean,
     direction: CatalogSwipeDirection,
   ) => {
-    if (direction === 'right') toggleFavorite(semordnilapId, favorite)
-    else if (discardedView) restore([semordnilapId])
+    if (discardedView) {
+      if (direction === 'left') restore([semordnilapId])
+    } else if (direction === 'right') toggleFavorite(semordnilapId, favorite)
     else discard([semordnilapId])
   }
 

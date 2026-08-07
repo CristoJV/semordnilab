@@ -1,12 +1,16 @@
+import { SEMORDNILAP_CATALOG_STATUSES } from '@/application'
 import type {
   SemordnilapCatalogStatus,
   SemordnilapIdAlias,
   SemordnilapStatusRecord,
-  SemordnilapStatusReference,
+  SemordnilapStatusSelection,
   SemordnilapStatusRepository,
 } from '@/application'
 import type { DatasetId } from '@/domain/semordnilap'
-import type { SemordnilabDatabase } from '@/infrastructure/database/semordnilab-database'
+import type {
+  SemordnilabDatabase,
+  SemordnilapStatusKey,
+} from '@/infrastructure/database/semordnilab-database'
 
 export class DexieSemordnilapStatusRepository implements SemordnilapStatusRepository {
   private readonly database: SemordnilabDatabase
@@ -24,16 +28,34 @@ export class DexieSemordnilapStatusRepository implements SemordnilapStatusReposi
       .toArray()
   }
 
-  async add(record: SemordnilapStatusRecord): Promise<void> {
-    await this.database.semordnilapStatuses.put(record)
-  }
-
-  async remove(reference: SemordnilapStatusReference): Promise<void> {
-    await this.database.semordnilapStatuses.delete([
-      reference.datasetId,
-      reference.semordnilapId,
-      reference.status,
-    ])
+  async setForSemordnilaps(
+    datasetId: DatasetId,
+    selections: readonly SemordnilapStatusSelection[],
+  ): Promise<void> {
+    const selectionById = new Map(
+      selections.map((selection) => [selection.semordnilapId, selection]),
+    )
+    await this.database.transaction(
+      'rw',
+      this.database.semordnilapStatuses,
+      async () => {
+        const keys = [...selectionById.keys()].flatMap((semordnilapId) =>
+          SEMORDNILAP_CATALOG_STATUSES.map((status): SemordnilapStatusKey => [
+            datasetId,
+            semordnilapId,
+            status,
+          ]),
+        )
+        await this.database.semordnilapStatuses.bulkDelete(keys)
+        await this.database.semordnilapStatuses.bulkPut(
+          [...selectionById.values()].flatMap((selection) =>
+            selection.status
+              ? [{ datasetId, ...selection, status: selection.status }]
+              : [],
+          ),
+        )
+      },
+    )
   }
 
   async removeAll(

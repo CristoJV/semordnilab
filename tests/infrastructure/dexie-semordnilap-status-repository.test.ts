@@ -24,46 +24,39 @@ afterEach(async () => {
 })
 
 describe('DexieSemordnilapStatusRepository', () => {
-  it('persiste estados independientes para un mismo semordnilap', async () => {
+  it('sustituye el estado de un semordnilap de forma exclusiva', async () => {
     const repository = createRepository()
     const reference = {
       datasetId: 'es-gl',
       semordnilapId: 'amor-roma',
     }
 
-    await repository.add({ ...reference, status: 'favorite' })
-    await repository.add({ ...reference, status: 'discarded' })
-
-    expect(await repository.listByDataset('es-gl')).toEqual(
-      expect.arrayContaining([
-        { ...reference, status: 'favorite' },
-        { ...reference, status: 'discarded' },
-      ]),
-    )
-
-    await repository.remove({ ...reference, status: 'discarded' })
-    expect(await repository.listByDataset('es-gl')).toEqual([
-      { ...reference, status: 'favorite' },
+    await repository.setForSemordnilaps(reference.datasetId, [
+      { semordnilapId: reference.semordnilapId, status: 'favorite' },
     ])
+    await repository.setForSemordnilaps(reference.datasetId, [
+      { semordnilapId: reference.semordnilapId, status: 'discarded' },
+    ])
+
+    expect(await repository.listByDataset('es-gl')).toEqual([
+      { ...reference, status: 'discarded' },
+    ])
+
+    await repository.setForSemordnilaps(reference.datasetId, [
+      { semordnilapId: reference.semordnilapId, status: null },
+    ])
+    expect(await repository.listByDataset('es-gl')).toEqual([])
   })
 
   it('elimina solo el estado y el dataset solicitados', async () => {
     const repository = createRepository()
-    await repository.add({
-      datasetId: 'es-gl',
-      semordnilapId: 'uno',
-      status: 'discarded',
-    })
-    await repository.add({
-      datasetId: 'es-gl',
-      semordnilapId: 'dos',
-      status: 'favorite',
-    })
-    await repository.add({
-      datasetId: 'es-ca',
-      semordnilapId: 'tres',
-      status: 'discarded',
-    })
+    await repository.setForSemordnilaps('es-gl', [
+      { semordnilapId: 'uno', status: 'discarded' },
+      { semordnilapId: 'dos', status: 'favorite' },
+    ])
+    await repository.setForSemordnilaps('es-ca', [
+      { semordnilapId: 'tres', status: 'discarded' },
+    ])
 
     await repository.removeAll('es-gl', 'discarded')
 
@@ -77,11 +70,9 @@ describe('DexieSemordnilapStatusRepository', () => {
 
   it('migra identificadores antiguos dentro de una transacción', async () => {
     const repository = createRepository()
-    await repository.add({
-      datasetId: 'es-gl',
-      semordnilapId: 'es-gl:2',
-      status: 'favorite',
-    })
+    await repository.setForSemordnilaps('es-gl', [
+      { semordnilapId: 'es-gl:2', status: 'favorite' },
+    ])
 
     await repository.migrateReferences('es-gl', [
       { previousId: 'es-gl:2', currentId: 'atomic:es-gl:estable' },

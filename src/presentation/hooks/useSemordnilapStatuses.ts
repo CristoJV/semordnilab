@@ -1,21 +1,23 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import type {
-  AddSemordnilapStatus,
   ListSemordnilapStatuses,
   MigrateSemordnilapStatusReferences,
+  NormalizeSemordnilapStatuses,
   RemoveAllSemordnilapStatuses,
-  RemoveSemordnilapStatus,
   SemordnilapCatalogStatus,
   SemordnilapIdAlias,
   SemordnilapStatusRecord,
+  SemordnilapStatusSelection,
+  SetSemordnilapStatuses,
 } from '@/application'
+import { applySemordnilapStatusSelections } from '@/application/statuses/semordnilap-status-policy'
 import type { DatasetId, SemordnilapId } from '@/domain/semordnilap'
 
 type StatusUseCases = {
   listSemordnilapStatuses: ListSemordnilapStatuses
-  addSemordnilapStatus: AddSemordnilapStatus
-  removeSemordnilapStatus: RemoveSemordnilapStatus
+  setSemordnilapStatuses: SetSemordnilapStatuses
+  normalizeSemordnilapStatuses: NormalizeSemordnilapStatuses
   removeAllSemordnilapStatuses: RemoveAllSemordnilapStatuses
   migrateSemordnilapStatusReferences: MigrateSemordnilapStatusReferences
 }
@@ -34,13 +36,8 @@ type SemordnilapStatusesState = {
   statuses: SemordnilapStatusMap
   ready: boolean
   errorMessage: string | null
-  addStatus: (
-    semordnilapIds: readonly SemordnilapId[],
-    status: SemordnilapCatalogStatus,
-  ) => Promise<void>
-  removeStatus: (
-    semordnilapIds: readonly SemordnilapId[],
-    status: SemordnilapCatalogStatus,
+  setStatuses: (
+    selections: readonly SemordnilapStatusSelection[],
   ) => Promise<void>
   removeAllStatus: (status: SemordnilapCatalogStatus) => Promise<void>
 }
@@ -61,6 +58,7 @@ export function useSemordnilapStatuses(
     let active = true
     void useCases.migrateSemordnilapStatusReferences
       .execute(datasetId, aliases)
+      .then(() => useCases.normalizeSemordnilapStatuses.execute(datasetId))
       .then(() => useCases.listSemordnilapStatuses.execute(datasetId))
       .then((records) => {
         if (active) {
@@ -86,6 +84,7 @@ export function useSemordnilapStatuses(
     datasetId,
     useCases.listSemordnilapStatuses,
     useCases.migrateSemordnilapStatusReferences,
+    useCases.normalizeSemordnilapStatuses,
   ])
 
   const ready = Boolean(datasetId && snapshot?.datasetId === datasetId)
@@ -104,93 +103,29 @@ export function useSemordnilapStatuses(
     return result
   }, [ready, snapshot])
 
-  const addStatus = useCallback(
-    async (
-      semordnilapIds: readonly SemordnilapId[],
-      status: SemordnilapCatalogStatus,
-    ) => {
+  const setStatuses = useCallback(
+    async (selections: readonly SemordnilapStatusSelection[]) => {
       if (!datasetId || !ready) return
-
-      const additions = semordnilapIds.map((semordnilapId) => ({
-        datasetId,
-        semordnilapId,
-        status,
-      }))
       setSnapshot((current) => {
         if (!current || current.datasetId !== datasetId) return current
-        const keys = new Set(
-          current.records.map(
-            (record) => `${record.semordnilapId}:${record.status}`,
-          ),
-        )
         return {
           datasetId,
-          records: [
-            ...current.records,
-            ...additions.filter(
-              (record) => !keys.has(`${record.semordnilapId}:${record.status}`),
-            ),
-          ],
+          records: applySemordnilapStatusSelections(
+            current.records,
+            datasetId,
+            selections,
+          ),
         }
       })
 
       try {
-        await Promise.all(
-          additions.map((record) =>
-            useCases.addSemordnilapStatus.execute(record),
-          ),
-        )
+        await useCases.setSemordnilapStatuses.execute(datasetId, selections)
         setErrorMessage(null)
       } catch (error) {
         setErrorMessage(
           error instanceof Error
             ? error.message
             : 'No se ha podido guardar el estado.',
-        )
-        const records =
-          await useCases.listSemordnilapStatuses.execute(datasetId)
-        setSnapshot({ datasetId, records })
-      }
-    },
-    [datasetId, ready, useCases],
-  )
-
-  const removeStatus = useCallback(
-    async (
-      semordnilapIds: readonly SemordnilapId[],
-      status: SemordnilapCatalogStatus,
-    ) => {
-      if (!datasetId || !ready) return
-
-      const ids = new Set(semordnilapIds)
-      setSnapshot((current) =>
-        !current || current.datasetId !== datasetId
-          ? current
-          : {
-              datasetId,
-              records: current.records.filter(
-                (record) =>
-                  record.status !== status || !ids.has(record.semordnilapId),
-              ),
-            },
-      )
-
-      try {
-        await Promise.all(
-          semordnilapIds.map((semordnilapId) =>
-            useCases.removeSemordnilapStatus.execute({
-              datasetId,
-              semordnilapId,
-              status,
-            }),
-          ),
-        )
-        setErrorMessage(null)
-      } catch (error) {
-        setErrorMessage(
-          error instanceof Error
-            ? error.message
-            : 'No se ha podido actualizar el estado.',
         )
         const records =
           await useCases.listSemordnilapStatuses.execute(datasetId)
@@ -236,8 +171,7 @@ export function useSemordnilapStatuses(
     statuses,
     ready,
     errorMessage,
-    addStatus,
-    removeStatus,
+    setStatuses,
     removeAllStatus,
   }
 }

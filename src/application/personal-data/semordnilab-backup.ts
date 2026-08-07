@@ -6,6 +6,7 @@ import type {
   PersonalDataSummary,
   SemordnilabBackup,
 } from '@/application/dto/personal-data'
+import { normalizeSemordnilapStatusRecords } from '@/application/statuses/semordnilap-status-policy'
 import {
   TAG_COLORS,
   TAG_ICONS,
@@ -391,18 +392,25 @@ export function createSemordnilabBackup(
   data: PersonalDataSnapshot,
   exportedAt: string,
 ): SemordnilabBackup {
-  return { format: BACKUP_FORMAT, version: BACKUP_VERSION, exportedAt, data }
+  return {
+    format: BACKUP_FORMAT,
+    version: BACKUP_VERSION,
+    exportedAt,
+    data: {
+      ...data,
+      statuses: normalizeSemordnilapStatusRecords(data.statuses),
+    },
+  }
 }
 
 export function summarizePersonalData(
   data: PersonalDataSnapshot,
 ): PersonalDataSummary {
+  const statuses = normalizeSemordnilapStatusRecords(data.statuses)
   return {
-    statuses: data.statuses.length,
-    favorites: data.statuses.filter(({ status }) => status === 'favorite')
-      .length,
-    discarded: data.statuses.filter(({ status }) => status === 'discarded')
-      .length,
+    statuses: statuses.length,
+    favorites: statuses.filter(({ status }) => status === 'favorite').length,
+    discarded: statuses.filter(({ status }) => status === 'discarded').length,
     savedComposites: data.savedComposites.length,
     compositionDrafts: data.compositionDrafts.length,
     tags: data.tags.length,
@@ -426,7 +434,7 @@ export function buildImportedSnapshot(
 ): PersonalDataSnapshot {
   if (options.mode === 'replace') {
     const snapshot: PersonalDataSnapshot = {
-      statuses: imported.statuses,
+      statuses: normalizeSemordnilapStatusRecords(imported.statuses),
       savedComposites: imported.savedComposites,
       compositionDrafts: imported.compositionDrafts,
       tags: imported.tags,
@@ -499,7 +507,7 @@ export function buildImportedSnapshot(
   }
 
   return {
-    statuses: [...statuses.values()],
+    statuses: normalizeSemordnilapStatusRecords([...statuses.values()]),
     savedComposites: [...composites.values()],
     compositionDrafts: [...drafts.values()],
     tags: [...tags.values()],

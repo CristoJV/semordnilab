@@ -2,12 +2,12 @@ import type {
   SemordnilapCatalogStatus,
   SemordnilapIdAlias,
   SemordnilapStatusRecord,
-  SemordnilapStatusReference,
+  SemordnilapStatusSelection,
   SemordnilapStatusRepository,
 } from '@/application'
 import type { DatasetId } from '@/domain/semordnilap'
 
-function recordKey(record: SemordnilapStatusReference): string {
+function recordKey(record: SemordnilapStatusRecord): string {
   return `${record.datasetId}:${record.semordnilapId}:${record.status}`
 }
 
@@ -36,12 +36,26 @@ export class InMemorySemordnilapStatusRepository implements SemordnilapStatusRep
     )
   }
 
-  async add(record: SemordnilapStatusRecord): Promise<void> {
-    this.records.set(recordKey(record), record)
-  }
-
-  async remove(reference: SemordnilapStatusReference): Promise<void> {
-    this.records.delete(recordKey(reference))
+  async setForSemordnilaps(
+    datasetId: DatasetId,
+    selections: readonly SemordnilapStatusSelection[],
+  ): Promise<void> {
+    const selectionById = new Map(
+      selections.map((selection) => [selection.semordnilapId, selection]),
+    )
+    for (const [key, record] of this.records) {
+      if (
+        record.datasetId === datasetId &&
+        selectionById.has(record.semordnilapId)
+      ) {
+        this.records.delete(key)
+      }
+    }
+    for (const selection of selectionById.values()) {
+      if (!selection.status) continue
+      const record = { datasetId, ...selection, status: selection.status }
+      this.records.set(recordKey(record), record)
+    }
   }
 
   async removeAll(

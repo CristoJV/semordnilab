@@ -1,5 +1,4 @@
 import {
-  AddSemordnilapStatus,
   AddSemordnilapTagAssignments,
   ApplySemordnilapTagChanges,
   ClearCompositionDraft,
@@ -19,14 +18,15 @@ import {
   LoadSelectedDataset,
   LoadWorkspacePreferences,
   MigrateSemordnilapStatusReferences,
+  NormalizeSemordnilapStatuses,
   RemoveAllSemordnilapStatuses,
-  RemoveSemordnilapStatus,
   RemoveSemordnilapTagAssignments,
   RenameSavedComposite,
   SaveCompositeSemordnilap,
   SaveCompositionDraft,
   SaveSelectedDataset,
   SaveWorkspacePreferences,
+  SetSemordnilapStatuses,
   UpdateSemordnilapTag,
   PreviewPersonalDataImport,
   type PersonalDataFileGateway,
@@ -50,8 +50,8 @@ export type ApplicationDependencies = {
   loadSelectedDataset: LoadSelectedDataset
   saveSelectedDataset: SaveSelectedDataset
   listSemordnilapStatuses: ListSemordnilapStatuses
-  addSemordnilapStatus: AddSemordnilapStatus
-  removeSemordnilapStatus: RemoveSemordnilapStatus
+  setSemordnilapStatuses: SetSemordnilapStatuses
+  normalizeSemordnilapStatuses: NormalizeSemordnilapStatuses
   removeAllSemordnilapStatuses: RemoveAllSemordnilapStatuses
   migrateSemordnilapStatusReferences: MigrateSemordnilapStatusReferences
   listSemordnilapTags: ListSemordnilapTags
@@ -101,8 +101,10 @@ export function createApplicationDependencies(): ApplicationDependencies {
     loadSelectedDataset: new LoadSelectedDataset(selectedDatasetRepository),
     saveSelectedDataset: new SaveSelectedDataset(selectedDatasetRepository),
     listSemordnilapStatuses: new ListSemordnilapStatuses(statusRepository),
-    addSemordnilapStatus: new AddSemordnilapStatus(statusRepository),
-    removeSemordnilapStatus: new RemoveSemordnilapStatus(statusRepository),
+    setSemordnilapStatuses: new SetSemordnilapStatuses(statusRepository),
+    normalizeSemordnilapStatuses: new NormalizeSemordnilapStatuses(
+      statusRepository,
+    ),
     removeAllSemordnilapStatuses: new RemoveAllSemordnilapStatuses(
       statusRepository,
     ),

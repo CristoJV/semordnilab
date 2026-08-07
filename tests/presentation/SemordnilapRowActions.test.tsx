@@ -57,17 +57,17 @@ describe('acciones compactas de una fila', () => {
     expect(callbacks.onOpenComposite).toHaveBeenCalledOnce()
   })
 
-  it('prioriza la restauración directa para un composite descartado', async () => {
-    const user = userEvent.setup()
-    const { callbacks } = renderActions({
+  it('deja solo la pista del gesto izquierdo en un composite descartado', () => {
+    const { callbacks, view } = renderActions({
       composite: true,
       discardedView: true,
     })
 
-    await user.click(
-      screen.getByRole('button', { name: 'Restaurar: amor / roma' }),
-    )
-    expect(callbacks.onRestore).toHaveBeenCalledOnce()
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+    expect(view.container).toHaveTextContent('‹')
+    expect(view.container).not.toHaveTextContent('›')
+    expect(view.container.querySelector('svg')).not.toBeInTheDocument()
+    expect(callbacks.onRestore).not.toHaveBeenCalled()
     expect(callbacks.onOpenComposite).not.toHaveBeenCalled()
   })
 })

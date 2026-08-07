@@ -65,12 +65,14 @@ export type CatalogRowPointerConfig = {
   directionThreshold: number
   commitThreshold: number
   maximumOffset: number
+  allowedDirections: readonly CatalogSwipeDirection[]
 }
 
 export const DEFAULT_CATALOG_ROW_POINTER_CONFIG: CatalogRowPointerConfig = {
   directionThreshold: 10,
   commitThreshold: 72,
   maximumOffset: 112,
+  allowedDirections: ['left', 'right'],
 }
 
 export const IDLE_CATALOG_ROW_POINTER_STATE: CatalogRowPointerState = {
@@ -83,14 +85,15 @@ function swipingState(
   config: CatalogRowPointerConfig,
 ): CatalogSwipingState {
   const rawOffset = clientX - state.originX
-  const offsetX = Math.max(
-    -config.maximumOffset,
-    Math.min(config.maximumOffset, rawOffset),
-  )
+  const direction = rawOffset < 0 ? 'left' : 'right'
+  const allowed = config.allowedDirections.includes(direction)
+  const offsetX = allowed
+    ? Math.max(-config.maximumOffset, Math.min(config.maximumOffset, rawOffset))
+    : 0
   return {
     ...state,
     value: 'swiping',
-    direction: offsetX < 0 ? 'left' : 'right',
+    direction,
     offsetX,
     ready: Math.abs(offsetX) >= config.commitThreshold,
   }

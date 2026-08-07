@@ -29,8 +29,9 @@ export type {
   SemordnilapCatalogStatus,
   SemordnilapIdAlias,
   SemordnilapStatusRecord,
-  SemordnilapStatusReference,
+  SemordnilapStatusSelection,
 } from './dto/semordnilap-status'
+export { SEMORDNILAP_CATALOG_STATUSES } from './dto/semordnilap-status'
 export {
   DEFAULT_WORKSPACE_PREFERENCES,
   type CatalogSide,
@@ -56,7 +57,6 @@ export type {
   PersonalDataFileGateway,
   ReadableTextFile,
 } from './ports/personal-data-file-gateway'
-export { AddSemordnilapStatus } from './use-cases/add-semordnilap-status'
 export { ClearCompositionDraft } from './use-cases/clear-composition-draft'
 export { ListAvailableDatasets } from './use-cases/list-available-datasets'
 export { ListSavedCompositeSemordnilaps } from './use-cases/list-saved-composite-semordnilaps'
@@ -64,8 +64,9 @@ export { ListSemordnilapStatuses } from './use-cases/list-semordnilap-statuses'
 export { LoadAtomicSemordnilaps } from './use-cases/load-atomic-semordnilaps'
 export { LoadCompositionDraft } from './use-cases/load-composition-draft'
 export { MigrateSemordnilapStatusReferences } from './use-cases/migrate-semordnilap-status-references'
+export { NormalizeSemordnilapStatuses } from './use-cases/normalize-semordnilap-statuses'
 export { RemoveAllSemordnilapStatuses } from './use-cases/remove-all-semordnilap-statuses'
-export { RemoveSemordnilapStatus } from './use-cases/remove-semordnilap-status'
+export { SetSemordnilapStatuses } from './use-cases/set-semordnilap-statuses'
 export {
   SaveCompositeSemordnilap,
   type SaveCompositeSemordnilapInput,
