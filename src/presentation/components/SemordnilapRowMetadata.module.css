@@ -1,0 +1,23 @@
+.count {
+  display: grid;
+  flex: 0 0 1.45rem;
+  width: 1.45rem;
+  height: 1.45rem;
+  padding-inline: 0.3rem;
+  color: var(--color-text);
+  font-size: 0.68rem;
+  font-weight: 800;
+  background: linear-gradient(
+    135deg,
+    var(--color-violet-soft),
+    var(--color-mustard-soft)
+  );
+  border: 1px solid
+    color-mix(in srgb, var(--color-violet) 22%, var(--color-border));
+  border-radius: 999px;
+  place-items: center;
+}
+
+.count[data-visible='false'] {
+  visibility: hidden;
+}

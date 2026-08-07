@@ -10,6 +10,7 @@ import {
 } from './CatalogSwipeFeedback'
 import { SemordnilapOption } from './SemordnilapOption'
 import { SemordnilapRowActions } from './SemordnilapRowActions'
+import { SemordnilapRowMetadata } from './SemordnilapRowMetadata'
 import styles from './SemordnilapCatalogRow.module.css'
 
 type SemordnilapCatalogRowProps = {
@@ -105,11 +106,11 @@ export function SemordnilapCatalogRow({
         <SemordnilapOption
           item={item}
           side="source"
-          selectedCount={selectedCount}
           selectionMode={selectionMode}
           selected={selected}
           query={sourceQuery}
           tags={tags}
+          metadata={<SemordnilapRowMetadata kind="tags" tags={tags} />}
           onAdd={onAdd}
           onToggleSelection={onToggleSelection}
         />
@@ -131,11 +132,13 @@ export function SemordnilapCatalogRow({
         <SemordnilapOption
           item={item}
           side="target"
-          selectedCount={selectedCount}
           selectionMode={selectionMode}
           selected={selected}
           query={targetQuery}
           tags={tags}
+          metadata={
+            <SemordnilapRowMetadata kind="usage" count={selectedCount} />
+          }
           onAdd={onAdd}
           onToggleSelection={onToggleSelection}
         />

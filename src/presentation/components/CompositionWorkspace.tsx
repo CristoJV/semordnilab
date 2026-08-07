@@ -71,6 +71,7 @@ export function CompositionWorkspace({
   >(null)
   const sourceLane = useRef<HTMLOListElement>(null)
   const targetLane = useRef<HTMLOListElement>(null)
+  const compositionScroll = useRef<HTMLDivElement>(null)
   const canRestoreRemovedRef = useRef(canRestoreRemoved)
   const [collapsed, setCollapsed] = useState(
     () =>
@@ -134,8 +135,10 @@ export function CompositionWorkspace({
       side === 'source' ? sourceLane.current : targetLane.current,
     [],
   )
+  const getScrollContainer = useCallback(() => compositionScroll.current, [])
   const pointerInteraction = useCompositionPointerInteraction({
     getLane,
+    getScrollContainer,
     onRemove: (target) =>
       removeWithNotification(
         target.instanceId,
@@ -218,34 +221,45 @@ export function CompositionWorkspace({
             </div>
           ) : (
             <div className={styles.lanes}>
-              <CompositionLane
-                side="source"
-                languageLabel={sourceLabel}
-                components={components}
-                insertionIndex={insertionIndex}
-                dragging={pointerInteraction.dragging}
-                highlightedInstanceId={highlightedInstanceId}
-                laneRef={sourceLane}
-                onSelectInsertion={onSelectInsertion}
-                onRemove={removeWithNotification}
-                onMove={onMove}
-                onHighlight={setHighlightedInstanceId}
-                bindPointer={pointerInteraction.bind}
-              />
-              <CompositionLane
-                side="target"
-                languageLabel={targetLabel}
-                components={components}
-                insertionIndex={insertionIndex}
-                dragging={pointerInteraction.dragging}
-                highlightedInstanceId={highlightedInstanceId}
-                laneRef={targetLane}
-                onSelectInsertion={onSelectInsertion}
-                onRemove={removeWithNotification}
-                onMove={onMove}
-                onHighlight={setHighlightedInstanceId}
-                bindPointer={pointerInteraction.bind}
-              />
+              <div
+                ref={compositionScroll}
+                className={styles.compositionScroll}
+                data-composition-scroll="shared"
+                role="region"
+                aria-label="Desplazar ambas composiciones"
+                tabIndex={0}
+              >
+                <div className={styles.scrollContent}>
+                  <CompositionLane
+                    side="source"
+                    languageLabel={sourceLabel}
+                    components={components}
+                    insertionIndex={insertionIndex}
+                    dragging={pointerInteraction.dragging}
+                    highlightedInstanceId={highlightedInstanceId}
+                    laneRef={sourceLane}
+                    onSelectInsertion={onSelectInsertion}
+                    onRemove={removeWithNotification}
+                    onMove={onMove}
+                    onHighlight={setHighlightedInstanceId}
+                    bindPointer={pointerInteraction.bind}
+                  />
+                  <CompositionLane
+                    side="target"
+                    languageLabel={targetLabel}
+                    components={components}
+                    insertionIndex={insertionIndex}
+                    dragging={pointerInteraction.dragging}
+                    highlightedInstanceId={highlightedInstanceId}
+                    laneRef={targetLane}
+                    onSelectInsertion={onSelectInsertion}
+                    onRemove={removeWithNotification}
+                    onMove={onMove}
+                    onHighlight={setHighlightedInstanceId}
+                    bindPointer={pointerInteraction.bind}
+                  />
+                </div>
+              </div>
             </div>
           ))}
       </div>

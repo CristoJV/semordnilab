@@ -29,6 +29,7 @@ export type CompositionPointerBindings = {
 
 type CompositionPointerInteractionOptions = {
   getLane: (side: CompositionSide) => HTMLElement | null
+  getScrollContainer?: () => HTMLElement | null
   onRemove: (target: CompositionPointerTarget) => void
   onDrop: (instanceId: number, dropIndex: number) => void
 }
@@ -37,6 +38,7 @@ const LONG_PRESS_DELAY = 300
 
 export function useCompositionPointerInteraction({
   getLane,
+  getScrollContainer,
   onRemove,
   onDrop,
 }: CompositionPointerInteractionOptions) {
@@ -47,12 +49,12 @@ export function useCompositionPointerInteraction({
   const longPressTimer = useRef<number | null>(null)
   const animationFrame = useRef<number | null>(null)
   const latestPointer = useRef({ clientX: 0, clientY: 0 })
-  const callbacks = useRef({ getLane, onRemove, onDrop })
+  const callbacks = useRef({ getLane, getScrollContainer, onRemove, onDrop })
   const sendRef = useRef<(event: CompositionPointerEvent) => void>(() => {})
 
   useEffect(() => {
-    callbacks.current = { getLane, onRemove, onDrop }
-  }, [getLane, onDrop, onRemove])
+    callbacks.current = { getLane, getScrollContainer, onRemove, onDrop }
+  }, [getLane, getScrollContainer, onDrop, onRemove])
 
   const cancelLongPress = () => {
     if (longPressTimer.current !== null) {
@@ -81,17 +83,18 @@ export function useCompositionPointerInteraction({
         animationFrame.current = null
         return
       }
+      const scrollContainer = callbacks.current.getScrollContainer?.() ?? lane
       const speed = calculateHorizontalAutoScroll(
-        lane.getBoundingClientRect(),
+        scrollContainer.getBoundingClientRect(),
         latestPointer.current.clientX,
       )
       if (speed === 0) {
         animationFrame.current = null
         return
       }
-      const previousScroll = lane.scrollLeft
-      lane.scrollLeft += speed
-      if (lane.scrollLeft === previousScroll) {
+      const previousScroll = scrollContainer.scrollLeft
+      scrollContainer.scrollLeft += speed
+      if (scrollContainer.scrollLeft === previousScroll) {
         animationFrame.current = null
         return
       }

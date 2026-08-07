@@ -60,13 +60,7 @@ export function SemordnilapRowActions({
     const content = (
       <>
         <span aria-hidden="true">‹</span>
-        {discardedView ? (
-          <RestoreIcon />
-        ) : composite ? (
-          <EditNoteIcon />
-        ) : (
-          <span className={styles.gestureSpacer} aria-hidden="true" />
-        )}
+        {discardedView ? <RestoreIcon /> : composite ? <EditNoteIcon /> : null}
         <span aria-hidden="true">›</span>
       </>
     )
@@ -77,7 +71,6 @@ export function SemordnilapRowActions({
           <button
             type="button"
             className={styles.gesture}
-            data-favorite={favorite}
             data-discarded={discardedView}
             disabled={discardedView && disabled}
             onClick={action}
@@ -87,11 +80,7 @@ export function SemordnilapRowActions({
             {content}
           </button>
         ) : (
-          <div
-            className={styles.gesture}
-            data-favorite={favorite}
-            aria-hidden="true"
-          >
+          <div className={styles.gesture} aria-hidden="true">
             {content}
           </div>
         )}

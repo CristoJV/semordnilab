@@ -33,7 +33,7 @@ Una pulsación prolongada sobre cualquiera de las dos expresiones de una fila ac
 
 En móvil, el centro de una fila atómica activa muestra dos cheurones no interactivos. Una fila composite activa sitúa entre ellos una nota con lápiz y tocarla abre directamente su gestión. En `Descartados`, el centro muestra una flecha de restauración y tocarla restaura la unidad; esta acción tiene prioridad aunque sea un composite. Ya no existe una hoja intermedia de acciones. Deslizar revela un fondo con icono y etiqueta: derecha cambia el favorito e izquierda descarta o restaura. La decisión completa se registra en el ADR 0009.
 
-La lista integra visualmente ambas columnas sin alterar la cabecera. Cada fila carece de redondeado y borde central, y usa un fondo continuo del violeta al mostaza. La selección cambia ese fondo de forma discreta en vez de dibujar un contorno. Etiquetas y contadores ocupan carriles exteriores fijos y simétricos para que textos de distinta longitud no los desplacen.
+La lista integra visualmente ambas columnas sin convertirlas en una única cabecera. Cada fila carece de redondeado y borde central, y usa un fondo continuo del violeta al mostaza. La selección cambia ese fondo de forma discreta en vez de dibujar un contorno. La información compartida se representa una sola vez: las etiquetas ocupan el carril exterior izquierdo y el contador de usos el derecho. Ambos espacios conservan su anchura para que textos de distinta longitud no los desplacen.
 
 El filtro móvil de etiquetas utiliza `AnchoredPopover`: se monta en `document.body` para escapar del overflow horizontal, calcula su posición bajo el botón y se recoloca ante scroll, redimensionado o cambios del viewport visual. No usa un fondo modal y se cierra al aplicar, pulsar fuera o usar Escape.
 
@@ -41,7 +41,7 @@ El área mantiene su tamaño y el título corto `Compón`. Los avisos ordinarios
 
 `ModalDialog` utiliza un portal a `document.body`. En móvil se presenta como una hoja inferior, limita su altura con unidades dinámicas, contiene su propio scroll y respeta las zonas seguras. El portal evita recortes causados por el scroll u `overflow` de la página. La coordinación superior representa menú, selector y gestor de etiquetas como estados excluyentes, de modo que no se solapen por accidente.
 
-La página usa `100dvh`. El catálogo conserva el desplazamiento vertical, las secuencias largas mantienen desplazamiento horizontal y los avisos flotantes se separan del pie y de la zona segura. No se modifica el dominio, los casos de uso, los puertos, IndexedDB ni el formato de las copias.
+La página usa `100dvh`. El catálogo conserva el desplazamiento vertical, las dos secuencias largas comparten un único desplazamiento horizontal y los avisos flotantes se separan del pie y de la zona segura. No se modifica el dominio, los casos de uso, los puertos, IndexedDB ni el formato de las copias.
 
 ## Verificación
 

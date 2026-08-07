@@ -1,17 +1,18 @@
+import type { ReactNode } from 'react'
+
 import type { SemordnilapCatalogItem, SemordnilapTag } from '@/application'
 
 import { HighlightedText } from './HighlightedText'
-import { TagDots } from './TagControls'
 import styles from './SemordnilapOption.module.css'
 
 type SemordnilapOptionProps = {
   item: SemordnilapCatalogItem
   side: 'source' | 'target'
-  selectedCount: number
   selectionMode: boolean
   selected: boolean
   query: string
   tags: readonly SemordnilapTag[]
+  metadata: ReactNode
   onAdd: (item: SemordnilapCatalogItem) => void
   onToggleSelection: () => void
 }
@@ -19,11 +20,11 @@ type SemordnilapOptionProps = {
 export function SemordnilapOption({
   item,
   side,
-  selectedCount,
   selectionMode,
   selected,
   query,
   tags,
+  metadata,
   onAdd,
   onToggleSelection,
 }: SemordnilapOptionProps) {
@@ -55,19 +56,7 @@ export function SemordnilapOption({
       <span className={styles.text}>
         <HighlightedText text={expression.text} query={query} />
       </span>
-      <span className={styles.metadata}>
-        <TagDots tags={tags} />
-        <span
-          className={styles.count}
-          data-visible={selectedCount > 0}
-          aria-label={
-            selectedCount > 0 ? `${selectedCount} añadidos` : undefined
-          }
-          aria-hidden={selectedCount === 0}
-        >
-          {selectedCount > 0 ? selectedCount : ''}
-        </span>
-      </span>
+      <span className={styles.metadata}>{metadata}</span>
     </button>
   )
 }

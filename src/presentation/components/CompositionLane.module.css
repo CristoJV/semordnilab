@@ -1,18 +1,30 @@
 .lane {
   display: grid;
-  grid-template-columns: 7rem minmax(0, 1fr);
+  grid-template-columns: 7rem max-content;
   gap: 0.8rem;
   align-items: center;
+  width: 100%;
+  min-width: max-content;
 }
 
 .language {
+  position: sticky;
+  z-index: 2;
+  left: 0;
   overflow: hidden;
+  padding-block: 0.25rem;
+  padding-right: 0.8rem;
   font-size: 0.75rem;
   font-weight: 780;
   letter-spacing: 0.08em;
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-strong) 82%,
+    transparent
+  );
 }
 
 .lane[data-tone='source'] .language {
@@ -26,17 +38,22 @@
 .components {
   display: flex;
   gap: 0.18rem;
-  min-width: 0;
+  width: max-content;
+  min-width: 100%;
   margin: 0;
-  padding: 0.2rem 0 0.35rem;
-  overflow-x: auto;
-  overscroll-behavior-inline: contain;
+  padding: 0.2rem 0 0.25rem;
+  overflow: visible;
   list-style: none;
 }
 
 @media (max-width: 680px) {
   .lane {
-    grid-template-columns: 1fr;
+    grid-template-columns: max-content;
     gap: 0.2rem;
+  }
+
+  .language {
+    width: max-content;
+    max-width: min(12rem, 75vw);
   }
 }

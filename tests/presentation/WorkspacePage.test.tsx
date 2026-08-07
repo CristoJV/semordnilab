@@ -556,6 +556,7 @@ describe('WorkspacePage', () => {
         }),
       ).toHaveAttribute('title', expect.stringContaining('Etiquetas: Curioso')),
     )
+    expect(within(catalog).getAllByTitle('Curioso')).toHaveLength(1)
     await user.click(
       within(catalog).getByRole('button', { name: 'Cerrar selección' }),
     )
@@ -629,9 +630,18 @@ describe('WorkspacePage', () => {
     const targetComposition = screen.getByRole('list', {
       name: 'Composición en Gallego',
     })
+    const sharedCompositionScroll = screen.getByRole('region', {
+      name: 'Desplazar ambas composiciones',
+    })
 
     expect(getComponentTexts(sourceComposition)).toEqual(['ella', 'no se'])
     expect(getComponentTexts(targetComposition)).toEqual(['e son', 'a lle'])
+    expect(sharedCompositionScroll).toContainElement(sourceComposition)
+    expect(sharedCompositionScroll).toContainElement(targetComposition)
+    expect(
+      document.querySelectorAll('[data-composition-scroll="shared"]'),
+    ).toHaveLength(1)
+    expect(within(catalog).getAllByLabelText('1 añadidos')).toHaveLength(2)
     expect(
       within(sourceComposition).queryByRole('button', { name: /^Mover/ }),
     ).not.toBeInTheDocument()

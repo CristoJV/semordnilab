@@ -100,29 +100,6 @@
   background: color-mix(in srgb, var(--color-violet) 22%, transparent);
 }
 
-.count {
-  display: grid;
-  flex: 0 0 1.45rem;
-  width: 1.45rem;
-  height: 1.45rem;
-  padding-inline: 0.3rem;
-  color: white;
-  font-size: 0.68rem;
-  font-weight: 800;
-  background: var(--color-violet);
-  border-radius: 999px;
-  place-items: center;
-}
-
-.count[data-visible='false'] {
-  visibility: hidden;
-}
-
-.button[data-side='target'] .count {
-  color: var(--color-text);
-  background: var(--color-mustard);
-}
-
 @media (max-width: 560px) {
   .button {
     padding-inline: 0.55rem;
