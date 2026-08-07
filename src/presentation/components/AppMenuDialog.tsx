@@ -29,6 +29,7 @@ type AppMenuDialogProps = {
   onClose: () => void
   onImported: () => void
   onManageTags: () => void
+  onStartSelection?: () => void
 }
 
 const DEFAULT_IMPORT_OPTIONS: PersonalDataImportOptions = {
@@ -74,6 +75,7 @@ export function AppMenuDialog({
   onClose,
   onImported,
   onManageTags,
+  onStartSelection,
 }: AppMenuDialogProps) {
   const [section, setSection] = useState<'data' | 'preferences'>('data')
   const [summary, setSummary] = useState<PersonalDataSummary | null>(null)
@@ -220,6 +222,17 @@ export function AppMenuDialog({
         >
           Gestionar etiquetas
         </button>
+        {onStartSelection && (
+          <button
+            type="button"
+            onClick={() => {
+              onClose()
+              onStartSelection()
+            }}
+          >
+            Seleccionar semordnilaps
+          </button>
+        )}
       </nav>
 
       {section === 'data' ? (

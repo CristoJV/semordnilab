@@ -1,6 +1,8 @@
 .button {
-  display: flex;
-  gap: 0.6rem;
+  display: grid;
+  grid-template-columns: minmax(3.45rem, auto) minmax(0, 1fr);
+  grid-template-areas: 'metadata text';
+  gap: 0.55rem;
   align-items: center;
   width: 100%;
   height: 100%;
@@ -11,7 +13,7 @@
   font-size: 1rem;
   background: transparent;
   border: 0;
-  border-radius: 0.65rem;
+  border-radius: 0;
   cursor: pointer;
   transition:
     background-color var(--motion-fast) var(--motion-easing),
@@ -20,34 +22,29 @@
 }
 
 .button[data-side='source'] {
-  flex-direction: row-reverse;
   text-align: right;
 }
 
 .button[data-side='target'] {
+  grid-template-columns: minmax(0, 1fr) minmax(3.45rem, auto);
+  grid-template-areas: 'text metadata';
   text-align: left;
 }
 
 .button:hover {
-  transform: translateY(-1px);
+  transform: none;
 }
 
 .button[data-side='source']:hover {
   color: var(--color-violet-strong);
-  background: var(--color-violet-soft);
 }
 
 .button[data-side='target']:hover {
   color: var(--color-mustard-dark);
-  background: var(--color-mustard-soft);
 }
 
 .button:active {
   transform: translateY(0);
-}
-
-.button[data-selected='true'] {
-  box-shadow: inset 0 0 0 2px var(--color-violet);
 }
 
 .button:focus-visible {
@@ -58,11 +55,38 @@
 }
 
 .text {
+  grid-area: text;
   display: -webkit-box;
   overflow: hidden;
   overflow-wrap: anywhere;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+}
+
+.button[data-side='source'] .text {
+  justify-self: end;
+}
+
+.button[data-side='target'] .text {
+  justify-self: start;
+}
+
+.metadata {
+  display: flex;
+  grid-area: metadata;
+  gap: 0.3rem;
+  align-items: center;
+  justify-self: stretch;
+  min-width: 0;
+}
+
+.button[data-side='source'] .metadata {
+  justify-content: flex-start;
+}
+
+.button[data-side='target'] .metadata {
+  flex-direction: row-reverse;
+  justify-content: flex-start;
 }
 
 .text mark {
@@ -78,8 +102,8 @@
 
 .count {
   display: grid;
-  flex: 0 0 auto;
-  min-width: 1.45rem;
+  flex: 0 0 1.45rem;
+  width: 1.45rem;
   height: 1.45rem;
   padding-inline: 0.3rem;
   color: white;
@@ -88,6 +112,10 @@
   background: var(--color-violet);
   border-radius: 999px;
   place-items: center;
+}
+
+.count[data-visible='false'] {
+  visibility: hidden;
 }
 
 .button[data-side='target'] .count {

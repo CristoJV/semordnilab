@@ -30,15 +30,20 @@ import type { CatalogSwipeDirection } from '@/presentation/interactions/catalog-
 import type { ResponsiveLayout } from '@/presentation/responsive/useResponsiveLayout'
 
 import { CatalogLanguageHeader } from './CatalogLanguageHeader'
-import { CatalogViewSwitcher } from './CatalogViewSwitcher'
-import { selectDiscoveryItems } from './catalog-discovery'
+import { CatalogDiscoveryFab } from './CatalogDiscoveryFab'
+import { CatalogSelectionToolbar } from './CatalogSelectionToolbar'
+import { CatalogToolbar } from './CatalogToolbar'
+import {
+  advanceDiscoverySession,
+  resolveDiscoveryItems,
+  type CatalogDiscoverySession,
+} from './catalog-discovery'
 import { selectVisibleCatalogItems } from './catalog-items-view'
 import { normalizeCatalogQuery } from './catalog-search'
 import { cycleCatalogSort, setCatalogSort } from './catalog-sort'
 import type { CatalogSide, CatalogSort, CatalogSortField } from './catalog-view'
 import { RestoreAllDiscardedDialog } from './RestoreAllDiscardedDialog'
 import { SemordnilapCatalogRow } from './SemordnilapCatalogRow'
-import { TagAssignmentMenu, TagFilterMenu } from './TagControls'
 import { tagsForSemordnilap } from './tag-view'
 import styles from './PairedSemordnilapCatalog.module.css'
 
@@ -68,6 +73,9 @@ type PairedSemordnilapCatalogProps = {
   onManageTags: () => void
   onNotify: Notify
   layout: ResponsiveLayout
+  overlayOpen: boolean
+  selectionRequested: boolean
+  onSelectionRequestHandled: () => void
 }
 
 export function PairedSemordnilapCatalog({
@@ -88,6 +96,9 @@ export function PairedSemordnilapCatalog({
   onManageTags,
   onNotify,
   layout,
+  overlayOpen,
+  selectionRequested,
+  onSelectionRequestHandled,
 }: PairedSemordnilapCatalogProps) {
   const [sourceQuery, setSourceQuery] = useState(initialView?.sourceQuery ?? '')
   const [targetQuery, setTargetQuery] = useState(initialView?.targetQuery ?? '')
@@ -95,9 +106,10 @@ export function PairedSemordnilapCatalog({
     initialView?.viewMode ?? 'active',
   )
   const [sort, setSort] = useState<CatalogSort>(initialView?.sort ?? [])
-  const [selectionMode, setSelectionMode] = useState(false)
+  const [internalSelectionMode, setInternalSelectionMode] = useState(false)
   const [restoreAllConfirmation, setRestoreAllConfirmation] = useState(false)
-  const [discoverySeed, setDiscoverySeed] = useState<number | null>(null)
+  const [discoverySession, setDiscoverySession] =
+    useState<CatalogDiscoverySession | null>(null)
   const [selectedTagIds, setSelectedTagIds] = useState<ReadonlySet<TagId>>(
     new Set(),
   )
@@ -112,6 +124,7 @@ export function PairedSemordnilapCatalog({
     useDeferredValue(targetQuery),
   )
   const discardedView = viewMode === 'discarded'
+  const selectionMode = selectionRequested || internalSelectionMode
 
   useCatalogSwipeHint(layout === 'compact' && statusesReady, onNotify)
 
@@ -119,6 +132,12 @@ export function PairedSemordnilapCatalog({
     const available = new Set(tagState.tags.map(({ id }) => id))
     return new Set([...selectedTagIds].filter((id) => available.has(id)))
   }, [selectedTagIds, tagState.tags])
+  const hasViewModifiers = Boolean(
+    sourceQuery ||
+    targetQuery ||
+    sort.length > 0 ||
+    effectiveSelectedTagIds.size > 0,
+  )
 
   useEffect(() => {
     onViewChange({
@@ -193,25 +212,50 @@ export function PairedSemordnilapCatalog({
     tagState.assignments,
   ])
 
+  const discoveryEligibleItems = useMemo(() => {
+    const activeAtomicItems = selectVisibleCatalogItems({
+      items,
+      viewMode: 'active',
+      sourceQuery: '',
+      targetQuery: '',
+      sort: [],
+      sourceLanguageCode: dataset.sourceLanguage.code,
+      targetLanguageCode: dataset.targetLanguage.code,
+      hasStatus,
+    }).filter(({ semordnilap }) => semordnilap.kind === 'atomic')
+    if (effectiveSelectedTagIds.size === 0) return activeAtomicItems
+    return activeAtomicItems.filter((item) => {
+      const assigned = tagState.assignments.get(item.semordnilap.id)
+      return [...effectiveSelectedTagIds].some((tagId) => assigned?.has(tagId))
+    })
+  }, [
+    dataset.sourceLanguage.code,
+    dataset.targetLanguage.code,
+    effectiveSelectedTagIds,
+    hasStatus,
+    items,
+    tagState.assignments,
+  ])
+
   const displayedItems = useMemo(
     () =>
-      discoverySeed === null
+      discoverySession === null
         ? visibleItems
-        : selectDiscoveryItems(visibleItems, discoverySeed),
-    [discoverySeed, visibleItems],
+        : resolveDiscoveryItems(discoveryEligibleItems, discoverySession),
+    [discoveryEligibleItems, discoverySession, visibleItems],
   )
   const virtualRows = useVirtualCatalogRows(displayedItems.length, scrollerRef)
   const renderedItems = displayedItems.slice(virtualRows.start, virtualRows.end)
 
   const changeQuery = (side: CatalogSide, query: string) => {
-    setDiscoverySeed(null)
+    setDiscoverySession(null)
     if (side === 'source') setSourceQuery(query)
     else setTargetQuery(query)
     virtualRows.reset()
   }
 
   const changeSort = (field: CatalogSortField, side: CatalogSide) => {
-    setDiscoverySeed(null)
+    setDiscoverySession(null)
     setSort((current) => cycleCatalogSort(current, field, side))
     virtualRows.reset()
   }
@@ -221,7 +265,7 @@ export function PairedSemordnilapCatalog({
     side: CatalogSide,
     direction: CatalogSortDirection | null,
   ) => {
-    setDiscoverySeed(null)
+    setDiscoverySession(null)
     setSort((current) => setCatalogSort(current, field, side, direction))
     virtualRows.reset()
   }
@@ -230,7 +274,7 @@ export function PairedSemordnilapCatalog({
     setSourceQuery('')
     setTargetQuery('')
     setSort([])
-    setDiscoverySeed(null)
+    setDiscoverySession(null)
     setSelectedTagIds(new Set())
     virtualRows.reset()
   }
@@ -240,7 +284,9 @@ export function PairedSemordnilapCatalog({
     setTargetQuery('')
     setSort([])
     setViewMode('active')
-    setDiscoverySeed((current) => (current ?? 0) + 1)
+    setDiscoverySession((current) =>
+      advanceDiscoverySession(discoveryEligibleItems, current),
+    )
     leaveSelectionMode()
     virtualRows.reset()
   }
@@ -255,8 +301,9 @@ export function PairedSemordnilapCatalog({
   }
 
   const leaveSelectionMode = () => {
-    setSelectionMode(false)
+    setInternalSelectionMode(false)
     setSelectedIds(new Set())
+    if (selectionRequested) onSelectionRequestHandled()
   }
 
   const applySelectedStatus = (status: SemordnilapCatalogStatus) => {
@@ -360,15 +407,35 @@ export function PairedSemordnilapCatalog({
   }
 
   const applyTagFilter = (tagIds: ReadonlySet<TagId>) => {
-    setDiscoverySeed(null)
+    setDiscoverySession(null)
     setSelectedTagIds(new Set(tagIds))
     virtualRows.reset()
   }
 
   const enterSelection = (semordnilapId: SemordnilapId) => {
-    setDiscoverySeed(null)
-    setSelectionMode(true)
+    setDiscoverySession(null)
+    setInternalSelectionMode(true)
     setSelectedIds(new Set([semordnilapId]))
+  }
+
+  const allDisplayedSelected =
+    displayedItems.length > 0 &&
+    displayedItems.every(({ semordnilap }) => selectedIds.has(semordnilap.id))
+  const someDisplayedSelected = displayedItems.some(({ semordnilap }) =>
+    selectedIds.has(semordnilap.id),
+  )
+  const selectionState = allDisplayedSelected
+    ? 'checked'
+    : someDisplayedSelected
+      ? 'mixed'
+      : 'empty'
+
+  const toggleAllDisplayed = () => {
+    setSelectedIds(
+      allDisplayedSelected
+        ? new Set()
+        : new Set(displayedItems.map(({ semordnilap }) => semordnilap.id)),
+    )
   }
 
   return (
@@ -379,150 +446,58 @@ export function PairedSemordnilapCatalog({
     >
       <div className={styles.toolbar}>
         {selectionMode ? (
-          <div className={styles.selectionControls}>
-            <strong>
-              {selectedIds.size}{' '}
-              {selectedIds.size === 1 ? 'seleccionado' : 'seleccionados'}
-            </strong>
-            <div
-              className={styles.selectionActions}
-              aria-label="Acciones para la selección"
-            >
-              <button
-                className={styles.selectionAction}
-                type="button"
-                aria-label="Añadir a favoritos"
-                title="Añadir a favoritos"
-                disabled={selectedIds.size === 0}
-                onClick={() => applySelectedStatus('favorite')}
-              >
-                <span className={styles.selectionActionIcon} aria-hidden="true">
-                  ★
-                </span>
-                <span className={styles.selectionActionLabel}>
-                  Añadir a favoritos
-                </span>
-              </button>
-              <button
-                className={styles.selectionAction}
-                data-kind={discardedView ? 'restore' : 'discard'}
-                type="button"
-                aria-label={discardedView ? 'Restaurar' : 'Descartar'}
-                title={discardedView ? 'Restaurar' : 'Descartar'}
-                disabled={selectedIds.size === 0}
-                onClick={() =>
-                  discardedView
-                    ? removeSelectedStatus('discarded')
-                    : applySelectedStatus('discarded')
-                }
-              >
-                <span className={styles.selectionActionIcon} aria-hidden="true">
-                  {discardedView ? (
-                    '↩'
-                  ) : (
-                    <svg viewBox="0 0 24 24">
-                      <path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5" />
-                    </svg>
-                  )}
-                </span>
-                <span className={styles.selectionActionLabel}>
-                  {discardedView ? 'Restaurar' : 'Descartar'}
-                </span>
-              </button>
-              <TagAssignmentMenu
-                tags={tagState.tags}
-                selectedIds={[...selectedIds]}
-                assignments={tagState.assignments}
-                onApply={(changes) =>
-                  tagState.applyTo([...selectedIds], changes)
-                }
-                onManage={onManageTags}
-              />
-            </div>
-            <button
-              className={styles.closeSelection}
-              type="button"
-              aria-label="Cerrar selección"
-              title="Cerrar selección"
-              onClick={leaveSelectionMode}
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M6 6l12 12M18 6 6 18" />
-              </svg>
-            </button>
-          </div>
+          <CatalogSelectionToolbar
+            state={selectionState}
+            resultCount={displayedItems.length}
+            selectedIds={[...selectedIds]}
+            discardedView={discardedView}
+            tags={tagState.tags}
+            assignments={tagState.assignments}
+            onToggleAll={toggleAllDisplayed}
+            onFavorite={() => applySelectedStatus('favorite')}
+            onDiscardOrRestore={() =>
+              discardedView
+                ? removeSelectedStatus('discarded')
+                : applySelectedStatus('discarded')
+            }
+            onApplyTags={(changes) =>
+              tagState.applyTo([...selectedIds], changes)
+            }
+            onManageTags={onManageTags}
+            onClose={leaveSelectionMode}
+          />
         ) : (
-          <>
-            <div className={styles.primaryControls}>
-              <CatalogViewSwitcher
-                current={viewMode}
-                counts={{
-                  active: items.length - discardedCount,
-                  saved: savedCount,
-                  favorites: favoriteCount,
-                  discarded: discardedCount,
-                }}
-                onChange={(mode) => {
-                  setDiscoverySeed(null)
-                  setViewMode(mode)
-                  leaveSelectionMode()
-                  virtualRows.reset()
-                }}
-              />
-              <TagFilterMenu
-                key={layout}
-                tags={tagState.tags}
-                selectedTagIds={effectiveSelectedTagIds}
-                layout={layout}
-                onApply={applyTagFilter}
-                onManage={onManageTags}
-              />
-            </div>
-            <div className={styles.secondaryControls}>
-              <button
-                className={styles.discovery}
-                type="button"
-                data-active={discoverySeed !== null}
-                aria-pressed={discoverySeed !== null}
-                onClick={discover}
-              >
-                {discoverySeed === null ? 'Descubrir' : 'Otro grupo'}
-              </button>
-              {discoverySeed !== null && (
-                <strong>
-                  {displayedItems.length} de {visibleItems.length}
-                </strong>
-              )}
-              <button
-                type="button"
-                disabled={!statusesReady || visibleItems.length === 0}
-                onClick={() => setSelectionMode(true)}
-              >
-                Seleccionar
-              </button>
-              {(sourceQuery ||
-                targetQuery ||
-                sort.length > 0 ||
-                effectiveSelectedTagIds.size > 0) && (
-                <button
-                  className={styles.resetView}
-                  type="button"
-                  onClick={resetView}
-                >
-                  Restablecer
-                </button>
-              )}
-              {discardedView && (
-                <button
-                  type="button"
-                  disabled={discardedCount === 0}
-                  onClick={requestRestoreAll}
-                >
-                  Restaurar todos
-                </button>
-              )}
-            </div>
-          </>
+          <CatalogToolbar
+            layout={layout}
+            viewMode={viewMode}
+            viewCounts={{
+              active: items.length - discardedCount,
+              saved: savedCount,
+              favorites: favoriteCount,
+              discarded: discardedCount,
+            }}
+            tags={tagState.tags}
+            selectedTagIds={effectiveSelectedTagIds}
+            discoveryActive={discoverySession !== null}
+            discoveryCount={displayedItems.length}
+            discoveryTotal={discoveryEligibleItems.length}
+            statusesReady={statusesReady}
+            visibleCount={visibleItems.length}
+            hasViewModifiers={hasViewModifiers}
+            discardedCount={discardedCount}
+            onViewChange={(mode) => {
+              setDiscoverySession(null)
+              setViewMode(mode)
+              leaveSelectionMode()
+              virtualRows.reset()
+            }}
+            onApplyTagFilter={applyTagFilter}
+            onManageTags={onManageTags}
+            onDiscover={discover}
+            onSelect={() => setInternalSelectionMode(true)}
+            onReset={resetView}
+            onRestoreAll={requestRestoreAll}
+          />
         )}
       </div>
 
@@ -575,7 +550,7 @@ export function PairedSemordnilapCatalog({
             aria-label="Semordnilaps filtrados"
             style={{
               paddingTop: `calc(0.3rem + ${virtualRows.paddingTop}px)`,
-              paddingBottom: `calc(0.3rem + ${virtualRows.paddingBottom}px)`,
+              paddingBottom: `calc(0.3rem + ${virtualRows.paddingBottom}px${layout === 'compact' && !selectionMode ? ' + 4.75rem + env(safe-area-inset-bottom)' : ''})`,
             }}
           >
             {renderedItems.map((item, renderedIndex) => {
@@ -623,6 +598,12 @@ export function PairedSemordnilapCatalog({
           </ol>
         )}
       </div>
+      {layout === 'compact' && !selectionMode && !overlayOpen && (
+        <CatalogDiscoveryFab
+          active={discoverySession !== null}
+          onClick={discover}
+        />
+      )}
       {restoreAllConfirmation && (
         <RestoreAllDiscardedDialog
           count={discardedCount}

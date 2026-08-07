@@ -56,6 +56,8 @@ Debajo aparecen los dos exploradores. La columna izquierda alinea sus semordnila
 
 Cada explorador dispone de búsqueda y ordenación propias. En una pantalla amplia los controles de ordenación se sitúan junto al título del idioma. En una pantalla estrecha se reúnen en un botón que abre un panel táctil y permite combinar los mismos criterios. Al seleccionar una expresión, el semordnilap completo se añade al área de composición y su expresión correspondiente aparece en la secuencia inversa. Las acciones situadas entre ambas columnas actúan sobre el semordnilap completo.
 
+La cabecera conserva una separación clara entre los idiomas, pero las filas del catálogo se presentan como unidades continuas. No tienen esquinas redondeadas ni divisores en el centro. Un fondo muy suave pasa del violeta de origen al mostaza de destino por detrás de los controles centrales. El hover y la selección afectan a la pareja completa sin cambiar su geometría. Las etiquetas y el contador de usos ocupan carriles exteriores de anchura estable: quedan a la izquierda en origen y a la derecha en destino, mientras que ambos textos permanecen orientados hacia el centro.
+
 Los espacios situados antes, después y entre componentes permiten elegir la posición de la siguiente inserción. El espacio final está activo inicialmente y el cursor avanza después de cada incorporación. Seleccionar un espacio en el idioma de destino activa su posición canónica equivalente en origen. Los espacios conservan una anchura fija para que la frase no cambie de distribución durante un arrastre. Solo crece visualmente el signo `+` del destino actual, con violeta en origen o mostaza en destino.
 
 Los componentes se presentan como fragmentos de texto compactos. No muestran flechas ni un botón de cierre permanente. Con ratón, una pulsación breve retira el componente y un movimiento intencionado inicia el arrastre. En una pantalla táctil, un toque breve lo retira y una pulsación prolongada inicia el arrastre, de modo que un desplazamiento normal de la página no reorganiza la frase accidentalmente. Al acercar el puntero a un extremo durante el arrastre, la secuencia se desplaza horizontalmente para alcanzar posiciones que no están visibles.
@@ -75,21 +77,24 @@ La versión móvil conserva la misma pantalla, los mismos datos y las mismas ope
 - el área se titula `Compón` y utiliza iconos para plegar, deshacer, rehacer, guardar y vaciar;
 - las acciones principales mantienen un área táctil mínima de 44 píxeles y un nombre accesible aunque oculten su etiqueta visual;
 - las vistas se presentan en el orden `Todos`, `Guardados`, `Favoritos`, `Descartados` y `Etiquetas`;
-- la segunda línea comienza con `Descubrir`, continúa con `Seleccionar` y muestra después `Restablecer` cuando es aplicable; en la vista de descartados, `Restaurar todos` ocupa siempre la última posición y no se añade otro texto para repetir qué vista está activa;
+- la barra de filtros ocupa una sola línea desplazable; cuando existe alguna consulta, ordenación o etiqueta activa, un icono compacto permite restablecerlas desde esa misma línea;
+- `Descubrir` se presenta como un botón flotante circular con dados en la esquina inferior derecha, respeta la zona segura y reserva espacio para no cubrir la última fila;
+- `Seleccionar` y `Restaurar todos` no ocupan una segunda barra; una pulsación prolongada abre la selección y el menú superior conserva una entrada accesible alternativa;
 - una pulsación prolongada sobre cualquier expresión entra directamente en selección múltiple y selecciona su fila bilingüe; un toque normal sigue añadiendo la pieza a la composición y el movimiento vertical cede el control al scroll;
 - desplazar una fila hacia la derecha añade o retira el favorito, mientras que desplazarla hacia la izquierda la descarta o la restaura según la vista; el fondo revelado muestra el icono y su etiqueta, y una vibración breve confirma que se ha alcanzado el umbral;
 - el centro de cada fila muestra dos cheurones como indicación del gesto; en un composite aparece entre ellos una nota con lápiz en lugar del símbolo de agrupación;
-- tocar los cheurones abre una hoja de acciones con alternativas textuales, de modo que los gestos no sean la única vía disponible;
+- los cheurones de una unidad atómica activa son solo una indicación; tocar la nota con lápiz abre directamente la gestión del composite y tocar la flecha central de una unidad descartada la restaura, también cuando sea un composite;
 - durante la selección múltiple, favorito, descarte y etiquetado se agrupan en una única superficie y se representan mediante estrella, papelera y etiqueta para conservar espacio sin reducir su zona táctil;
+- una casilla triestado permite seleccionar o deseleccionar todos los resultados del filtro completo; muestra un estado parcial cuando solo se ha seleccionado una parte y permite restaurar en lote desde `Descartados`;
 - una cruz visualmente pequeña, situada en el extremo derecho, cierra la selección y conserva alrededor un objetivo táctil de 44 píxeles;
 - cada idioma coloca el contador junto a un menú de tres puntos en el extremo derecho y abre su ordenación en una hoja inferior;
 - el filtro de etiquetas aparece anclado justo debajo de su botón, aunque se monta fuera del contenedor de scroll para evitar recortes;
 - los diálogos se montan sobre el documento, ocupan el ancho disponible y respetan las zonas seguras del dispositivo;
 - el documento utiliza la altura dinámica del navegador y mantiene el desplazamiento vertical dentro del catálogo.
 
-Las filas bilingües permanecen alineadas y la composición conserva desplazamiento horizontal propio. Los controles que no caben en una línea pueden desplazarse lateralmente sin ensanchar la página ni reducir el área de trabajo.
+Las filas bilingües permanecen alineadas y la composición conserva desplazamiento horizontal propio. La barra principal puede desplazarse lateralmente sin ensanchar la página ni reducir sus objetivos táctiles. El botón flotante desaparece durante la selección y queda cubierto por los overlays para no competir con una tarea modal.
 
-La primera vez que están disponibles los gestos, un aviso temporal explica ambas direcciones. Favoritos, descartes y restauraciones ofrecen `Deshacer`. Restaurar una colección descartada grande solicita confirmación antes de modificarla.
+La primera vez que están disponibles los gestos, un aviso temporal explica ambas direcciones. Favoritos, descartes y restauraciones ofrecen `Deshacer`. En escritorio, restaurar directamente una colección descartada grande solicita confirmación. En móvil, la misma operación se realiza entrando en selección, marcando todos los resultados y restaurando el lote.
 
 ## Identidad visual
 
@@ -135,7 +140,7 @@ Cada cabecera permite ordenar por el texto o por la longitud en caracteres. Un c
 
 En móvil el panel de ordenación muestra simultáneamente `Sin orden`, la dirección ascendente y la descendente para cada criterio. Elegir una opción aplica la misma lista ordenada que utilizan los controles de escritorio, por lo que cambiar de tamaño no altera el resultado ni las preferencias guardadas.
 
-La acción `Descubrir` selecciona un grupo pequeño y variado de la vista activa. Combina expresiones cortas, medias y largas, y `Otro grupo` permite renovar la selección. Empezar una búsqueda, elegir otra vista u ordenar vuelve al catálogo normal.
+La acción `Descubrir` selecciona hasta 24 semordnilaps atómicos activos. Nunca incluye composites, aunque estos continúan disponibles en `Todos` y `Guardados`. Si existen etiquetas activas, el descubrimiento respeta ese filtro. Una bolsa barajada entrega grupos sin repetir ninguna unidad hasta agotarse; después se vuelve a barajar. `Otro grupo` avanza por esa bolsa. Empezar una búsqueda, elegir otra vista u ordenar vuelve al catálogo normal.
 
 El catálogo conserva todos los resultados en memoria, pero solo monta las filas visibles y un margen próximo. Esta ventana virtual mantiene la altura y la posición de desplazamiento sin crear miles de controles simultáneos.
 
@@ -167,7 +172,7 @@ Las etiquetas son clasificaciones creadas por el usuario y se mantienen separada
 
 La asignación se realiza desde la selección múltiple. Una misma etiqueta puede aplicarse a semordnilaps atómicos y composites, siempre sobre la unidad bilingüe completa. `Etiquetar` permanece deshabilitado hasta que exista una selección. Al activarlo abre un diálogo donde marcar o desmarcar etiquetas prepara una edición temporal; `Aplicar` guarda todos los cambios en una única transacción. Un botón compacto con una cruz abandona después el modo de selección sin sugerir que se revierten cambios ya aplicados.
 
-Las filas reservan un espacio fijo para mostrar hasta tres iconos coloreados en ambos idiomas; las etiquetas adicionales se resumen mediante un contador y los nombres permanecen disponibles como información textual.
+Las filas reservan un carril exterior fijo para mostrar hasta tres iconos coloreados y el contador de usos en ambos idiomas. Las etiquetas adicionales se resumen mediante un contador y los nombres permanecen disponibles como información textual. Reservar el espacio incluso cuando está vacío evita que la longitud de una palabra desplace esos indicadores.
 
 El control `Etiquetas` filtra por cualquiera de las etiquetas seleccionadas sin romper la alineación de las columnas. Las casillas preparan el filtro y el botón `Aplicar` lo activa y cierra el desplegable. El gestor también está accesible desde el menú superior y permite crear, renombrar, cambiar el icono o el color y eliminar etiquetas. La apariencia se elige en una cuadrícula visual de opciones, no mediante selectores nativos. Eliminar una etiqueta retira sus asignaciones en todas las colecciones, pero no modifica los semordnilaps.
 

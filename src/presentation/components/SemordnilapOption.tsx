@@ -55,12 +55,19 @@ export function SemordnilapOption({
       <span className={styles.text}>
         <HighlightedText text={expression.text} query={query} />
       </span>
-      <TagDots tags={tags} />
-      {selectedCount > 0 && (
-        <span className={styles.count} aria-label={`${selectedCount} añadidos`}>
-          {selectedCount}
+      <span className={styles.metadata}>
+        <TagDots tags={tags} />
+        <span
+          className={styles.count}
+          data-visible={selectedCount > 0}
+          aria-label={
+            selectedCount > 0 ? `${selectedCount} añadidos` : undefined
+          }
+          aria-hidden={selectedCount === 0}
+        >
+          {selectedCount > 0 ? selectedCount : ''}
         </span>
-      )}
+      </span>
     </button>
   )
 }

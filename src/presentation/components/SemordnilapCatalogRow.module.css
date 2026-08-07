@@ -12,15 +12,86 @@
   grid-template-columns: minmax(0, 1fr) 4.3rem minmax(0, 1fr);
   height: 100%;
   min-width: 0;
-  background: var(--color-surface-strong);
+  background: linear-gradient(
+    90deg,
+    color-mix(
+      in srgb,
+      var(--color-violet-soft) 48%,
+      var(--color-surface-strong)
+    ),
+    var(--color-surface-strong) 46%,
+    var(--color-surface-strong) 54%,
+    color-mix(
+      in srgb,
+      var(--color-mustard-soft) 48%,
+      var(--color-surface-strong)
+    )
+  );
   transition:
-    box-shadow var(--motion-fast) var(--motion-easing),
+    background var(--motion-fast) var(--motion-easing),
     transform 180ms var(--motion-easing);
 }
 
 .row[data-long-press-pending='true'] {
-  box-shadow: inset 0 0 0 2px
-    color-mix(in srgb, var(--color-violet) 42%, transparent);
+  background: linear-gradient(
+    90deg,
+    color-mix(
+      in srgb,
+      var(--color-violet-soft) 78%,
+      var(--color-surface-strong)
+    ),
+    color-mix(
+        in srgb,
+        var(--color-violet-soft) 28%,
+        var(--color-surface-strong)
+      )
+      50%,
+    color-mix(
+      in srgb,
+      var(--color-mustard-soft) 68%,
+      var(--color-surface-strong)
+    )
+  );
+}
+
+.row:has(button:hover) {
+  background: linear-gradient(
+    90deg,
+    color-mix(
+      in srgb,
+      var(--color-violet-soft) 72%,
+      var(--color-surface-strong)
+    ),
+    var(--color-surface-strong) 50%,
+    color-mix(
+      in srgb,
+      var(--color-mustard-soft) 68%,
+      var(--color-surface-strong)
+    )
+  );
+}
+
+.row[data-selected='true'],
+.row[data-selected='true']:has(button:hover) {
+  background: linear-gradient(
+    90deg,
+    color-mix(
+      in srgb,
+      var(--color-violet-soft) 82%,
+      var(--color-surface-strong)
+    ),
+    color-mix(
+        in srgb,
+        var(--color-violet-soft) 32%,
+        var(--color-surface-strong)
+      )
+      48%,
+    color-mix(
+      in srgb,
+      var(--color-mustard-soft) 72%,
+      var(--color-surface-strong)
+    )
+  );
 }
 
 .row[data-swiping='true'] {

@@ -4,7 +4,13 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { SemordnilapRowActions } from '@/presentation/components/SemordnilapRowActions'
 
-function renderActions(composite = false) {
+function renderActions({
+  composite = false,
+  discardedView = false,
+}: {
+  composite?: boolean
+  discardedView?: boolean
+} = {}) {
   const callbacks = {
     onToggleFavorite: vi.fn(),
     onDiscard: vi.fn(),
@@ -12,11 +18,11 @@ function renderActions(composite = false) {
     onToggleSelection: vi.fn(),
     onOpenComposite: vi.fn(),
   }
-  render(
+  const view = render(
     <SemordnilapRowActions
       text="amor / roma"
       favorite={false}
-      discardedView={false}
+      discardedView={discardedView}
       selectionMode={false}
       selected={false}
       disabled={false}
@@ -25,38 +31,43 @@ function renderActions(composite = false) {
       {...callbacks}
     />,
   )
-  return callbacks
+  return { callbacks, view }
 }
 
 describe('acciones compactas de una fila', () => {
-  it('utiliza los cheurones como acceso alternativo a acciones con texto', async () => {
-    const user = userEvent.setup()
-    renderActions()
-    const trigger = screen.getByRole('button', {
-      name: 'Abrir acciones para amor / roma',
-    })
-    expect(trigger).toHaveTextContent('‹›')
+  it('muestra los cheurones atómicos como pista sin crear una acción falsa', () => {
+    const { view } = renderActions()
 
-    await user.click(trigger)
-    const dialog = screen.getByRole('dialog', {
-      name: 'Acciones del semordnilap',
-    })
-    expect(dialog).toHaveTextContent('Añadir a favoritos')
-    expect(dialog).toHaveTextContent('Descartar')
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+    expect(view.container).toHaveTextContent('‹›')
+    expect(
+      screen.queryByRole('dialog', { name: 'Acciones del semordnilap' }),
+    ).not.toBeInTheDocument()
   })
 
-  it('centra la edición de composites entre ambos cheurones', async () => {
+  it('abre directamente la edición del composite desde el centro', async () => {
     const user = userEvent.setup()
-    const callbacks = renderActions(true)
+    const { callbacks } = renderActions({ composite: true })
     const trigger = screen.getByRole('button', {
-      name: 'Abrir acciones para amor / roma',
+      name: 'Gestionar composite: amor / roma',
     })
 
     expect(trigger).toContainHTML('svg')
     await user.click(trigger)
-    await user.click(
-      screen.getByRole('button', { name: 'Gestionar composite' }),
-    )
     expect(callbacks.onOpenComposite).toHaveBeenCalledOnce()
+  })
+
+  it('prioriza la restauración directa para un composite descartado', async () => {
+    const user = userEvent.setup()
+    const { callbacks } = renderActions({
+      composite: true,
+      discardedView: true,
+    })
+
+    await user.click(
+      screen.getByRole('button', { name: 'Restaurar: amor / roma' }),
+    )
+    expect(callbacks.onRestore).toHaveBeenCalledOnce()
+    expect(callbacks.onOpenComposite).not.toHaveBeenCalled()
   })
 })

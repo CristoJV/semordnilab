@@ -1,8 +1,5 @@
-import { useState } from 'react'
-
 import type { ResponsiveLayout } from '@/presentation/responsive/useResponsiveLayout'
 
-import { ModalDialog } from './ModalDialog'
 import styles from './SemordnilapRowActions.module.css'
 
 type SemordnilapRowActionsProps = {
@@ -36,8 +33,6 @@ export function SemordnilapRowActions({
   onToggleSelection,
   onOpenComposite,
 }: SemordnilapRowActionsProps) {
-  const [actionsOpen, setActionsOpen] = useState(false)
-
   if (selectionMode) {
     return (
       <label className={styles.selection}>
@@ -51,80 +46,56 @@ export function SemordnilapRowActions({
     )
   }
 
-  const runAndClose = (action: () => void) => {
-    setActionsOpen(false)
-    action()
-  }
-
   if (layout === 'compact') {
-    return (
+    const action = discardedView
+      ? onRestore
+      : composite
+        ? onOpenComposite
+        : null
+    const label = discardedView
+      ? `Restaurar: ${text}`
+      : composite
+        ? `Gestionar composite: ${text}`
+        : undefined
+    const content = (
       <>
-        <div className={styles.actions}>
+        <span aria-hidden="true">‹</span>
+        {discardedView ? (
+          <RestoreIcon />
+        ) : composite ? (
+          <EditNoteIcon />
+        ) : (
+          <span className={styles.gestureSpacer} aria-hidden="true" />
+        )}
+        <span aria-hidden="true">›</span>
+      </>
+    )
+
+    return (
+      <div className={styles.actions}>
+        {action && label ? (
           <button
             type="button"
             className={styles.gesture}
             data-favorite={favorite}
             data-discarded={discardedView}
-            onClick={() => setActionsOpen(true)}
-            aria-label={`Abrir acciones para ${text}`}
-            title="Desliza o abre las acciones"
+            disabled={discardedView && disabled}
+            onClick={action}
+            aria-label={label}
+            title={discardedView ? 'Restaurar' : 'Gestionar composite'}
           >
-            <span aria-hidden="true">‹</span>
-            {composite ? (
-              <EditNoteIcon />
-            ) : (
-              <span className={styles.gestureSpacer} aria-hidden="true" />
-            )}
-            <span aria-hidden="true">›</span>
+            {content}
           </button>
-        </div>
-        {actionsOpen && (
-          <ModalDialog
-            title="Acciones del semordnilap"
-            onClose={() => setActionsOpen(false)}
+        ) : (
+          <div
+            className={styles.gesture}
+            data-favorite={favorite}
+            aria-hidden="true"
           >
-            <div className={styles.actionSheet}>
-              <p>
-                Desliza a la derecha para favoritos y a la izquierda para{' '}
-                {discardedView ? 'restaurar' : 'descartar'}.
-              </p>
-              {composite && (
-                <button
-                  type="button"
-                  onClick={() => runAndClose(onOpenComposite)}
-                >
-                  <EditNoteIcon />
-                  <span>Gestionar composite</span>
-                </button>
-              )}
-              <button
-                type="button"
-                disabled={disabled}
-                onClick={() => runAndClose(onToggleFavorite)}
-              >
-                <span className={styles.sheetGlyph} aria-hidden="true">
-                  {favorite ? '☆' : '★'}
-                </span>
-                <span>
-                  {favorite ? 'Quitar de favoritos' : 'Añadir a favoritos'}
-                </span>
-              </button>
-              <button
-                type="button"
-                disabled={disabled}
-                onClick={() =>
-                  runAndClose(discardedView ? onRestore : onDiscard)
-                }
-              >
-                <span className={styles.sheetGlyph} aria-hidden="true">
-                  {discardedView ? '↩' : '⌫'}
-                </span>
-                <span>{discardedView ? 'Restaurar' : 'Descartar'}</span>
-              </button>
-            </div>
-          </ModalDialog>
+            {content}
+          </div>
         )}
-      </>
+      </div>
     )
   }
 
@@ -172,6 +143,14 @@ export function SemordnilapRowActions({
         )}
       </button>
     </div>
+  )
+}
+
+function RestoreIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 8h8a6 6 0 1 1-5.2 9M5 8l3-3M5 8l3 3" />
+    </svg>
   )
 }
 

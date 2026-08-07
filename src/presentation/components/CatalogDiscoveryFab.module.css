@@ -1,0 +1,65 @@
+.fab {
+  position: absolute;
+  z-index: 5;
+  right: calc(0.8rem + env(safe-area-inset-right));
+  bottom: calc(0.8rem + env(safe-area-inset-bottom));
+  display: grid;
+  width: 3.5rem;
+  height: 3.5rem;
+  padding: 0;
+  color: var(--color-mustard);
+  background: var(--color-violet);
+  border: 0;
+  border-radius: 50%;
+  box-shadow:
+    0 0.35rem 0.8rem rgb(45 29 69 / 24%),
+    0 0.12rem 0.25rem rgb(45 29 69 / 20%);
+  cursor: pointer;
+  place-items: center;
+  transition:
+    background-color var(--motion-fast) var(--motion-easing),
+    box-shadow var(--motion-fast) var(--motion-easing),
+    transform var(--motion-fast) var(--motion-easing);
+}
+
+.fab svg {
+  width: 1.55rem;
+  height: 1.55rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.fab circle {
+  fill: currentColor;
+  stroke: none;
+}
+
+.fab[data-active='true'] {
+  color: var(--color-violet-strong);
+  background: var(--color-mustard);
+}
+
+.fab:hover {
+  box-shadow:
+    0 0.5rem 1.05rem rgb(45 29 69 / 28%),
+    0 0.15rem 0.3rem rgb(45 29 69 / 22%);
+  transform: translateY(-2px);
+}
+
+.fab:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.fab:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-mustard) 65%, white);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fab {
+    transition: none;
+  }
+}

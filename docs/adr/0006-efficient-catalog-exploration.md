@@ -19,7 +19,9 @@ La selección, puntuación y localización del resaltado son funciones puras de 
 
 ## Decisión de descubrimiento
 
-`Descubrir` toma hasta 24 unidades activas y reparte el grupo entre expresiones cortas, medias y largas. Una semilla produce una selección determinista durante el renderizado, y `Otro grupo` avanza la semilla. Buscar, ordenar o cambiar de vista cancela el modo.
+`Descubrir` toma hasta 24 unidades atómicas activas. No incorpora composites. Si hay etiquetas activas, estas delimitan el conjunto elegible. La presentación baraja los identificadores mediante Fisher-Yates y los consume sin reemplazo, por lo que `Otro grupo` no repite unidades hasta haber agotado la bolsa. El siguiente avance crea una permutación nueva. La función acepta una fuente de azar inyectada para que las pruebas sean deterministas sin hacer predecible la experiencia real.
+
+Buscar, ordenar o cambiar de vista cancela el modo. En móvil, la acción se representa mediante un botón flotante con dados; en escritorio conserva un botón textual. Ambos ejecutan el mismo comando y muestran el mismo conjunto lógico.
 
 El descubrimiento es efímero. No se incorpora al formato de preferencias ni a la base de datos.
 
@@ -31,7 +33,9 @@ El contenedor no se reinicia cuando cambia un favorito o se abre un diálogo de 
 
 ## Simplificación visual
 
-La pestaña `Descartados` es el único acceso superior a esa colección. Se retiran las papeleras duplicadas de las dos cabeceras. La acción individual de descarte permanece en cada fila como una papelera secundaria, además de la selección múltiple y la recuperación temporal.
+La pestaña `Descartados` es el único acceso superior a esa colección. Se retiran las papeleras duplicadas de las dos cabeceras. La acción individual de descarte permanece en cada fila amplia y como gesto lateral en móvil, además de la selección múltiple y la recuperación temporal.
+
+Las filas del catálogo no se presentan como tarjetas separadas. El violeta y el mostaza se unen mediante un fondo continuo, el canal central deja de tener bordes y la selección utiliza un cambio suave de fondo en la pareja completa. La cabecera mantiene su separación porque contiene controles independientes. Etiquetas y recuentos ocupan carriles exteriores fijos para que el texto no modifique su alineación.
 
 Los avisos del catálogo y de la composición comparten una única cola flotante. El indicador textual `C` de los composites se sustituye por un icono de capas. En la composición, señalar o enfocar una pieza resalta también su correspondencia en el otro idioma.
 
@@ -40,6 +44,7 @@ Los avisos del catálogo y de la composición comparten una única cola flotante
 - Cambiar estados deja de producir saltos inesperados.
 - El número de nodos depende del área visible y no del tamaño completo del resultado.
 - La búsqueda conocida y la exploración casual tienen entradas distintas y sencillas.
+- El descubrimiento es impredecible durante el uso, pero su algoritmo sigue siendo verificable.
 - No cambia el esquema de IndexedDB ni el formato de las copias de seguridad.
 - La altura fija limita cada expresión a dos líneas visibles; el texto completo sigue disponible en el nombre accesible y el título de frecuencia.
 - La máquina de estados de puntero y las pruebas de integración cubren la interacción disponible, pero la variación propia de navegadores táctiles requiere validación manual o un entorno end-to-end con navegador instalado.

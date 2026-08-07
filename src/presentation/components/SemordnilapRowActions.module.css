@@ -5,8 +5,8 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  background: var(--color-surface);
-  border-inline: 1px solid var(--color-border);
+  background: transparent;
+  border-inline: 0;
 }
 
 .gesture {
@@ -121,6 +121,15 @@
     cursor: pointer;
   }
 
+  div.gesture {
+    cursor: default;
+  }
+
+  .gesture:disabled {
+    cursor: wait;
+    opacity: 0.45;
+  }
+
   .gesture > span:first-child {
     justify-self: start;
   }
@@ -160,62 +169,6 @@
     outline: 3px solid color-mix(in srgb, var(--color-violet) 35%, transparent);
     outline-offset: -3px;
   }
-}
-
-.actionSheet {
-  display: grid;
-  gap: 0.5rem;
-}
-
-.actionSheet p {
-  margin: 0 0 0.2rem;
-  color: var(--color-text-muted);
-  font-size: 0.78rem;
-}
-
-.actionSheet button {
-  display: grid;
-  grid-template-columns: 1.5rem minmax(0, 1fr);
-  gap: 0.65rem;
-  align-items: center;
-  min-height: 2.75rem;
-  padding: 0.65rem 0.8rem;
-  color: var(--color-text);
-  font: inherit;
-  font-size: 0.82rem;
-  font-weight: 750;
-  text-align: left;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 0.7rem;
-  cursor: pointer;
-}
-
-.actionSheet button:hover:not(:disabled) {
-  color: var(--color-violet-strong);
-  border-color: var(--color-violet);
-}
-
-.actionSheet button:disabled {
-  cursor: wait;
-  opacity: 0.45;
-}
-
-.actionSheet button svg,
-.sheetGlyph {
-  width: 1.2rem;
-  height: 1.2rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.65;
-}
-
-.sheetGlyph {
-  display: grid;
-  font-size: 1.05rem;
-  place-items: center;
 }
 
 @media (hover: none) {

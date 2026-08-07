@@ -35,18 +35,22 @@ Las direcciones se traducen en presentación:
 
 La fila se mueve mediante `transform` y revela `CatalogSwipeFeedback`. Este fondo muestra un icono sobre una etiqueta textual y cambia de color según la acción. No ejecuta casos de uso ni conoce el estado persistido.
 
-El centro móvil utiliza cheurones como indicación visual. En los composites aparece una nota con lápiz entre ellos. Tocar este control abre una hoja con las mismas acciones escritas y, cuando corresponde, el acceso a la gestión del composite. La selección múltiple continúa disponible mediante el botón `Seleccionar` y la pulsación prolongada.
+El centro móvil utiliza cheurones como indicación visual. En una unidad atómica activa no constituyen un botón. En los composites activos aparece una nota con lápiz entre ellos y tocarla abre directamente la gestión. En la vista de descartados, una flecha central restaura directamente la unidad y tiene prioridad sobre la edición de un composite. Se elimina la hoja de acciones porque añadía un paso y duplicaba funciones ya cubiertas por el gesto, la acción contextual y la selección múltiple.
+
+La selección múltiple continúa disponible mediante la pulsación prolongada y una entrada alternativa en el menú superior. Una casilla triestado selecciona el conjunto filtrado completo, no únicamente las filas virtualizadas visibles. En `Descartados`, esta combinación sustituye al botón móvil `Restaurar todos`.
+
+La fila se representa como una unidad visual continua: el centro no añade bordes ni un fondo independiente, y un gradiente muy suave enlaza los colores de ambos idiomas. La cabecera conserva su separación. La selección cambia el matiz de la pareja completa sin incorporar contornos ni modificar sus dimensiones.
 
 Los cambios de favorito, descarte y restauración utilizan los casos de uso existentes. Cada acción individual muestra un aviso con recuperación. Restaurar al menos diez descartados solicita confirmación. Un aviso sobre los gestos se presenta una sola vez y su marca local no forma parte de los datos personales exportables.
 
 ## Verificación
 
-La máquina de estados se prueba sin React para toque, selección prolongada, scroll, ambos sentidos, límites y umbral de confirmación. El hook se prueba con Pointer Events para comprobar la supresión del clic posterior. Las pruebas de la página verifican el fondo con icono y etiqueta, los cambios de estado, la restauración y la confirmación de colecciones grandes. La hoja alternativa y el icono específico de composites tienen pruebas de componente.
+La máquina de estados se prueba sin React para toque, selección prolongada, scroll, ambos sentidos, límites y umbral de confirmación. El hook se prueba con Pointer Events para comprobar la supresión del clic posterior. Las pruebas de la página verifican el fondo con icono y etiqueta, los cambios de estado, la restauración central y la selección global. Las acciones centrales atómica, composite y descartada tienen pruebas de componente.
 
 ## Consecuencias
 
 - Toque, scroll, selección y gesto lateral tienen una única interpretación coordinada.
 - La animación afecta a una fila montada y no obliga a renderizar de nuevo todo el catálogo.
 - El dominio, los casos de uso y la base de datos permanecen sin cambios.
-- La entrada por teclado y la hoja de acciones evitan depender exclusivamente del gesto.
+- La pulsación prolongada, el menú y las acciones contextuales evitan depender exclusivamente del gesto lateral.
 - La dirección de cada acción puede convertirse en una preferencia futura sin cambiar la máquina de estados.

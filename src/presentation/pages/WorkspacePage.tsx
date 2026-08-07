@@ -36,6 +36,8 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
     useState<WorkspaceUtilityOverlay>(null)
   const [selectedComposite, setSelectedComposite] =
     useState<CompositeSemordnilap | null>(null)
+  const [catalogSelectionRequested, setCatalogSelectionRequested] =
+    useState(false)
   const { notifications, notify, dismiss } = useTransientNotifications()
   const layout = useResponsiveLayout()
   const preferences = useWorkspacePreferences(dependencies)
@@ -84,6 +86,14 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
   const handleDatasetChange = useCallback(
     (datasetId: string) => selectDataset(datasetId),
     [selectDataset],
+  )
+  const startCatalogSelection = useCallback(
+    () => setCatalogSelectionRequested(true),
+    [],
+  )
+  const acknowledgeCatalogSelection = useCallback(
+    () => setCatalogSelectionRequested(false),
+    [],
   )
 
   const selectedCounts = useMemo(() => {
@@ -177,6 +187,11 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
               onManageTags={() => setUtilityOverlay('tag-manager')}
               onNotify={notify}
               layout={layout}
+              overlayOpen={
+                utilityOverlay !== null || selectedComposite !== null
+              }
+              selectionRequested={catalogSelectionRequested}
+              onSelectionRequestHandled={acknowledgeCatalogSelection}
             />
           ) : (
             <div className={styles.catalogState}>
@@ -232,6 +247,9 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
           onClose={() => setUtilityOverlay(null)}
           onImported={() => window.location.reload()}
           onManageTags={() => setUtilityOverlay('tag-manager')}
+          onStartSelection={
+            layout === 'compact' ? startCatalogSelection : undefined
+          }
         />
       )}
 

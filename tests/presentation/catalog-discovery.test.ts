@@ -1,43 +1,80 @@
 import { describe, expect, it } from 'vitest'
 
-import { selectDiscoveryItems } from '@/presentation/components/catalog-discovery'
+import type { SemordnilapCatalogItem } from '@/application'
+import type { CompositeSemordnilap } from '@/domain/semordnilap'
+import {
+  advanceDiscoverySession,
+  resolveDiscoveryItems,
+  shuffleCatalogItems,
+} from '@/presentation/components/catalog-discovery'
 
 import { createAtomicSemordnilap, createCatalogItem } from '../support/fixtures'
 
 const items = Array.from({ length: 30 }, (_, index) => {
-  const length = index % 3 === 0 ? 4 : index % 3 === 1 ? 8 : 14
-  const text = String(index).padEnd(length, 'a')
+  const text = `item ${index}`
   return createCatalogItem(
     createAtomicSemordnilap(`item-${index}`, text, text, text, text),
   )
 })
 
+const ids = (selected: readonly SemordnilapCatalogItem[]) =>
+  selected.map(({ semordnilap }) => semordnilap.id)
+
 describe('descubrimiento del catálogo', () => {
-  it('limita el grupo y mantiene variedad de longitudes', () => {
-    const selected = selectDiscoveryItems(items, 7, 9)
-    const buckets = new Set(
-      selected.map(({ semordnilap }) => {
-        const length = semordnilap.source.normalized.length
-        return length <= 5 ? 'short' : length <= 10 ? 'medium' : 'long'
-      }),
+  it('baraja de forma reproducible cuando se inyecta el azar', () => {
+    const sequence = [0.15, 0.8, 0.35, 0.6]
+    const random = () => sequence.shift() ?? 0.25
+    const first = shuffleCatalogItems(items.slice(0, 5), random)
+    const repeatedSequence = [0.15, 0.8, 0.35, 0.6]
+    const repeated = shuffleCatalogItems(
+      items.slice(0, 5),
+      () => repeatedSequence.shift() ?? 0.25,
     )
 
-    expect(selected).toHaveLength(9)
-    expect(buckets).toEqual(new Set(['short', 'medium', 'long']))
+    expect(ids(first)).toEqual(ids(repeated))
+    expect(new Set(ids(first))).toEqual(new Set(ids(items.slice(0, 5))))
   })
 
-  it('es estable para una semilla y cambia con la siguiente', () => {
-    const first = selectDiscoveryItems(items, 3, 12).map(
-      ({ semordnilap }) => semordnilap.id,
-    )
-    const repeated = selectDiscoveryItems(items, 3, 12).map(
-      ({ semordnilap }) => semordnilap.id,
-    )
-    const next = selectDiscoveryItems(items, 4, 12).map(
-      ({ semordnilap }) => semordnilap.id,
-    )
+  it('no repite elementos hasta agotar la bolsa', () => {
+    let session = advanceDiscoverySession(items, null, () => 0.4, 9)
+    const groups: string[][] = []
+    for (let index = 0; index < 4; index += 1) {
+      groups.push(ids(resolveDiscoveryItems(items, session)))
+      session = advanceDiscoverySession(items, session, () => 0.4, 9)
+    }
 
-    expect(repeated).toEqual(first)
-    expect(next).not.toEqual(first)
+    const completeBag = groups.flat()
+    expect(completeBag).toHaveLength(30)
+    expect(new Set(completeBag)).toHaveLength(30)
+    expect(groups.map((group) => group.length)).toEqual([9, 9, 9, 3])
+
+    const reshuffled = resolveDiscoveryItems(items, session)
+    expect(reshuffled).toHaveLength(9)
+  })
+
+  it('excluye composites aunque formen parte del catálogo normal', () => {
+    const base = items[0]!
+    const composite: CompositeSemordnilap = {
+      kind: 'composite',
+      id: 'composite-1',
+      datasetId: base.semordnilap.datasetId,
+      components: [],
+      atomicComponents: [],
+      source: base.semordnilap.source,
+      target: base.semordnilap.target,
+      createdAt: '2026-08-07T00:00:00.000Z',
+      updatedAt: '2026-08-07T00:00:00.000Z',
+    }
+    const catalog = [
+      ...items.slice(0, 3),
+      { ...base, semordnilap: composite, metadata: null },
+    ]
+    const session = advanceDiscoverySession(catalog, null, () => 0.5, 10)
+
+    expect(
+      resolveDiscoveryItems(catalog, session).map(
+        ({ semordnilap }) => semordnilap.kind,
+      ),
+    ).toEqual(['atomic', 'atomic', 'atomic'])
   })
 })

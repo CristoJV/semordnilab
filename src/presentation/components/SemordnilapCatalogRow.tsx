@@ -95,6 +95,7 @@ export function SemordnilapCatalogRow({
       <div
         {...interaction.bindings}
         className={styles.row}
+        data-selected={selected}
         data-long-press-pending={interaction.state.value === 'pending'}
         data-swiping={Boolean(swiping)}
         style={{

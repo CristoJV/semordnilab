@@ -2,48 +2,77 @@ import type { SemordnilapCatalogItem } from '@/application'
 
 const DISCOVERY_LIMIT = 24
 
-function stableDiscoveryValue(id: string, seed: number): number {
-  let hash = 2166136261 ^ seed
-  for (const character of id) {
-    hash ^= character.codePointAt(0) ?? 0
-    hash = Math.imul(hash, 16777619)
-  }
-  return hash >>> 0
+export type CatalogDiscoverySession = {
+  universeKey: string
+  remainingIds: readonly string[]
+  visibleIds: readonly string[]
 }
 
-function lengthBucket(item: SemordnilapCatalogItem): number {
-  const length = Array.from(item.semordnilap.source.normalized).length
-  if (length <= 5) return 0
-  if (length <= 10) return 1
-  return 2
-}
+type RandomSource = () => number
 
-export function selectDiscoveryItems(
+function atomicItems(
   items: readonly SemordnilapCatalogItem[],
-  seed: number,
-  limit: number = DISCOVERY_LIMIT,
 ): readonly SemordnilapCatalogItem[] {
-  if (limit <= 0) return []
-  const buckets = [[], [], []] as SemordnilapCatalogItem[][]
-  for (const item of items) buckets[lengthBucket(item)]!.push(item)
-  for (const bucket of buckets) {
-    bucket.sort(
-      (first, second) =>
-        stableDiscoveryValue(first.semordnilap.id, seed) -
-        stableDiscoveryValue(second.semordnilap.id, seed),
-    )
+  return items.filter(({ semordnilap }) => semordnilap.kind === 'atomic')
+}
+
+function universeKey(items: readonly SemordnilapCatalogItem[]): string {
+  return items
+    .map(({ semordnilap }) => semordnilap.id)
+    .toSorted()
+    .join('\u001f')
+}
+
+export function shuffleCatalogItems(
+  items: readonly SemordnilapCatalogItem[],
+  random: RandomSource = Math.random,
+): readonly SemordnilapCatalogItem[] {
+  const shuffled = [...items]
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(random() * (index + 1))
+    const boundedIndex = Math.min(Math.max(randomIndex, 0), index)
+    const current = shuffled[index]!
+    shuffled[index] = shuffled[boundedIndex]!
+    shuffled[boundedIndex] = current
+  }
+  return shuffled
+}
+
+export function advanceDiscoverySession(
+  items: readonly SemordnilapCatalogItem[],
+  current: CatalogDiscoverySession | null,
+  random: RandomSource = Math.random,
+  limit: number = DISCOVERY_LIMIT,
+): CatalogDiscoverySession {
+  const eligible = atomicItems(items)
+  const key = universeKey(eligible)
+  if (limit <= 0 || eligible.length === 0) {
+    return { universeKey: key, remainingIds: [], visibleIds: [] }
   }
 
-  const selected: SemordnilapCatalogItem[] = []
-  let bucketIndex = Math.abs(seed) % buckets.length
-  while (
-    selected.length < Math.min(limit, items.length) &&
-    buckets.some((bucket) => bucket.length > 0)
-  ) {
-    const bucket = buckets[bucketIndex]!
-    const item = bucket.shift()
-    if (item) selected.push(item)
-    bucketIndex = (bucketIndex + 1) % buckets.length
+  const canContinue =
+    current?.universeKey === key && current.remainingIds.length > 0
+  const bag = canContinue
+    ? [...current.remainingIds]
+    : shuffleCatalogItems(eligible, random).map(
+        ({ semordnilap }) => semordnilap.id,
+      )
+  const groupSize = Math.min(limit, bag.length)
+
+  return {
+    universeKey: key,
+    visibleIds: bag.slice(0, groupSize),
+    remainingIds: bag.slice(groupSize),
   }
-  return selected
+}
+
+export function resolveDiscoveryItems(
+  items: readonly SemordnilapCatalogItem[],
+  session: CatalogDiscoverySession,
+): readonly SemordnilapCatalogItem[] {
+  const byId = new Map(items.map((item) => [item.semordnilap.id, item]))
+  return session.visibleIds.flatMap((id) => {
+    const item = byId.get(id)
+    return item?.semordnilap.kind === 'atomic' ? [item] : []
+  })
 }

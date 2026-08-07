@@ -213,17 +213,29 @@ describe('WorkspacePage', () => {
     expect(
       within(catalog).getByRole('searchbox', { name: 'Buscar en Español' }),
     ).toHaveAttribute('placeholder', 'Buscar')
-    const discover = within(catalog).getByRole('button', { name: 'Descubrir' })
-    const select = within(catalog).getByRole('button', { name: 'Seleccionar' })
+    const discoveryFab = within(catalog).getByRole('button', {
+      name: 'Descubrir semordnilaps',
+    })
+    expect(discoveryFab).toContainHTML('svg')
     expect(
-      discover.compareDocumentPosition(select) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy()
+      within(catalog).queryByRole('button', { name: 'Seleccionar' }),
+    ).not.toBeInTheDocument()
+    expect(catalog).toHaveTextContent('‹›')
+
+    await user.click(discoveryFab)
     expect(
+      within(catalog).getByRole('button', { name: 'Mostrar otro grupo' }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    const sourceSearch = within(catalog).getByRole('searchbox', {
+      name: 'Buscar en Español',
+    })
+    await user.type(sourceSearch, 'ella')
+    await user.click(
       within(catalog).getByRole('button', {
-        name: 'Abrir acciones para ella / a lle',
+        name: 'Restablecer filtros y orden',
       }),
-    ).toHaveTextContent('‹›')
+    )
+    expect(sourceSearch).toHaveValue('')
 
     await user.click(
       within(catalog).getByRole('button', {
@@ -263,6 +275,10 @@ describe('WorkspacePage', () => {
     expect(
       within(catalog).getByRole('button', { name: 'Deseleccionar ella' }),
     ).toBeInTheDocument()
+    expect(longPressedOption.closest('[data-selected]')).toHaveAttribute(
+      'data-selected',
+      'true',
+    )
     vi.useRealTimers()
     const addFavorite = within(catalog).getByRole('button', {
       name: 'Añadir a favoritos',
@@ -375,30 +391,20 @@ describe('WorkspacePage', () => {
       name: 'Añadir ella a la composición',
     })
     row = option.closest('li')
-    fireEvent.pointerDown(option, {
-      button: 0,
-      pointerId: 33,
-      pointerType: 'touch',
-      clientX: 100,
-      clientY: 20,
-    })
-    fireEvent.pointerMove(option, {
-      buttons: 1,
-      pointerId: 33,
-      pointerType: 'touch',
-      clientX: 20,
-      clientY: 21,
-    })
     expect(
-      within(row as HTMLElement).getByText('Restaurar'),
+      within(catalog).queryByRole('button', { name: 'Restaurar todos' }),
+    ).not.toBeInTheDocument()
+    await userEvent.setup().click(
+      within(row as HTMLElement).getByRole('button', {
+        name: 'Restaurar: ella / a lle',
+      }),
+    )
+    expect(
+      screen.queryByRole('dialog', { name: 'Acciones del semordnilap' }),
+    ).not.toBeInTheDocument()
+    expect(
+      await screen.findByText('Semordnilap restaurado.'),
     ).toBeInTheDocument()
-    fireEvent.pointerUp(option, {
-      button: 0,
-      pointerId: 33,
-      pointerType: 'touch',
-      clientX: 20,
-      clientY: 21,
-    })
     await waitFor(() =>
       expect(
         within(catalog).queryByRole('button', {
@@ -406,6 +412,51 @@ describe('WorkspacePage', () => {
         }),
       ).not.toBeInTheDocument(),
     )
+  })
+
+  it('ofrece selección accesible desde el menú móvil y controla todo el filtro', async () => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn((query: string) => ({
+        media: query,
+        matches: query === '(max-width: 560px)',
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })),
+    )
+    const user = userEvent.setup()
+    render(
+      <WorkspacePage dependencies={createDependencies({}, testDataset.id)} />,
+    )
+    const catalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
+
+    await user.click(screen.getByRole('button', { name: 'Menú' }))
+    expect(
+      within(catalog).queryByRole('button', {
+        name: 'Descubrir semordnilaps',
+      }),
+    ).not.toBeInTheDocument()
+    await user.click(
+      screen.getByRole('button', { name: 'Seleccionar semordnilaps' }),
+    )
+
+    const selectAll = within(catalog).getByRole('checkbox', {
+      name: 'Seleccionar los 2 resultados',
+    })
+    expect(selectAll).not.toBeChecked()
+    await user.click(
+      within(catalog).getByRole('button', { name: 'Seleccionar ella' }),
+    )
+    expect(selectAll).toBePartiallyChecked()
+    expect(selectAll).toHaveAttribute('aria-checked', 'mixed')
+    await user.click(selectAll)
+    expect(selectAll).toBeChecked()
+    expect(within(catalog).getByText('2 seleccionados')).toBeInTheDocument()
+    await user.click(selectAll)
+    expect(selectAll).not.toBeChecked()
+    expect(within(catalog).getByText('0 seleccionados')).toBeInTheDocument()
   })
 
   it('restaura el conjunto lingüístico guardado al iniciar', async () => {
@@ -799,6 +850,16 @@ describe('WorkspacePage', () => {
         name: 'Añadir ella no se a la composición',
       }),
     ).toBeInTheDocument()
+
+    await user.click(within(catalog).getByRole('button', { name: 'Descubrir' }))
+    expect(within(catalog).getAllByRole('listitem')).toHaveLength(2)
+    expect(
+      within(catalog).queryByRole('button', {
+        name: 'Añadir ella no se a la composición',
+      }),
+    ).not.toBeInTheDocument()
+    await user.click(within(catalog).getByRole('button', { name: /Todos 3/ }))
+    expect(within(catalog).getAllByRole('listitem')).toHaveLength(3)
 
     await user.click(screen.getByRole('button', { name: 'Guardar composite' }))
     expect(
@@ -1299,9 +1360,11 @@ describe('WorkspacePage', () => {
     await user.click(
       within(catalog).getByRole('button', { name: 'Seleccionar' }),
     )
-    for (const checkbox of within(catalog).getAllByRole('checkbox')) {
-      await user.click(checkbox)
-    }
+    await user.click(
+      within(catalog).getByRole('checkbox', {
+        name: 'Seleccionar los 10 resultados',
+      }),
+    )
     await user.click(within(catalog).getByRole('button', { name: 'Descartar' }))
     await user.click(
       within(catalog).getByRole('button', { name: /Descartados 10/ }),

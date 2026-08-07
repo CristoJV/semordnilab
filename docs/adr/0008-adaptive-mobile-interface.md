@@ -23,13 +23,17 @@ Los cambios de representación respetan contratos comunes:
 - las cabeceras colocan el contador antes del menú de tres puntos, que queda alineado al extremo derecho;
 - `catalog-sort` contiene las funciones puras utilizadas por las dos representaciones para conservar prioridades y combinaciones.
 
-La barra del catálogo separa controles primarios y secundarios. El primer grupo contiene `Todos`, `Guardados`, `Favoritos`, `Descartados` y `Etiquetas`. El segundo comienza con `Descubrir`, continúa con `Seleccionar`, muestra `Restablecer` cuando existe algún filtro y termina con `Restaurar todos` en la vista de descartados. La pestaña activa ya comunica esa vista, por lo que no se repite mediante un mensaje adicional. Los grupos admiten desplazamiento horizontal si el ancho disponible no permite conservar tamaños táctiles seguros.
+La barra compacta del catálogo contiene una sola fila desplazable con `Todos`, `Guardados`, `Favoritos`, `Descartados` y `Etiquetas`. Si existe alguna consulta, ordenación o etiqueta activa, un icono de restablecimiento aparece al final de esa misma fila. La pestaña activa ya comunica la vista, por lo que no se repite mediante otro mensaje.
 
-En selección múltiple, las acciones de favorito, descarte y etiquetado conservan sus nombres accesibles, pero muestran únicamente una estrella, una papelera y una etiqueta en modo compacto. Las tres acciones forman un grupo visual continuo, mientras que la cruz de cierre queda separada y pegada al extremo derecho. El trazo de la cruz es pequeño y discreto, pero su superficie táctil sigue midiendo al menos 44 píxeles.
+`Descubrir` se separa de la barra y se representa mediante un botón flotante circular con dados. Conserva 56 píxeles de superficie, respeta las zonas seguras y el listado reserva espacio inferior para no ocultar resultados. El botón desaparece durante la selección y no compite visualmente con overlays. `Seleccionar` deja de ocupar espacio permanente porque la pulsación prolongada abre ese modo; el menú superior mantiene una entrada accesible alternativa. `Restaurar todos` permanece en escritorio, mientras que en móvil se sustituye por selección múltiple y selección global.
+
+En selección múltiple, una casilla triestado actúa sobre el resultado filtrado completo, incluidas las filas que la virtualización no ha montado. Después aparece el recuento flexible. Las acciones de favorito, descarte o restauración y etiquetado se anclan al extremo derecho y conservan su posición cuando cambia el número. Sus nombres siguen siendo accesibles, pero muestran únicamente una estrella, una papelera o flecha y una etiqueta. La cruz de cierre queda separada al final. El trazo de la cruz es pequeño y discreto, pero su superficie táctil sigue midiendo al menos 44 píxeles.
 
 Una pulsación prolongada sobre cualquiera de las dos expresiones de una fila activa la selección múltiple y deja seleccionada esa unidad bilingüe. La misma máquina de estados distingue el toque breve, el scroll vertical y el desplazamiento horizontal. El toque breve conserva su función de añadir a la composición y se suprime cualquier clic generado después de otro gesto.
 
-En móvil, el centro de una fila ordinaria muestra dos cheurones. Una fila composite sitúa entre ellos una nota con lápiz que sustituye al símbolo de agrupación. Tocar el conjunto abre una hoja con acciones textuales y la gestión del composite. Deslizar revela un fondo con icono y etiqueta: derecha cambia el favorito e izquierda descarta o restaura. La decisión completa se registra en el ADR 0009.
+En móvil, el centro de una fila atómica activa muestra dos cheurones no interactivos. Una fila composite activa sitúa entre ellos una nota con lápiz y tocarla abre directamente su gestión. En `Descartados`, el centro muestra una flecha de restauración y tocarla restaura la unidad; esta acción tiene prioridad aunque sea un composite. Ya no existe una hoja intermedia de acciones. Deslizar revela un fondo con icono y etiqueta: derecha cambia el favorito e izquierda descarta o restaura. La decisión completa se registra en el ADR 0009.
+
+La lista integra visualmente ambas columnas sin alterar la cabecera. Cada fila carece de redondeado y borde central, y usa un fondo continuo del violeta al mostaza. La selección cambia ese fondo de forma discreta en vez de dibujar un contorno. Etiquetas y contadores ocupan carriles exteriores fijos y simétricos para que textos de distinta longitud no los desplacen.
 
 El filtro móvil de etiquetas utiliza `AnchoredPopover`: se monta en `document.body` para escapar del overflow horizontal, calcula su posición bajo el botón y se recoloca ante scroll, redimensionado o cambios del viewport visual. No usa un fondo modal y se cierra al aplicar, pulsar fuera o usar Escape.
 
@@ -41,7 +45,7 @@ La página usa `100dvh`. El catálogo conserva el desplazamiento vertical, las s
 
 ## Verificación
 
-Las funciones de ordenación tienen pruebas unitarias para combinación, prioridad, retirada y ciclo. El control compacto se prueba como interacción completa. La prueba de la página simula la consulta de medios, cambia el dataset desde la hoja móvil, comprueba los comandos de composición mediante iconos, entra en selección mediante una pulsación prolongada, ejecuta gestos laterales y verifica que el estado normal de persistencia no ocupe una barra visible.
+Las funciones de ordenación tienen pruebas unitarias para combinación, prioridad, retirada y ciclo. El control compacto se prueba como interacción completa. La prueba de la página simula la consulta de medios, cambia el dataset desde la hoja móvil, comprueba los comandos de composición mediante iconos, entra en selección mediante una pulsación prolongada y desde el menú, verifica la casilla triestado, ejecuta gestos laterales y comprueba la restauración central directa. El estado normal de persistencia no ocupa una barra visible.
 
 Los diálogos tienen pruebas específicas para portal, foco, Escape y cierre mediante fondo. El filtro de etiquetas comprueba por separado el anclaje, el portal, la aplicación y el cierre exterior. La respuesta a cambios de la consulta de medios también se comprueba de forma aislada. La validación automatizada se completa con tipos, lint, formato, pruebas y construcción.
 
@@ -50,6 +54,7 @@ Los diálogos tienen pruebas específicas para portal, foco, Escape y cierre med
 - Móvil y escritorio no pueden divergir en reglas de composición, filtrado u ordenación.
 - Una nueva variante visual puede reutilizar comandos sin introducir una segunda página.
 - Las acciones principales resultan pulsables sin aumentar la altura del área de trabajo.
+- El catálogo móvil recupera una fila vertical completa y mantiene una vía accesible hacia la selección.
 - La selección por pulsación prolongada ahorra un toque sin impedir el desplazamiento normal del catálogo.
 - Las acciones frecuentes pueden ejecutarse con un gesto y conservan una alternativa textual accesible.
 - Los overlays dejan de depender del árbol de overflow que los abrió.

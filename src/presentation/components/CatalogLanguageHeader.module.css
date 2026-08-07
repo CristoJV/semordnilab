@@ -112,7 +112,12 @@
 
 @media (max-width: 560px) {
   .header {
+    padding-block: 0.45rem;
     padding-inline: 0.65rem;
+  }
+
+  .heading {
+    margin-bottom: 0.3rem;
   }
 
   .heading h2 {
