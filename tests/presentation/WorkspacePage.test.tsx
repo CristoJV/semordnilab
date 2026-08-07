@@ -633,11 +633,21 @@ describe('WorkspacePage', () => {
     const sharedCompositionScroll = screen.getByRole('region', {
       name: 'Desplazar ambas composiciones',
     })
+    const fixedLanguageLabels = sharedCompositionScroll.previousElementSibling
 
     expect(getComponentTexts(sourceComposition)).toEqual(['ella', 'no se'])
     expect(getComponentTexts(targetComposition)).toEqual(['e son', 'a lle'])
+    expect(fixedLanguageLabels).toHaveTextContent('Español')
+    expect(fixedLanguageLabels).toHaveTextContent('Gallego')
+    expect(sharedCompositionScroll.contains(fixedLanguageLabels)).toBe(false)
     expect(sharedCompositionScroll).toContainElement(sourceComposition)
     expect(sharedCompositionScroll).toContainElement(targetComposition)
+    expect(sharedCompositionScroll).not.toContainElement(
+      screen.getByRole('button', { name: 'Plegar composición' }),
+    )
+    expect(sharedCompositionScroll).not.toContainElement(
+      screen.getByRole('button', { name: 'Vaciar' }),
+    )
     expect(
       document.querySelectorAll('[data-composition-scroll="shared"]'),
     ).toHaveLength(1)

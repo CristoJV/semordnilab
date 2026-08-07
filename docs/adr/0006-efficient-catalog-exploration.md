@@ -35,7 +35,7 @@ El contenedor no se reinicia cuando cambia un favorito o se abre un diálogo de 
 
 La pestaña `Descartados` es el único acceso superior a esa colección. Se retiran las papeleras duplicadas de las dos cabeceras. La acción individual de descarte permanece en cada fila amplia y como gesto lateral en móvil, además de la selección múltiple y la recuperación temporal.
 
-Las filas del catálogo no se presentan como tarjetas separadas. El violeta y el mostaza se unen mediante un fondo continuo, el canal central deja de tener bordes y la selección utiliza un cambio suave de fondo en la pareja completa. La cabecera mantiene la separación de sus controles mediante una línea central. Las etiquetas aparecen una vez en el carril exterior izquierdo y el recuento una vez en el derecho para que el texto no modifique su alineación ni se duplique información compartida.
+Las filas del catálogo no se presentan como tarjetas separadas. El violeta y el mostaza se unen mediante un fondo continuo, el canal central deja de tener bordes y la selección utiliza un cambio suave de fondo en la pareja completa. La cabecera mantiene la separación de sus controles mediante una línea vertical central. Las etiquetas aparecen una vez en el carril exterior izquierdo y el recuento una vez en el derecho para que el texto no modifique su alineación ni se duplique información compartida.
 
 Los avisos del catálogo y de la composición comparten una única cola flotante. El indicador textual `C` de los composites se sustituye por un icono de capas. En la composición, señalar o enfocar una pieza resalta también su correspondencia en el otro idioma.
 

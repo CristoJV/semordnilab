@@ -39,7 +39,7 @@ El centro móvil utiliza cheurones como indicación visual. En una unidad atómi
 
 La selección múltiple continúa disponible mediante la pulsación prolongada y una entrada alternativa en el menú superior. Una casilla triestado selecciona el conjunto filtrado completo, no únicamente las filas virtualizadas visibles. En `Descartados`, esta combinación sustituye al botón móvil `Restaurar todos`.
 
-La fila se representa como una unidad visual continua: el centro no añade bordes ni un fondo independiente, y un gradiente muy suave enlaza los colores de ambos idiomas. Cuando no existe una acción central, los cheurones se agrupan sin distribuirse por todo el canal y su aspecto no cambia por el estado favorito. La cabecera conserva su separación mediante una línea fina. La selección cambia el matiz de la pareja completa sin incorporar contornos ni modificar sus dimensiones.
+La fila se representa como una unidad visual continua: el centro no añade bordes ni un fondo independiente, y un gradiente muy suave enlaza los colores de ambos idiomas. Cuando no existe una acción central, los cheurones se agrupan sin distribuirse por todo el canal y su aspecto no cambia por el estado favorito. La cabecera conserva su separación mediante una línea vertical fina cuyo canal se estrecha en móvil. La selección cambia el matiz de la pareja completa sin incorporar contornos ni modificar sus dimensiones.
 
 Los cambios de favorito, descarte y restauración utilizan los casos de uso existentes. Cada acción individual muestra un aviso con recuperación. Restaurar al menos diez descartados solicita confirmación. Un aviso sobre los gestos se presenta una sola vez y su marca local no forma parte de los datos personales exportables.
 

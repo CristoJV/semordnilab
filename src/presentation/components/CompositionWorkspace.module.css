@@ -1,6 +1,8 @@
 .workspace {
   display: grid;
   gap: 0.7rem;
+  width: 100%;
+  max-width: 100%;
   min-height: 0;
   max-height: 47dvh;
   padding: clamp(1rem, 2.2vw, 1.75rem) clamp(1rem, 3vw, 2.5rem);
@@ -93,45 +95,17 @@
 }
 
 .lanes {
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
+  overflow: hidden;
 }
 
-.compositionScroll {
+.compositionContent {
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
-  padding-bottom: 0.15rem;
-  overflow-x: auto;
-  overflow-y: hidden;
-  overscroll-behavior-inline: contain;
-  scrollbar-color: var(--color-violet)
-    color-mix(in srgb, var(--color-border) 70%, transparent);
-  scrollbar-width: thin;
-}
-
-.compositionScroll::-webkit-scrollbar {
-  height: 0.55rem;
-}
-
-.compositionScroll::-webkit-scrollbar-track {
-  background: color-mix(in srgb, var(--color-border) 58%, transparent);
-  border-radius: 999px;
-}
-
-.compositionScroll::-webkit-scrollbar-thumb {
-  background: linear-gradient(90deg, var(--color-violet), var(--color-mustard));
-  border: 2px solid var(--color-surface-strong);
-  border-radius: 999px;
-}
-
-.compositionScroll:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--color-violet) 30%, transparent);
-  outline-offset: 3px;
-}
-
-.scrollContent {
-  display: grid;
-  gap: 0.45rem;
-  width: max-content;
-  min-width: 100%;
+  overflow: hidden;
 }
 
 .dragPreview {

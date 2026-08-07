@@ -46,70 +46,67 @@ export function CompositionLane({
   const trailingIndex = sourceSide ? components.length : 0
 
   return (
-    <div className={styles.lane} data-tone={side}>
-      <span className={styles.language}>{languageLabel}</span>
-      <ol
-        ref={laneRef}
-        className={styles.components}
-        data-composition-lane={side}
-        aria-label={`Composición en ${languageLabel}`}
-      >
-        {visibleComponents.map(({ instanceId, semordnilap }, visualIndex) => {
-          const canonicalIndex = sourceSide
-            ? visualIndex
-            : components.length - 1 - visualIndex
-          const gapIndex = sourceSide
-            ? visualIndex
-            : components.length - visualIndex
-          const text = sourceSide
-            ? semordnilap.source.text
-            : semordnilap.target.text
-          const moveLeft = sourceSide ? -1 : 1
-          const moveRight = sourceSide ? 1 : -1
-          return (
-            <Fragment key={instanceId}>
-              <CompositionInsertionPoint
-                index={gapIndex}
-                tone={side}
-                active={insertionIndex === gapIndex}
-                languageLabel={languageLabel}
-                onSelect={onSelectInsertion}
-                dragging={Boolean(dragging)}
-                dropTarget={dragging?.dropIndex === gapIndex}
-              />
-              <SemordnilapComponent
-                text={text}
-                tone={side}
-                dragging={dragging?.target.instanceId === instanceId}
-                highlighted={highlightedInstanceId === instanceId}
-                pointerBindings={bindPointer({
-                  instanceId,
-                  canonicalIndex,
-                  text,
-                  side,
-                })}
-                onRemove={() => onRemove(instanceId, canonicalIndex, text)}
-                onHighlightChange={(highlighted) =>
-                  onHighlight(highlighted ? instanceId : null)
-                }
-                canMoveLeft={visualIndex > 0}
-                canMoveRight={visualIndex < components.length - 1}
-                onMoveLeft={() => onMove(instanceId, moveLeft)}
-                onMoveRight={() => onMove(instanceId, moveRight)}
-              />
-            </Fragment>
-          )
-        })}
-        <CompositionInsertionPoint
-          index={trailingIndex}
-          tone={side}
-          active={insertionIndex === trailingIndex}
-          languageLabel={languageLabel}
-          onSelect={onSelectInsertion}
-          dragging={Boolean(dragging)}
-          dropTarget={dragging?.dropIndex === trailingIndex}
-        />
-      </ol>
-    </div>
+    <ol
+      ref={laneRef}
+      className={styles.components}
+      data-composition-lane={side}
+      aria-label={`Composición en ${languageLabel}`}
+    >
+      {visibleComponents.map(({ instanceId, semordnilap }, visualIndex) => {
+        const canonicalIndex = sourceSide
+          ? visualIndex
+          : components.length - 1 - visualIndex
+        const gapIndex = sourceSide
+          ? visualIndex
+          : components.length - visualIndex
+        const text = sourceSide
+          ? semordnilap.source.text
+          : semordnilap.target.text
+        const moveLeft = sourceSide ? -1 : 1
+        const moveRight = sourceSide ? 1 : -1
+        return (
+          <Fragment key={instanceId}>
+            <CompositionInsertionPoint
+              index={gapIndex}
+              tone={side}
+              active={insertionIndex === gapIndex}
+              languageLabel={languageLabel}
+              onSelect={onSelectInsertion}
+              dragging={Boolean(dragging)}
+              dropTarget={dragging?.dropIndex === gapIndex}
+            />
+            <SemordnilapComponent
+              text={text}
+              tone={side}
+              dragging={dragging?.target.instanceId === instanceId}
+              highlighted={highlightedInstanceId === instanceId}
+              pointerBindings={bindPointer({
+                instanceId,
+                canonicalIndex,
+                text,
+                side,
+              })}
+              onRemove={() => onRemove(instanceId, canonicalIndex, text)}
+              onHighlightChange={(highlighted) =>
+                onHighlight(highlighted ? instanceId : null)
+              }
+              canMoveLeft={visualIndex > 0}
+              canMoveRight={visualIndex < components.length - 1}
+              onMoveLeft={() => onMove(instanceId, moveLeft)}
+              onMoveRight={() => onMove(instanceId, moveRight)}
+            />
+          </Fragment>
+        )
+      })}
+      <CompositionInsertionPoint
+        index={trailingIndex}
+        tone={side}
+        active={insertionIndex === trailingIndex}
+        languageLabel={languageLabel}
+        onSelect={onSelectInsertion}
+        dragging={Boolean(dragging)}
+        dropTarget={dragging?.dropIndex === trailingIndex}
+      />
+    </ol>
   )
 }

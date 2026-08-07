@@ -10,6 +10,7 @@ import { useCompositionPointerInteraction } from '@/presentation/hooks/useCompos
 import type { Notify } from '@/presentation/hooks/useTransientNotifications'
 
 import { CompositionLane } from './CompositionLane'
+import { CompositionPhrasesViewport } from './CompositionPhrasesViewport'
 import { CompositionToolbar } from './CompositionToolbar'
 import styles from './CompositionWorkspace.module.css'
 
@@ -200,7 +201,7 @@ export function CompositionWorkspace({
         />
       </div>
 
-      <div id="composition-content">
+      <div id="composition-content" className={styles.compositionContent}>
         {collapsed && (
           <p className={styles.compactSummary}>
             {components.length === 0
@@ -221,15 +222,11 @@ export function CompositionWorkspace({
             </div>
           ) : (
             <div className={styles.lanes}>
-              <div
-                ref={compositionScroll}
-                className={styles.compositionScroll}
-                data-composition-scroll="shared"
-                role="region"
-                aria-label="Desplazar ambas composiciones"
-                tabIndex={0}
-              >
-                <div className={styles.scrollContent}>
+              <CompositionPhrasesViewport
+                sourceLanguageLabel={sourceLabel}
+                targetLanguageLabel={targetLabel}
+                viewportRef={compositionScroll}
+                sourcePhrase={
                   <CompositionLane
                     side="source"
                     languageLabel={sourceLabel}
@@ -244,6 +241,8 @@ export function CompositionWorkspace({
                     onHighlight={setHighlightedInstanceId}
                     bindPointer={pointerInteraction.bind}
                   />
+                }
+                targetPhrase={
                   <CompositionLane
                     side="target"
                     languageLabel={targetLabel}
@@ -258,8 +257,8 @@ export function CompositionWorkspace({
                     onHighlight={setHighlightedInstanceId}
                     bindPointer={pointerInteraction.bind}
                   />
-                </div>
-              </div>
+                }
+              />
             </div>
           ))}
       </div>

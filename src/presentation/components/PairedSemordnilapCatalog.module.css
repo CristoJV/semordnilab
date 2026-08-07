@@ -188,16 +188,17 @@
 
 .headerGutter::before {
   position: absolute;
-  top: 1.3rem;
-  right: 0.55rem;
-  left: 0.55rem;
-  height: 1px;
+  top: 0.65rem;
+  bottom: 0.65rem;
+  left: 50%;
+  width: 1px;
   content: '';
   background: linear-gradient(
-    90deg,
+    180deg,
     color-mix(in srgb, var(--color-violet) 48%, var(--color-border)),
     color-mix(in srgb, var(--color-mustard) 58%, var(--color-border))
   );
+  transform: translateX(-50%);
 }
 
 .scroller {
@@ -230,13 +231,12 @@
 
 @media (max-width: 560px) {
   .headers {
-    grid-template-columns: minmax(0, 1fr) 3.35rem minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 1.5rem minmax(0, 1fr);
   }
 
   .headerGutter::before {
-    top: 1.05rem;
-    right: 0.35rem;
-    left: 0.35rem;
+    top: 0.45rem;
+    bottom: 0.45rem;
   }
 
   .toolbar {
