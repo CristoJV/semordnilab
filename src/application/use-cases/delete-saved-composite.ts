@@ -17,6 +17,11 @@ export class DeleteSavedComposite {
         ? await this.repository.inspectCompositeDeletion(planOrId)
         : planOrId
     if (!plan.found) throw new Error('El composite ya no está guardado.')
+    if (plan.dependentIds.length > 0) {
+      throw new Error(
+        'Elimina primero los composites derivados antes de eliminar este composite.',
+      )
+    }
     if (plan.dependentDraftDatasetIds.length > 0) {
       throw new Error(
         'Retira los composites afectados del borrador antes de eliminarlos.',

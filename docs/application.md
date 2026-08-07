@@ -43,7 +43,7 @@ La pantalla se organiza verticalmente para aprovechar una ventana más ancha que
 3. Un catálogo inferior con los dos idiomas en columnas paralelas.
 4. Un pie de página compacto con la marca `SemordniLAB`.
 
-El área de composición ocupa todo el ancho disponible y permanece por encima de las listas. Muestra dos secuencias relacionadas. La secuencia de origen conserva el orden de selección y la secuencia de destino se presenta en orden inverso. El documento ocupa la altura de la ventana y el desplazamiento vertical pertenece al catálogo. En pantallas estrechas el área puede plegarse para dejar más espacio a las listas.
+El área de composición ocupa todo el ancho disponible y permanece por encima de las listas. Muestra dos secuencias relacionadas. La secuencia de origen conserva el orden de selección y la secuencia de destino se presenta en orden inverso. El documento ocupa la altura de la ventana y el desplazamiento vertical pertenece al catálogo. El área comienza expandida tanto en escritorio como en móvil y puede plegarse para dejar más espacio a las listas. Si el usuario decide recordar este estado, su preferencia explícita prevalece en visitas posteriores.
 
 ```text
 origen:  [A]  [B]  [C]
@@ -199,15 +199,15 @@ Las expresiones resultantes se derivan de los componentes y no constituyen una f
 
 Los composites guardados aparecen directamente en el catálogo con un indicador propio. Pueden buscarse, marcarse como favoritos, descartarse e insertarse como una sola pieza dentro de otra composición. La resolución recursiva conserva la procedencia atómica y comprueba la integridad antes de mostrar cada resultado.
 
-El indicador abre un diálogo de gestión que muestra las dos expresiones, los componentes directos y la cantidad de unidades atómicas. Desde él se puede:
+El indicador con una nota y un lápiz es el mismo en móvil y escritorio. Abre un diálogo de gestión que identifica cada expresión mediante el nombre real de su idioma. El resumen conserva las cantidades de componentes directos y unidades atómicas, indica si el composite es favorito y muestra sus etiquetas cuando las tiene. No enumera cada componente porque esa estructura ya puede consultarse al abrir el composite como borrador. Desde el diálogo se puede:
 
 - insertar el composite en la posición activa;
 - abrir sus componentes directos como nuevo borrador, con confirmación si sustituye trabajo existente;
 - cambiar el título sin modificar la identidad ni la estructura;
 - exportar una copia de seguridad;
-- revisar qué composites dependen de él y eliminarlo junto con todos sus derivados.
+- revisar qué composites dependen de él y eliminarlo cuando no queden referencias.
 
-La eliminación calcula dependencias directas y transitivas. El diálogo enumera los composites afectados y permite exportar una copia antes de confirmar la cascada. Si un borrador utiliza cualquiera de ellos, la operación permanece bloqueada hasta que el usuario retire manualmente esa referencia. La transacción vuelve a calcular el plan antes de escribir y cancela la operación si ha cambiado.
+La eliminación calcula dependencias directas y transitivas. Si existen composites derivados, el mismo diálogo los enumera y pide eliminarlos primero. Si un borrador utiliza el composite, la operación permanece bloqueada hasta que el usuario retire manualmente esa referencia. En ninguno de estos casos se abre una confirmación que no pueda completarse. Cuando el composite ya no tiene dependencias, aparece un diálogo central de confirmación antes de eliminarlo. La capa de aplicación aplica la misma política y la transacción vuelve a calcular el plan antes de escribir, por lo que un cambio concurrente cancela la operación.
 
 La edición estructural no modifica un composite guardado. Abrirlo como borrador y guardar otra construcción produce una identidad nueva o reutiliza otra ya existente.
 

@@ -88,4 +88,22 @@
     width: 1.25rem;
     height: 1.25rem;
   }
+
+  .toolbar .collapseToggle {
+    color: var(--color-text-muted);
+    background: transparent;
+    border-color: transparent;
+    opacity: 0.65;
+  }
+
+  .toolbar .collapseToggle:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-violet) 8%, transparent);
+    border-color: transparent;
+    opacity: 1;
+  }
+
+  .toolbar .collapseToggle svg {
+    width: 0.8rem;
+    height: 0.8rem;
+  }
 }

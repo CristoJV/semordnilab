@@ -40,7 +40,8 @@
 
 .metadata {
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem 1.5rem;
+  flex-wrap: wrap;
   margin: 1rem 0;
 }
 
@@ -55,34 +56,63 @@
 }
 
 .metadata dd {
+  display: inline-flex;
+  gap: 0.25rem;
+  align-items: center;
   margin: 0;
   font-size: 0.75rem;
   font-weight: 800;
 }
 
-.components {
-  max-height: 11rem;
+.metadata dd svg {
+  width: 0.8rem;
+  height: 0.8rem;
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+.favorite {
+  color: var(--color-mustard-dark);
+}
+
+.tags {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
   margin: 0 0 1rem;
+}
+
+.tags > span {
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.tags ul {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  margin: 0;
   padding: 0;
-  overflow: auto;
-  border-block: 1px solid var(--color-border);
   list-style: none;
 }
 
-.components li {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  padding: 0.5rem 0.2rem;
-  font-size: 0.8rem;
+.tags li {
+  display: inline-flex;
+  gap: 0.3rem;
+  align-items: center;
+  padding: 0.25rem 0.45rem;
+  font-size: 0.7rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
 }
 
-.components li + li {
-  border-top: 1px solid var(--color-border);
-}
-
-.components span:last-child {
-  text-align: right;
+.tags li > span {
+  width: 0.8rem;
+  height: 0.8rem;
 }
 
 .actions,

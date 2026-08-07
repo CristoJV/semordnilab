@@ -74,13 +74,7 @@ export function CompositionWorkspace({
   const targetLane = useRef<HTMLOListElement>(null)
   const compositionScroll = useRef<HTMLDivElement>(null)
   const canRestoreRemovedRef = useRef(canRestoreRemoved)
-  const [collapsed, setCollapsed] = useState(
-    () =>
-      initialCollapsed ||
-      (typeof window !== 'undefined' &&
-        typeof window.matchMedia === 'function' &&
-        window.matchMedia('(max-width: 760px)').matches),
-  )
+  const [collapsed, setCollapsed] = useState(() => initialCollapsed)
   const sourceLabel = dataset?.sourceLanguage.label ?? 'Origen'
   const targetLabel = dataset?.targetLanguage.label ?? 'Destino'
 

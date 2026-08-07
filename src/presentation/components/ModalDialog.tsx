@@ -8,6 +8,7 @@ type ModalDialogProps = {
   onClose: () => void
   children: ReactNode
   wide?: boolean
+  centered?: boolean
 }
 
 export function ModalDialog({
@@ -15,6 +16,7 @@ export function ModalDialog({
   onClose,
   children,
   wide = false,
+  centered = false,
 }: ModalDialogProps) {
   const titleId = useId()
   const closeButton = useRef<HTMLButtonElement>(null)
@@ -55,6 +57,7 @@ export function ModalDialog({
   return createPortal(
     <div
       className={styles.backdrop}
+      data-centered={centered}
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onCloseRef.current()

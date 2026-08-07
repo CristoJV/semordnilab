@@ -15,6 +15,7 @@ Esta carpeta reúne la documentación funcional y técnica del proyecto. Su prop
 - [ADR 0007: etiquetas y eliminación en cascada](adr/0007-tags-and-cascade-deletion.md): clasificación personal, migración aditiva y cierre transitivo de dependencias.
 - [ADR 0008: interfaz adaptable para móvil](adr/0008-adaptive-mobile-interface.md): una única interfaz, controles táctiles y diálogos seguros en pantallas estrechas.
 - [ADR 0009: gestos táctiles en las filas](adr/0009-catalog-row-gestures.md): coordinación de toque, scroll, selección y acciones laterales.
+- [ADR 0010: gestión compacta de composites](adr/0010-compact-composite-management.md): resumen estructural, confirmación segura y política de dependencias.
 
 ## Estado del proyecto
 

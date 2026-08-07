@@ -1,0 +1,28 @@
+.glyph {
+  display: inline-flex;
+  color: var(--tag-color);
+}
+
+.glyph[data-color='violet'] {
+  --tag-color: #8461b5;
+}
+
+.glyph[data-color='mustard'] {
+  --tag-color: #d2a633;
+}
+
+.glyph[data-color='terracotta'] {
+  --tag-color: #c66b4f;
+}
+
+.glyph[data-color='green'] {
+  --tag-color: #4f966d;
+}
+
+.glyph[data-color='blue'] {
+  --tag-color: #4f86ad;
+}
+
+.glyph[data-color='rose'] {
+  --tag-color: #b86784;
+}

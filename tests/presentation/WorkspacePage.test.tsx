@@ -190,6 +190,9 @@ describe('WorkspacePage', () => {
     })
     expect(screen.getByRole('heading', { name: 'Compón' })).toBeInTheDocument()
     expect(
+      screen.getByRole('button', { name: 'Plegar composición' }),
+    ).toHaveAttribute('aria-expanded', 'true')
+    expect(
       screen.getByRole('button', {
         name: /Cambiar conjunto lingüístico, actual Español \/ Gallego/,
       }),

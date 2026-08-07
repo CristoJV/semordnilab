@@ -38,6 +38,7 @@ export function CompositionToolbar({
   return (
     <div className={styles.toolbar} aria-label="Acciones de composición">
       <button
+        className={styles.collapseToggle}
         type="button"
         aria-expanded={!collapsed}
         aria-controls="composition-content"

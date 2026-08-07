@@ -17,6 +17,7 @@ import { useSavedCompositeSemordnilaps } from '@/presentation/hooks/useSavedComp
 import { useWorkspacePreferences } from '@/presentation/hooks/useWorkspacePreferences'
 import type { CompositeSemordnilap } from '@/domain/semordnilap'
 import { TagManagerDialog } from '@/presentation/components/TagManagerDialog'
+import { tagsForSemordnilap } from '@/presentation/components/tag-view'
 import { DatasetPickerDialog } from '@/presentation/components/DatasetPickerDialog'
 import { useResponsiveLayout } from '@/presentation/responsive/useResponsiveLayout'
 
@@ -256,6 +257,21 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
         <CompositeManagerDialog
           composite={selectedComposite}
           library={library}
+          sourceLanguageLabel={
+            catalog.loadedDataset?.dataset.sourceLanguage.label ?? 'Origen'
+          }
+          targetLanguageLabel={
+            catalog.loadedDataset?.dataset.targetLanguage.label ?? 'Destino'
+          }
+          tags={tagsForSemordnilap(
+            selectedComposite.id,
+            tagState.tags,
+            tagState.assignments,
+          )}
+          favorite={
+            statusState.statuses.get(selectedComposite.id)?.has('favorite') ??
+            false
+          }
           hasCurrentDraft={composition.components.length > 0}
           usedInCurrentDraft={composition.components.some(
             ({ semordnilap }) => semordnilap.id === selectedComposite.id,

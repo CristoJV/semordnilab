@@ -92,9 +92,7 @@ export function SemordnilapRowActions({
           aria-label={`Gestionar composite: ${text}`}
           title="Gestionar composite guardado"
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="m12 3 8 4.5-8 4.5-8-4.5L12 3Zm-8 9 8 4.5 8-4.5M4 16.5l8 4.5 8-4.5" />
-          </svg>
+          <EditNoteIcon />
         </button>
       )}
       {!discardedView && (

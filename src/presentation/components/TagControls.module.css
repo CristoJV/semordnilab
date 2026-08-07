@@ -27,30 +27,6 @@
   font-weight: 750;
 }
 
-[data-color='violet'] {
-  --tag-color: #8461b5;
-}
-
-[data-color='mustard'] {
-  --tag-color: #d2a633;
-}
-
-[data-color='terracotta'] {
-  --tag-color: #c66b4f;
-}
-
-[data-color='green'] {
-  --tag-color: #4f966d;
-}
-
-[data-color='blue'] {
-  --tag-color: #4f86ad;
-}
-
-[data-color='rose'] {
-  --tag-color: #b86784;
-}
-
 .menu {
   position: relative;
 }

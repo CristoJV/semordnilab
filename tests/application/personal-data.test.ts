@@ -327,6 +327,37 @@ describe('gestión de composites', () => {
     expect((await base.repository.readAll()).savedComposites).toHaveLength(1)
   })
 
+  it('obliga a eliminar primero los composites derivados', async () => {
+    const base = createRepository()
+    const saved = await new SaveCompositeSemordnilap(base.composites).execute({
+      datasetId: testDataset.id,
+      components: [ella, noSe],
+    })
+    const snapshot = await base.repository.readAll()
+    await base.repository.replaceAll({
+      ...snapshot,
+      savedComposites: [
+        ...snapshot.savedComposites,
+        {
+          ...saved.record,
+          id: 'composite:derivado',
+          components: [
+            {
+              kind: 'composite',
+              datasetId: testDataset.id,
+              semordnilapId: saved.record.id,
+            },
+          ],
+        },
+      ],
+    })
+
+    await expect(
+      new DeleteSavedComposite(base.repository).execute(saved.record.id),
+    ).rejects.toThrow('Elimina primero los composites derivados')
+    expect((await base.repository.readAll()).savedComposites).toHaveLength(2)
+  })
+
   it('elimina también sus estados cuando no quedan dependencias', async () => {
     const base = createRepository()
     const saved = await new SaveCompositeSemordnilap(base.composites).execute({

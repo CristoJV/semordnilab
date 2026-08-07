@@ -1,5 +1,7 @@
 import type { TagColor, TagIcon } from '@/application'
 
+import styles from './TagIconGlyph.module.css'
+
 type TagIconGlyphProps = {
   icon: TagIcon
   color: TagColor
@@ -84,9 +86,11 @@ export function TagIconGlyph({
   className,
   title,
 }: TagIconGlyphProps) {
+  const classes = className ? `${styles.glyph} ${className}` : styles.glyph
+
   return (
     <span
-      className={className}
+      className={classes}
       data-color={color}
       title={title}
       aria-hidden="true"

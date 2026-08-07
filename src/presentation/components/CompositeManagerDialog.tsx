@@ -1,14 +1,20 @@
 import { useMemo, useState } from 'react'
 
-import type { CompositeDeletionPlan } from '@/application'
+import type { CompositeDeletionPlan, SemordnilapTag } from '@/application'
 import type { CompositeSemordnilap, Semordnilap } from '@/domain/semordnilap'
 
+import { CompositeDeletionConfirmationDialog } from './CompositeDeletionConfirmationDialog'
 import { ModalDialog } from './ModalDialog'
+import { TagIconGlyph } from './TagIconGlyph'
 import styles from './CompositeManagerDialog.module.css'
 
 type CompositeManagerDialogProps = {
   composite: CompositeSemordnilap
   library: readonly Semordnilap[]
+  sourceLanguageLabel: string
+  targetLanguageLabel: string
+  tags: readonly SemordnilapTag[]
+  favorite: boolean
   hasCurrentDraft: boolean
   usedInCurrentDraft: boolean
   onClose: () => void
@@ -23,6 +29,10 @@ type CompositeManagerDialogProps = {
 export function CompositeManagerDialog({
   composite,
   library,
+  sourceLanguageLabel,
+  targetLanguageLabel,
+  tags,
+  favorite,
   hasCurrentDraft,
   usedInCurrentDraft,
   onClose,
@@ -83,16 +93,37 @@ export function CompositeManagerDialog({
   const dependentComposites = (deletionPlan?.dependentIds ?? [])
     .map((id) => libraryById.get(id))
     .filter((item): item is CompositeSemordnilap => item?.kind === 'composite')
+  const canConfirmDeletion =
+    deletionPlan !== null &&
+    deletionPlan.found &&
+    deletionPlan.dependentIds.length === 0 &&
+    deletionPlan.dependentDraftDatasetIds.length === 0 &&
+    !usedInCurrentDraft
+
+  if (deletionPlan && canConfirmDeletion) {
+    return (
+      <CompositeDeletionConfirmationDialog
+        composite={composite}
+        sourceLanguageLabel={sourceLanguageLabel}
+        targetLanguageLabel={targetLanguageLabel}
+        onClose={() => setDeletionPlan(null)}
+        onConfirm={async () => {
+          await onDelete(deletionPlan)
+          onClose()
+        }}
+      />
+    )
+  }
 
   return (
     <ModalDialog title="Composite guardado" onClose={onClose} wide>
       <div className={styles.summary}>
         <div data-side="source">
-          <span>Origen</span>
+          <span>{sourceLanguageLabel}</span>
           <strong>{composite.source.text}</strong>
         </div>
         <div data-side="target">
-          <span>Destino</span>
+          <span>{targetLanguageLabel}</span>
           <strong>{composite.target.text}</strong>
         </div>
       </div>
@@ -106,21 +137,32 @@ export function CompositeManagerDialog({
           <dt>Unidades atómicas</dt>
           <dd>{composite.atomicComponents.length}</dd>
         </div>
+        <div>
+          <dt>Favorito</dt>
+          <dd className={favorite ? styles.favorite : undefined}>
+            {favorite && (
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z" />
+              </svg>
+            )}
+            {favorite ? 'Sí' : 'No'}
+          </dd>
+        </div>
       </dl>
 
-      <ol className={styles.components} aria-label="Componentes del composite">
-        {composite.components.map((reference, index) => {
-          const component = libraryById.get(reference.semordnilapId)
-          return (
-            <li key={`${reference.kind}:${reference.semordnilapId}:${index}`}>
-              <span>{component?.source.text ?? reference.semordnilapId}</span>
-              <span>
-                {component?.target.text ?? 'Referencia no disponible'}
-              </span>
-            </li>
-          )
-        })}
-      </ol>
+      {tags.length > 0 && (
+        <div className={styles.tags} aria-label="Etiquetas del composite">
+          <span>Etiquetas</span>
+          <ul>
+            {tags.map((tag) => (
+              <li key={tag.id}>
+                <TagIconGlyph icon={tag.icon} color={tag.color} />
+                {tag.name}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className={styles.actions}>
         <button type="button" onClick={onInsert}>
@@ -180,11 +222,22 @@ export function CompositeManagerDialog({
           </button>
         ) : (
           <div className={styles.deletionPlan} role="alert">
-            <strong>
-              {deletionPlan.dependentIds.length === 0
-                ? 'El composite no tiene derivados.'
-                : `Este composite se utiliza en ${deletionPlan.dependentIds.length} ${deletionPlan.dependentIds.length === 1 ? 'composite derivado' : 'composites derivados'}.`}
-            </strong>
+            <strong>No se puede eliminar todavía.</strong>
+            {!deletionPlan.found && (
+              <p className={styles.blocked}>
+                El composite ya no está guardado. Cierra el diálogo para
+                actualizar el catálogo.
+              </p>
+            )}
+            {deletionPlan.dependentIds.length > 0 && (
+              <p>
+                Este composite se utiliza en {deletionPlan.dependentIds.length}{' '}
+                {deletionPlan.dependentIds.length === 1
+                  ? 'composite derivado'
+                  : 'composites derivados'}
+                .
+              </p>
+            )}
             {dependentComposites.length > 0 && (
               <ul className={styles.dependencies}>
                 {dependentComposites.map((dependent) => (
@@ -202,34 +255,20 @@ export function CompositeManagerDialog({
                 ))}
               </ul>
             )}
-            <p>
-              Se eliminarán {deletionPlan.dependentIds.length + 1} composites y
-              sus favoritos, descartes y etiquetas.
-            </p>
-            {deletionPlan.dependentDraftDatasetIds.length > 0 && (
+            {deletionPlan.dependentIds.length > 0 && (
+              <p className={styles.blocked}>
+                Elimina primero los composites derivados indicados.
+              </p>
+            )}
+            {(deletionPlan.dependentDraftDatasetIds.length > 0 ||
+              usedInCurrentDraft) && (
               <p className={styles.blocked}>
                 Retira los composites afectados del borrador antes de continuar.
               </p>
             )}
             <div className={styles.confirmation}>
-              <button
-                type="button"
-                disabled={
-                  busy || deletionPlan.dependentDraftDatasetIds.length > 0
-                }
-                onClick={() => {
-                  void run(
-                    () => onDelete(deletionPlan),
-                    'Composites eliminados.',
-                  ).then((deleted) => {
-                    if (deleted) onClose()
-                  })
-                }}
-              >
-                Eliminar {deletionPlan.dependentIds.length + 1}
-              </button>
               <button type="button" onClick={() => setDeletionPlan(null)}>
-                Cancelar
+                Cerrar aviso
               </button>
             </div>
           </div>

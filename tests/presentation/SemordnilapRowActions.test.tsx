@@ -7,9 +7,11 @@ import { SemordnilapRowActions } from '@/presentation/components/SemordnilapRowA
 function renderActions({
   composite = false,
   discardedView = false,
+  layout = 'compact',
 }: {
   composite?: boolean
   discardedView?: boolean
+  layout?: 'compact' | 'wide'
 } = {}) {
   const callbacks = {
     onToggleFavorite: vi.fn(),
@@ -27,7 +29,7 @@ function renderActions({
       selected={false}
       disabled={false}
       composite={composite}
-      layout="compact"
+      layout={layout}
       {...callbacks}
     />,
   )
@@ -55,6 +57,18 @@ describe('acciones compactas de una fila', () => {
     expect(trigger).toContainHTML('svg')
     await user.click(trigger)
     expect(callbacks.onOpenComposite).toHaveBeenCalledOnce()
+  })
+
+  it('reutiliza el mismo icono de edición en móvil y escritorio', () => {
+    const compact = renderActions({ composite: true })
+    const compactIcon = compact.view.container.querySelector('svg')?.innerHTML
+    compact.view.unmount()
+
+    const wide = renderActions({ composite: true, layout: 'wide' })
+    const wideIcon = wide.view.container.querySelector('svg')?.innerHTML
+
+    expect(compactIcon).toBeTruthy()
+    expect(wideIcon).toBe(compactIcon)
   })
 
   it('deja solo la pista del gesto izquierdo en un composite descartado', () => {

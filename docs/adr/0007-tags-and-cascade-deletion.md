@@ -1,5 +1,7 @@
 # ADR 0007: Etiquetas y eliminación en cascada
 
+> Actualización: la política de interfaz y aplicación para eliminar composites queda sustituida por el [ADR 0010](0010-compact-composite-management.md). El cálculo transitivo y las garantías transaccionales definidos aquí se conservan para inspeccionar dependencias y evitar referencias rotas.
+
 ## Contexto
 
 Los favoritos y descartes permiten acciones concretas, pero no sirven para organizar libremente una colección. Los usuarios necesitan clasificaciones personales reutilizables sin convertir cada clasificación en un nuevo estado funcional.

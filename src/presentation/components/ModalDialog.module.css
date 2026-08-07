@@ -99,4 +99,15 @@
     padding: 0.8rem 0.8rem calc(0.8rem + env(safe-area-inset-bottom));
     overflow-x: hidden;
   }
+
+  .backdrop[data-centered='true'] {
+    align-items: center;
+    padding: 1rem;
+  }
+
+  .backdrop[data-centered='true'] .dialog,
+  .backdrop[data-centered='true'] .dialog[data-wide='true'] {
+    width: min(28rem, 100%);
+    border-radius: 1rem;
+  }
 }
