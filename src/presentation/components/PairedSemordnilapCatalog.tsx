@@ -22,10 +22,11 @@ import type {
   SemordnilapId,
 } from '@/domain/semordnilap'
 import type { SemordnilapStatusMap } from '@/presentation/hooks/useSemordnilapStatuses'
-import { useCatalogLongPressSelection } from '@/presentation/hooks/useCatalogLongPressSelection'
+import { useCatalogSwipeHint } from '@/presentation/hooks/useCatalogSwipeHint'
 import type { Notify } from '@/presentation/hooks/useTransientNotifications'
 import type { SemordnilapTagState } from '@/presentation/hooks/useSemordnilapTags'
 import { useVirtualCatalogRows } from '@/presentation/hooks/useVirtualCatalogRows'
+import type { CatalogSwipeDirection } from '@/presentation/interactions/catalog-row-pointer-machine'
 import type { ResponsiveLayout } from '@/presentation/responsive/useResponsiveLayout'
 
 import { CatalogLanguageHeader } from './CatalogLanguageHeader'
@@ -35,11 +36,13 @@ import { selectVisibleCatalogItems } from './catalog-items-view'
 import { normalizeCatalogQuery } from './catalog-search'
 import { cycleCatalogSort, setCatalogSort } from './catalog-sort'
 import type { CatalogSide, CatalogSort, CatalogSortField } from './catalog-view'
-import { SemordnilapOption } from './SemordnilapOption'
-import { SemordnilapRowActions } from './SemordnilapRowActions'
+import { RestoreAllDiscardedDialog } from './RestoreAllDiscardedDialog'
+import { SemordnilapCatalogRow } from './SemordnilapCatalogRow'
 import { TagAssignmentMenu, TagFilterMenu } from './TagControls'
 import { tagsForSemordnilap } from './tag-view'
 import styles from './PairedSemordnilapCatalog.module.css'
+
+const RESTORE_CONFIRMATION_THRESHOLD = 10
 
 type PairedSemordnilapCatalogProps = {
   dataset: AvailableDataset
@@ -93,6 +96,7 @@ export function PairedSemordnilapCatalog({
   )
   const [sort, setSort] = useState<CatalogSort>(initialView?.sort ?? [])
   const [selectionMode, setSelectionMode] = useState(false)
+  const [restoreAllConfirmation, setRestoreAllConfirmation] = useState(false)
   const [discoverySeed, setDiscoverySeed] = useState<number | null>(null)
   const [selectedTagIds, setSelectedTagIds] = useState<ReadonlySet<TagId>>(
     new Set(),
@@ -108,6 +112,8 @@ export function PairedSemordnilapCatalog({
     useDeferredValue(targetQuery),
   )
   const discardedView = viewMode === 'discarded'
+
+  useCatalogSwipeHint(layout === 'compact' && statusesReady, onNotify)
 
   const effectiveSelectedTagIds = useMemo(() => {
     const available = new Set(tagState.tags.map(({ id }) => id))
@@ -261,7 +267,8 @@ export function PairedSemordnilapCatalog({
   }
 
   const removeSelectedStatus = (status: SemordnilapCatalogStatus) => {
-    void onRemoveStatus([...selectedIds], status)
+    if (status === 'discarded') restore([...selectedIds])
+    else void onRemoveStatus([...selectedIds], status)
     leaveSelectionMode()
   }
 
@@ -281,20 +288,88 @@ export function PairedSemordnilapCatalog({
     })
   }
 
+  const restore = (ids: readonly SemordnilapId[]) => {
+    void onRemoveStatus(ids, 'discarded')
+    onNotify({
+      tone: 'success',
+      message:
+        ids.length === 1
+          ? 'Semordnilap restaurado.'
+          : `${ids.length} semordnilaps restaurados.`,
+      action: {
+        label: 'Deshacer restauración',
+        run: () => void onAddStatus(ids, 'discarded'),
+      },
+      lifetime: 4200,
+    })
+  }
+
+  const toggleFavorite = (semordnilapId: SemordnilapId, favorite: boolean) => {
+    const ids = [semordnilapId]
+    if (favorite) void onRemoveStatus(ids, 'favorite')
+    else void onAddStatus(ids, 'favorite')
+    onNotify({
+      tone: 'success',
+      message: favorite
+        ? 'Semordnilap retirado de favoritos.'
+        : 'Semordnilap añadido a favoritos.',
+      action: {
+        label: 'Deshacer favorito',
+        run: () =>
+          void (favorite
+            ? onAddStatus(ids, 'favorite')
+            : onRemoveStatus(ids, 'favorite')),
+      },
+      lifetime: 4200,
+    })
+  }
+
+  const restoreAll = () => {
+    const ids = items
+      .filter((item) => hasStatus(item.semordnilap.id, 'discarded'))
+      .map((item) => item.semordnilap.id)
+    setRestoreAllConfirmation(false)
+    void onRemoveAllStatus('discarded')
+    onNotify({
+      tone: 'success',
+      message: `${ids.length} semordnilaps restaurados.`,
+      action: {
+        label: 'Deshacer restauración',
+        run: () => void onAddStatus(ids, 'discarded'),
+      },
+      lifetime: 5200,
+    })
+  }
+
+  const requestRestoreAll = () => {
+    if (discardedCount >= RESTORE_CONFIRMATION_THRESHOLD) {
+      setRestoreAllConfirmation(true)
+    } else {
+      restoreAll()
+    }
+  }
+
+  const applySwipe = (
+    semordnilapId: SemordnilapId,
+    favorite: boolean,
+    direction: CatalogSwipeDirection,
+  ) => {
+    if (direction === 'right') toggleFavorite(semordnilapId, favorite)
+    else if (discardedView) restore([semordnilapId])
+    else discard([semordnilapId])
+  }
+
   const applyTagFilter = (tagIds: ReadonlySet<TagId>) => {
     setDiscoverySeed(null)
     setSelectedTagIds(new Set(tagIds))
     virtualRows.reset()
   }
 
-  const longPressSelection = useCatalogLongPressSelection({
-    enabled: layout === 'compact' && statusesReady && !selectionMode,
-    onSelect: (semordnilapId) => {
-      setDiscoverySeed(null)
-      setSelectionMode(true)
-      setSelectedIds(new Set([semordnilapId]))
-    },
-  })
+  const enterSelection = (semordnilapId: SemordnilapId) => {
+    setDiscoverySeed(null)
+    setSelectionMode(true)
+    setSelectedIds(new Set([semordnilapId]))
+  }
 
   return (
     <section
@@ -405,25 +480,6 @@ export function PairedSemordnilapCatalog({
             </div>
             <div className={styles.secondaryControls}>
               <button
-                type="button"
-                disabled={!statusesReady || visibleItems.length === 0}
-                onClick={() => setSelectionMode(true)}
-              >
-                Seleccionar varios
-              </button>
-              {(sourceQuery ||
-                targetQuery ||
-                sort.length > 0 ||
-                effectiveSelectedTagIds.size > 0) && (
-                <button
-                  className={styles.resetView}
-                  type="button"
-                  onClick={resetView}
-                >
-                  Restablecer
-                </button>
-              )}
-              <button
                 className={styles.discovery}
                 type="button"
                 data-active={discoverySeed !== null}
@@ -437,17 +493,33 @@ export function PairedSemordnilapCatalog({
                   {displayedItems.length} de {visibleItems.length}
                 </strong>
               )}
+              <button
+                type="button"
+                disabled={!statusesReady || visibleItems.length === 0}
+                onClick={() => setSelectionMode(true)}
+              >
+                Seleccionar
+              </button>
+              {(sourceQuery ||
+                targetQuery ||
+                sort.length > 0 ||
+                effectiveSelectedTagIds.size > 0) && (
+                <button
+                  className={styles.resetView}
+                  type="button"
+                  onClick={resetView}
+                >
+                  Restablecer
+                </button>
+              )}
               {discardedView && (
-                <>
-                  <strong>Viendo descartados</strong>
-                  <button
-                    type="button"
-                    disabled={discardedCount === 0}
-                    onClick={() => void onRemoveAllStatus('discarded')}
-                  >
-                    Restaurar todos
-                  </button>
-                </>
+                <button
+                  type="button"
+                  disabled={discardedCount === 0}
+                  onClick={requestRestoreAll}
+                >
+                  Restaurar todos
+                </button>
               )}
             </div>
           </>
@@ -510,7 +582,6 @@ export function PairedSemordnilapCatalog({
               const id = item.semordnilap.id
               const selectedCount = selectedCounts.get(id) ?? 0
               const selected = selectedIds.has(id)
-              const text = `${item.semordnilap.source.text} / ${item.semordnilap.target.text}`
               const favorite = hasStatus(id, 'favorite')
               const itemTags = tagsForSemordnilap(
                 id,
@@ -519,70 +590,46 @@ export function PairedSemordnilapCatalog({
               )
 
               return (
-                <li
-                  className={styles.row}
+                <SemordnilapCatalogRow
                   key={id}
-                  aria-posinset={virtualRows.start + renderedIndex + 1}
-                  aria-setsize={displayedItems.length}
-                >
-                  <SemordnilapOption
-                    item={item}
-                    side="source"
-                    selectedCount={selectedCount}
-                    selectionMode={selectionMode}
-                    selected={selected}
-                    query={sourceQuery}
-                    tags={itemTags}
-                    longPressPending={
-                      longPressSelection.pendingSemordnilapId === id
+                  item={item}
+                  position={virtualRows.start + renderedIndex + 1}
+                  setSize={displayedItems.length}
+                  sourceQuery={sourceQuery}
+                  targetQuery={targetQuery}
+                  selectedCount={selectedCount}
+                  favorite={favorite}
+                  discardedView={discardedView}
+                  selectionMode={selectionMode}
+                  selected={selected}
+                  statusesReady={statusesReady}
+                  tags={itemTags}
+                  layout={layout}
+                  onAdd={({ semordnilap }) => onAdd(semordnilap)}
+                  onEnterSelection={enterSelection}
+                  onToggleSelection={() => toggleSelection(id)}
+                  onToggleFavorite={() => toggleFavorite(id, favorite)}
+                  onDiscard={() => discard([id])}
+                  onRestore={() => restore([id])}
+                  onSwipe={(direction) => applySwipe(id, favorite, direction)}
+                  onOpenComposite={() => {
+                    if (item.semordnilap.kind === 'composite') {
+                      onOpenComposite(item.semordnilap)
                     }
-                    longPressBindings={longPressSelection.bind(id)}
-                    onAdd={({ semordnilap }) => onAdd(semordnilap)}
-                    onToggleSelection={() => toggleSelection(id)}
-                  />
-                  <SemordnilapRowActions
-                    text={text}
-                    favorite={favorite}
-                    discardedView={discardedView}
-                    selectionMode={selectionMode}
-                    selected={selected}
-                    disabled={!statusesReady}
-                    composite={item.semordnilap.kind === 'composite'}
-                    onToggleFavorite={() =>
-                      void (favorite
-                        ? onRemoveStatus([id], 'favorite')
-                        : onAddStatus([id], 'favorite'))
-                    }
-                    onDiscard={() => discard([id])}
-                    onRestore={() => void onRemoveStatus([id], 'discarded')}
-                    onToggleSelection={() => toggleSelection(id)}
-                    onOpenComposite={() => {
-                      if (item.semordnilap.kind === 'composite') {
-                        onOpenComposite(item.semordnilap)
-                      }
-                    }}
-                  />
-                  <SemordnilapOption
-                    item={item}
-                    side="target"
-                    selectedCount={selectedCount}
-                    selectionMode={selectionMode}
-                    selected={selected}
-                    query={targetQuery}
-                    tags={itemTags}
-                    longPressPending={
-                      longPressSelection.pendingSemordnilapId === id
-                    }
-                    longPressBindings={longPressSelection.bind(id)}
-                    onAdd={({ semordnilap }) => onAdd(semordnilap)}
-                    onToggleSelection={() => toggleSelection(id)}
-                  />
-                </li>
+                  }}
+                />
               )
             })}
           </ol>
         )}
       </div>
+      {restoreAllConfirmation && (
+        <RestoreAllDiscardedDialog
+          count={discardedCount}
+          onCancel={() => setRestoreAllConfirmation(false)}
+          onConfirm={restoreAll}
+        />
+      )}
     </section>
   )
 }

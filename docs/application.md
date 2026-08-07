@@ -75,8 +75,11 @@ La versión móvil conserva la misma pantalla, los mismos datos y las mismas ope
 - el área se titula `Compón` y utiliza iconos para plegar, deshacer, rehacer, guardar y vaciar;
 - las acciones principales mantienen un área táctil mínima de 44 píxeles y un nombre accesible aunque oculten su etiqueta visual;
 - las vistas se presentan en el orden `Todos`, `Guardados`, `Favoritos`, `Descartados` y `Etiquetas`;
-- `Seleccionar varios` y `Restablecer` quedan en una segunda línea de acciones cuando son aplicables;
-- una pulsación prolongada sobre cualquier expresión entra directamente en selección múltiple y selecciona su fila bilingüe; un toque normal sigue añadiendo la pieza a la composición y el inicio de un desplazamiento cancela la espera;
+- la segunda línea comienza con `Descubrir`, continúa con `Seleccionar` y muestra después `Restablecer` cuando es aplicable; en la vista de descartados, `Restaurar todos` ocupa siempre la última posición y no se añade otro texto para repetir qué vista está activa;
+- una pulsación prolongada sobre cualquier expresión entra directamente en selección múltiple y selecciona su fila bilingüe; un toque normal sigue añadiendo la pieza a la composición y el movimiento vertical cede el control al scroll;
+- desplazar una fila hacia la derecha añade o retira el favorito, mientras que desplazarla hacia la izquierda la descarta o la restaura según la vista; el fondo revelado muestra el icono y su etiqueta, y una vibración breve confirma que se ha alcanzado el umbral;
+- el centro de cada fila muestra dos cheurones como indicación del gesto; en un composite aparece entre ellos una nota con lápiz en lugar del símbolo de agrupación;
+- tocar los cheurones abre una hoja de acciones con alternativas textuales, de modo que los gestos no sean la única vía disponible;
 - durante la selección múltiple, favorito, descarte y etiquetado se agrupan en una única superficie y se representan mediante estrella, papelera y etiqueta para conservar espacio sin reducir su zona táctil;
 - una cruz visualmente pequeña, situada en el extremo derecho, cierra la selección y conserva alrededor un objetivo táctil de 44 píxeles;
 - cada idioma coloca el contador junto a un menú de tres puntos en el extremo derecho y abre su ordenación en una hoja inferior;
@@ -85,6 +88,8 @@ La versión móvil conserva la misma pantalla, los mismos datos y las mismas ope
 - el documento utiliza la altura dinámica del navegador y mantiene el desplazamiento vertical dentro del catálogo.
 
 Las filas bilingües permanecen alineadas y la composición conserva desplazamiento horizontal propio. Los controles que no caben en una línea pueden desplazarse lateralmente sin ensanchar la página ni reducir el área de trabajo.
+
+La primera vez que están disponibles los gestos, un aviso temporal explica ambas direcciones. Favoritos, descartes y restauraciones ofrecen `Deshacer`. Restaurar una colección descartada grande solicita confirmación antes de modificarla.
 
 ## Identidad visual
 

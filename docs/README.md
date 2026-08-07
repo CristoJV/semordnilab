@@ -14,6 +14,7 @@ Esta carpeta reúne la documentación funcional y técnica del proyecto. Su prop
 - [ADR 0006: exploración eficiente del catálogo](adr/0006-efficient-catalog-exploration.md): orden estable, relevancia, descubrimiento y renderizado virtual.
 - [ADR 0007: etiquetas y eliminación en cascada](adr/0007-tags-and-cascade-deletion.md): clasificación personal, migración aditiva y cierre transitivo de dependencias.
 - [ADR 0008: interfaz adaptable para móvil](adr/0008-adaptive-mobile-interface.md): una única interfaz, controles táctiles y diálogos seguros en pantallas estrechas.
+- [ADR 0009: gestos táctiles en las filas](adr/0009-catalog-row-gestures.md): coordinación de toque, scroll, selección y acciones laterales.
 
 ## Estado del proyecto
 

@@ -1,0 +1,35 @@
+.content {
+  display: grid;
+  gap: 1rem;
+}
+
+.content p {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  gap: 0.55rem;
+  justify-content: flex-end;
+}
+
+.actions button {
+  min-height: 2.75rem;
+  padding: 0.55rem 0.8rem;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 750;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.65rem;
+  cursor: pointer;
+}
+
+.actions button:last-child {
+  color: white;
+  background: var(--color-violet);
+  border-color: var(--color-violet);
+}

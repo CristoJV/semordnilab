@@ -180,13 +180,6 @@
   list-style: none;
 }
 
-.row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 4.3rem minmax(0, 1fr);
-  height: 3.5rem;
-  min-width: 0;
-}
-
 .empty {
   margin: 3rem 1rem;
   color: var(--color-text-muted);
@@ -203,8 +196,7 @@
 }
 
 @media (max-width: 560px) {
-  .headers,
-  .row {
+  .headers {
     grid-template-columns: minmax(0, 1fr) 3.35rem minmax(0, 1fr);
   }
 

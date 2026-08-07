@@ -1,3 +1,8 @@
+import { useState } from 'react'
+
+import type { ResponsiveLayout } from '@/presentation/responsive/useResponsiveLayout'
+
+import { ModalDialog } from './ModalDialog'
 import styles from './SemordnilapRowActions.module.css'
 
 type SemordnilapRowActionsProps = {
@@ -8,6 +13,7 @@ type SemordnilapRowActionsProps = {
   selected: boolean
   disabled: boolean
   composite: boolean
+  layout: ResponsiveLayout
   onToggleFavorite: () => void
   onDiscard: () => void
   onRestore: () => void
@@ -23,12 +29,15 @@ export function SemordnilapRowActions({
   selected,
   disabled,
   composite,
+  layout,
   onToggleFavorite,
   onDiscard,
   onRestore,
   onToggleSelection,
   onOpenComposite,
 }: SemordnilapRowActionsProps) {
+  const [actionsOpen, setActionsOpen] = useState(false)
+
   if (selectionMode) {
     return (
       <label className={styles.selection}>
@@ -39,6 +48,83 @@ export function SemordnilapRowActions({
           aria-label={`${selected ? 'Deseleccionar' : 'Seleccionar'} ${text}`}
         />
       </label>
+    )
+  }
+
+  const runAndClose = (action: () => void) => {
+    setActionsOpen(false)
+    action()
+  }
+
+  if (layout === 'compact') {
+    return (
+      <>
+        <div className={styles.actions}>
+          <button
+            type="button"
+            className={styles.gesture}
+            data-favorite={favorite}
+            data-discarded={discardedView}
+            onClick={() => setActionsOpen(true)}
+            aria-label={`Abrir acciones para ${text}`}
+            title="Desliza o abre las acciones"
+          >
+            <span aria-hidden="true">‹</span>
+            {composite ? (
+              <EditNoteIcon />
+            ) : (
+              <span className={styles.gestureSpacer} aria-hidden="true" />
+            )}
+            <span aria-hidden="true">›</span>
+          </button>
+        </div>
+        {actionsOpen && (
+          <ModalDialog
+            title="Acciones del semordnilap"
+            onClose={() => setActionsOpen(false)}
+          >
+            <div className={styles.actionSheet}>
+              <p>
+                Desliza a la derecha para favoritos y a la izquierda para{' '}
+                {discardedView ? 'restaurar' : 'descartar'}.
+              </p>
+              {composite && (
+                <button
+                  type="button"
+                  onClick={() => runAndClose(onOpenComposite)}
+                >
+                  <EditNoteIcon />
+                  <span>Gestionar composite</span>
+                </button>
+              )}
+              <button
+                type="button"
+                disabled={disabled}
+                onClick={() => runAndClose(onToggleFavorite)}
+              >
+                <span className={styles.sheetGlyph} aria-hidden="true">
+                  {favorite ? '☆' : '★'}
+                </span>
+                <span>
+                  {favorite ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+                </span>
+              </button>
+              <button
+                type="button"
+                disabled={disabled}
+                onClick={() =>
+                  runAndClose(discardedView ? onRestore : onDiscard)
+                }
+              >
+                <span className={styles.sheetGlyph} aria-hidden="true">
+                  {discardedView ? '↩' : '⌫'}
+                </span>
+                <span>{discardedView ? 'Restaurar' : 'Descartar'}</span>
+              </button>
+            </div>
+          </ModalDialog>
+        )}
+      </>
     )
   }
 
@@ -86,5 +172,14 @@ export function SemordnilapRowActions({
         )}
       </button>
     </div>
+  )
+}
+
+function EditNoteIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 3h9l3 3v5M15 3v4h4M5 21l.8-3.2 9.7-9.7a1.4 1.4 0 0 1 2 0l.4.4a1.4 1.4 0 0 1 0 2l-9.7 9.7L5 21Z" />
+      <path d="m14.5 9.1 2.4 2.4M6 8h5M6 12h4" />
+    </svg>
   )
 }

@@ -1,5 +1,4 @@
 import type { SemordnilapCatalogItem, SemordnilapTag } from '@/application'
-import type { CatalogLongPressBindings } from '@/presentation/hooks/useCatalogLongPressSelection'
 
 import { HighlightedText } from './HighlightedText'
 import { TagDots } from './TagControls'
@@ -13,8 +12,6 @@ type SemordnilapOptionProps = {
   selected: boolean
   query: string
   tags: readonly SemordnilapTag[]
-  longPressPending?: boolean
-  longPressBindings?: CatalogLongPressBindings
   onAdd: (item: SemordnilapCatalogItem) => void
   onToggleSelection: () => void
 }
@@ -27,8 +24,6 @@ export function SemordnilapOption({
   selected,
   query,
   tags,
-  longPressPending = false,
-  longPressBindings,
   onAdd,
   onToggleSelection,
 }: SemordnilapOptionProps) {
@@ -41,11 +36,9 @@ export function SemordnilapOption({
 
   return (
     <button
-      {...longPressBindings}
       className={styles.button}
       data-side={side}
       data-selected={selected}
-      data-long-press-pending={longPressPending}
       type="button"
       onClick={() => (selectionMode ? onToggleSelection() : onAdd(item))}
       title={

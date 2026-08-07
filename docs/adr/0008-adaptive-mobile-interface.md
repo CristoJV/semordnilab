@@ -23,11 +23,13 @@ Los cambios de representación respetan contratos comunes:
 - las cabeceras colocan el contador antes del menú de tres puntos, que queda alineado al extremo derecho;
 - `catalog-sort` contiene las funciones puras utilizadas por las dos representaciones para conservar prioridades y combinaciones.
 
-La barra del catálogo separa controles primarios y secundarios. El primer grupo contiene `Todos`, `Guardados`, `Favoritos`, `Descartados` y `Etiquetas`. El segundo comienza con `Seleccionar varios` y muestra `Restablecer` cuando existe algún filtro. Los grupos admiten desplazamiento horizontal si el ancho disponible no permite conservar tamaños táctiles seguros.
+La barra del catálogo separa controles primarios y secundarios. El primer grupo contiene `Todos`, `Guardados`, `Favoritos`, `Descartados` y `Etiquetas`. El segundo comienza con `Descubrir`, continúa con `Seleccionar`, muestra `Restablecer` cuando existe algún filtro y termina con `Restaurar todos` en la vista de descartados. La pestaña activa ya comunica esa vista, por lo que no se repite mediante un mensaje adicional. Los grupos admiten desplazamiento horizontal si el ancho disponible no permite conservar tamaños táctiles seguros.
 
 En selección múltiple, las acciones de favorito, descarte y etiquetado conservan sus nombres accesibles, pero muestran únicamente una estrella, una papelera y una etiqueta en modo compacto. Las tres acciones forman un grupo visual continuo, mientras que la cruz de cierre queda separada y pegada al extremo derecho. El trazo de la cruz es pequeño y discreto, pero su superficie táctil sigue midiendo al menos 44 píxeles.
 
-Una pulsación prolongada sobre cualquiera de las dos expresiones de una fila activa la selección múltiple y deja seleccionada esa unidad bilingüe. Esta interacción utiliza una máquina de estados pura distinta de la composición. Una espera de 420 milisegundos confirma la intención, el movimiento previo cancela el gesto para permitir el scroll y el clic generado después de una activación o un desplazamiento se suprime para evitar una segunda acción. El toque breve conserva su función de añadir a la composición.
+Una pulsación prolongada sobre cualquiera de las dos expresiones de una fila activa la selección múltiple y deja seleccionada esa unidad bilingüe. La misma máquina de estados distingue el toque breve, el scroll vertical y el desplazamiento horizontal. El toque breve conserva su función de añadir a la composición y se suprime cualquier clic generado después de otro gesto.
+
+En móvil, el centro de una fila ordinaria muestra dos cheurones. Una fila composite sitúa entre ellos una nota con lápiz que sustituye al símbolo de agrupación. Tocar el conjunto abre una hoja con acciones textuales y la gestión del composite. Deslizar revela un fondo con icono y etiqueta: derecha cambia el favorito e izquierda descarta o restaura. La decisión completa se registra en el ADR 0009.
 
 El filtro móvil de etiquetas utiliza `AnchoredPopover`: se monta en `document.body` para escapar del overflow horizontal, calcula su posición bajo el botón y se recoloca ante scroll, redimensionado o cambios del viewport visual. No usa un fondo modal y se cierra al aplicar, pulsar fuera o usar Escape.
 
@@ -39,7 +41,7 @@ La página usa `100dvh`. El catálogo conserva el desplazamiento vertical, las s
 
 ## Verificación
 
-Las funciones de ordenación tienen pruebas unitarias para combinación, prioridad, retirada y ciclo. El control compacto se prueba como interacción completa. La prueba de la página simula la consulta de medios, cambia el dataset desde la hoja móvil, comprueba los comandos de composición mediante iconos, entra en selección mediante una pulsación prolongada y verifica que el estado normal de persistencia no ocupe una barra visible.
+Las funciones de ordenación tienen pruebas unitarias para combinación, prioridad, retirada y ciclo. El control compacto se prueba como interacción completa. La prueba de la página simula la consulta de medios, cambia el dataset desde la hoja móvil, comprueba los comandos de composición mediante iconos, entra en selección mediante una pulsación prolongada, ejecuta gestos laterales y verifica que el estado normal de persistencia no ocupe una barra visible.
 
 Los diálogos tienen pruebas específicas para portal, foco, Escape y cierre mediante fondo. El filtro de etiquetas comprueba por separado el anclaje, el portal, la aplicación y el cierre exterior. La respuesta a cambios de la consulta de medios también se comprueba de forma aislada. La validación automatizada se completa con tipos, lint, formato, pruebas y construcción.
 
@@ -49,6 +51,7 @@ Los diálogos tienen pruebas específicas para portal, foco, Escape y cierre med
 - Una nueva variante visual puede reutilizar comandos sin introducir una segunda página.
 - Las acciones principales resultan pulsables sin aumentar la altura del área de trabajo.
 - La selección por pulsación prolongada ahorra un toque sin impedir el desplazamiento normal del catálogo.
+- Las acciones frecuentes pueden ejecutarse con un gesto y conservan una alternativa textual accesible.
 - Los overlays dejan de depender del árbol de overflow que los abrió.
 - La consulta de medios existe tanto en TypeScript como en CSS y debe mantenerse en 560 píxeles hasta que una medición justifique otro límite.
 - Las diferencias de barras, teclado virtual y entrada táctil entre navegadores todavía requieren comprobación manual en dispositivos reales.

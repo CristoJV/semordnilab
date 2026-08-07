@@ -1,0 +1,63 @@
+.feedback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding-inline: 1rem;
+  overflow: hidden;
+  color: var(--color-violet-strong);
+  background: var(--color-violet-soft);
+  pointer-events: none;
+}
+
+.feedback[data-direction='left'] {
+  justify-content: flex-end;
+  color: #7f382c;
+  background: color-mix(in srgb, #e89a72 26%, var(--color-surface));
+}
+
+.feedback[data-action='restore'] {
+  color: #376848;
+  background: color-mix(in srgb, #75b68b 24%, var(--color-surface));
+}
+
+.content {
+  display: grid;
+  gap: 0.05rem;
+  min-width: 5.25rem;
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-align: center;
+  place-items: center;
+  transform: scale(0.94);
+  transition: transform var(--motion-fast) var(--motion-easing);
+}
+
+.feedback[data-ready='true'] .content {
+  transform: scale(1.05);
+}
+
+.icon {
+  display: grid;
+  width: 1.15rem;
+  height: 1.15rem;
+  font-size: 1.05rem;
+  line-height: 1;
+  place-items: center;
+}
+
+.icon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .content {
+    transition: none;
+  }
+}

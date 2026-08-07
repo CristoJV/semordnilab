@@ -213,6 +213,17 @@ describe('WorkspacePage', () => {
     expect(
       within(catalog).getByRole('searchbox', { name: 'Buscar en Español' }),
     ).toHaveAttribute('placeholder', 'Buscar')
+    const discover = within(catalog).getByRole('button', { name: 'Descubrir' })
+    const select = within(catalog).getByRole('button', { name: 'Seleccionar' })
+    expect(
+      discover.compareDocumentPosition(select) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+    expect(
+      within(catalog).getByRole('button', {
+        name: 'Abrir acciones para ella / a lle',
+      }),
+    ).toHaveTextContent('‹›')
 
     await user.click(
       within(catalog).getByRole('button', {
@@ -265,6 +276,136 @@ describe('WorkspacePage', () => {
     expect(assignTags).toContainHTML('svg')
     expect(addFavorite.firstElementChild).toHaveAttribute('aria-hidden', 'true')
     expect(addFavorite.lastElementChild).toHaveTextContent('Añadir a favoritos')
+  })
+
+  it('aplica favorito y descarte mediante gestos horizontales en móvil', async () => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn((query: string) => ({
+        media: query,
+        matches: query === '(max-width: 560px)',
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })),
+    )
+    render(
+      <WorkspacePage dependencies={createDependencies({}, testDataset.id)} />,
+    )
+    const catalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
+    let option = within(catalog).getByRole('button', {
+      name: 'Añadir ella a la composición',
+    })
+    let row = option.closest('li')
+    expect(row).not.toBeNull()
+
+    fireEvent.pointerDown(option, {
+      button: 0,
+      pointerId: 31,
+      pointerType: 'touch',
+      clientX: 100,
+      clientY: 20,
+    })
+    fireEvent.pointerMove(option, {
+      buttons: 1,
+      pointerId: 31,
+      pointerType: 'touch',
+      clientX: 180,
+      clientY: 21,
+    })
+    expect(within(row as HTMLElement).getByText('Favorito')).toBeInTheDocument()
+    fireEvent.pointerUp(option, {
+      button: 0,
+      pointerId: 31,
+      pointerType: 'touch',
+      clientX: 180,
+      clientY: 21,
+    })
+    fireEvent.click(option)
+
+    await waitFor(() =>
+      expect(
+        within(catalog).getByRole('button', { name: /Favoritos 1/ }),
+      ).toBeInTheDocument(),
+    )
+    expect(within(row as HTMLElement).queryByLabelText('1 añadidos')).toBeNull()
+
+    option = within(catalog).getByRole('button', {
+      name: 'Añadir ella a la composición',
+    })
+    row = option.closest('li')
+    fireEvent.pointerDown(option, {
+      button: 0,
+      pointerId: 32,
+      pointerType: 'touch',
+      clientX: 100,
+      clientY: 20,
+    })
+    fireEvent.pointerMove(option, {
+      buttons: 1,
+      pointerId: 32,
+      pointerType: 'touch',
+      clientX: 20,
+      clientY: 21,
+    })
+    expect(
+      within(row as HTMLElement).getByText('Descartar'),
+    ).toBeInTheDocument()
+    fireEvent.pointerUp(option, {
+      button: 0,
+      pointerId: 32,
+      pointerType: 'touch',
+      clientX: 20,
+      clientY: 21,
+    })
+
+    await waitFor(() =>
+      expect(
+        within(catalog).queryByRole('button', {
+          name: 'Añadir ella a la composición',
+        }),
+      ).not.toBeInTheDocument(),
+    )
+
+    await userEvent
+      .setup()
+      .click(within(catalog).getByRole('button', { name: /Descartados 1/ }))
+    option = await within(catalog).findByRole('button', {
+      name: 'Añadir ella a la composición',
+    })
+    row = option.closest('li')
+    fireEvent.pointerDown(option, {
+      button: 0,
+      pointerId: 33,
+      pointerType: 'touch',
+      clientX: 100,
+      clientY: 20,
+    })
+    fireEvent.pointerMove(option, {
+      buttons: 1,
+      pointerId: 33,
+      pointerType: 'touch',
+      clientX: 20,
+      clientY: 21,
+    })
+    expect(
+      within(row as HTMLElement).getByText('Restaurar'),
+    ).toBeInTheDocument()
+    fireEvent.pointerUp(option, {
+      button: 0,
+      pointerId: 33,
+      pointerType: 'touch',
+      clientX: 20,
+      clientY: 21,
+    })
+    await waitFor(() =>
+      expect(
+        within(catalog).queryByRole('button', {
+          name: 'Añadir ella a la composición',
+        }),
+      ).not.toBeInTheDocument(),
+    )
   })
 
   it('restaura el conjunto lingüístico guardado al iniciar', async () => {
@@ -328,7 +469,7 @@ describe('WorkspacePage', () => {
     )
 
     await user.click(
-      within(catalog).getByRole('button', { name: 'Seleccionar varios' }),
+      within(catalog).getByRole('button', { name: 'Seleccionar' }),
     )
     const assignmentToggle = within(catalog).getByRole('button', {
       name: 'Etiquetar',
@@ -693,6 +834,12 @@ describe('WorkspacePage', () => {
     expect(
       within(catalog).getByRole('button', {
         name: 'Quitar de favoritos: no se / e son',
+      }),
+    ).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Deshacer favorito' }))
+    expect(
+      await within(catalog).findByRole('button', {
+        name: 'Añadir a favoritos: no se / e son',
       }),
     ).toBeInTheDocument()
 
@@ -1092,7 +1239,7 @@ describe('WorkspacePage', () => {
       name: 'Catálogo bilingüe',
     })
     const selectMany = within(catalog).getByRole('button', {
-      name: 'Seleccionar varios',
+      name: 'Seleccionar',
     })
     await waitFor(() => expect(selectMany).toBeEnabled())
     await user.click(selectMany)
@@ -1119,6 +1266,64 @@ describe('WorkspacePage', () => {
       }),
     )
     expect(await within(catalog).findAllByRole('listitem')).toHaveLength(2)
+  })
+
+  it('confirma antes de restaurar una colección descartada grande', async () => {
+    const manyItems = Array.from({ length: 10 }, (_, index) => {
+      const normalized = `palabra${index}`
+      return createCatalogItem(
+        createAtomicSemordnilap(
+          `item-${index}`,
+          normalized,
+          normalized,
+          [...normalized].reverse().join(''),
+          [...normalized].reverse().join(''),
+        ),
+      )
+    })
+    const user = userEvent.setup()
+    render(
+      <WorkspacePage
+        dependencies={createDependencies({
+          load: async () => ({ dataset: testDataset, items: manyItems }),
+        })}
+      />,
+    )
+    await user.selectOptions(
+      screen.getByLabelText('Conjunto lingüístico'),
+      testDataset.id,
+    )
+    const catalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
+    await user.click(
+      within(catalog).getByRole('button', { name: 'Seleccionar' }),
+    )
+    for (const checkbox of within(catalog).getAllByRole('checkbox')) {
+      await user.click(checkbox)
+    }
+    await user.click(within(catalog).getByRole('button', { name: 'Descartar' }))
+    await user.click(
+      within(catalog).getByRole('button', { name: /Descartados 10/ }),
+    )
+
+    expect(within(catalog).queryByText('Viendo descartados')).toBeNull()
+    await user.click(
+      within(catalog).getByRole('button', { name: 'Restaurar todos' }),
+    )
+    const dialog = screen.getByRole('dialog', {
+      name: 'Restaurar descartados',
+    })
+    expect(dialog).toHaveTextContent('Se restaurarán 10 semordnilaps')
+    await user.click(
+      within(dialog).getByRole('button', { name: 'Restaurar todos' }),
+    )
+
+    expect(
+      await within(catalog).findByText(
+        'No hay semordnilaps descartados que coincidan con ambas búsquedas.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('muestra un error recuperable y permite reintentar', async () => {
