@@ -139,7 +139,7 @@ describe('copias de datos personales', () => {
       origin.repository,
       () => new Date('2026-08-06T12:00:00.000Z'),
     ).execute()
-    expect(JSON.parse(exported.content)).toMatchObject({ version: 3 })
+    expect(JSON.parse(exported.content)).toMatchObject({ version: 4 })
 
     const target = createRepository()
     await target.statuses.setForSemordnilaps(testDataset.id, [
@@ -216,6 +216,43 @@ describe('copias de datos personales', () => {
     ).rejects.toThrow('versión')
   })
 
+  it('incluye filtros por idioma en el backup y acepta copias anteriores', async () => {
+    const base = createRepository()
+    const snapshot = await base.repository.readAll()
+    await base.repository.replaceAll({
+      ...snapshot,
+      wordFilters: [
+        {
+          language: 'es',
+          normalizedWord: 'arbol',
+          displayWord: 'Árbol',
+          createdAt: '2026-10-04T10:00:00.000Z',
+        },
+      ],
+    })
+
+    const exported = await new ExportPersonalData(base.repository).execute()
+    expect(JSON.parse(exported.content).data.wordFilters).toHaveLength(1)
+
+    const legacy = JSON.stringify({
+      format: 'semordnilab-personal-data',
+      version: 3,
+      exportedAt: '2026-10-04T10:00:00.000Z',
+      data: {
+        statuses: [],
+        savedComposites: [],
+        compositionDrafts: [],
+        tags: [],
+        semordnilapTags: [],
+      },
+    })
+    await new ImportPersonalData(base.repository, source).execute(legacy, {
+      ...mergeOptions,
+      mode: 'replace',
+    })
+    expect((await base.repository.readAll()).wordFilters).toEqual([])
+  })
+
   it('fusiona etiquetas equivalentes y remapea sus asignaciones', async () => {
     const base = createRepository()
     await base.repository.replaceAll({
@@ -234,6 +271,7 @@ describe('copias de datos personales', () => {
         },
       ],
       semordnilapTags: [],
+      wordFilters: [],
     })
     const imported = JSON.stringify({
       format: 'semordnilab-personal-data',

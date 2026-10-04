@@ -8,6 +8,7 @@ import {
   DexieSavedCompositeSemordnilapRepository,
   DexiePersonalDataRepository,
   DexieSemordnilapTagRepository,
+  DexieWordFilterRepository,
   DexieWorkspacePreferencesRepository,
 } from '@/infrastructure/repositories'
 
@@ -90,6 +91,7 @@ describe('repositorios Dexie de datos guardados', () => {
       compositionDrafts: [],
       tags: [],
       semordnilapTags: [],
+      wordFilters: [],
     }
     await repository.replaceAll(original)
 
@@ -109,6 +111,7 @@ describe('repositorios Dexie de datos guardados', () => {
         compositionDrafts: [],
         tags: [],
         semordnilapTags: [],
+        wordFilters: [],
       } as never),
     ).rejects.toThrow()
 
@@ -151,6 +154,7 @@ describe('repositorios Dexie de datos guardados', () => {
       ],
       tags: [],
       semordnilapTags: [],
+      wordFilters: [],
     })
 
     expect(await repository.inspectCompositeDeletion(composite.id)).toEqual({
@@ -221,6 +225,7 @@ describe('repositorios Dexie de datos guardados', () => {
           createdAt: tag.createdAt,
         },
       ],
+      wordFilters: [],
     })
 
     const plan = await repository.inspectCompositeDeletion('A')
@@ -263,6 +268,7 @@ describe('repositorios Dexie de datos guardados', () => {
       compositionDrafts: [],
       tags: [],
       semordnilapTags: [],
+      wordFilters: [],
     })
     const stalePlan = await repository.inspectCompositeDeletion(root.id)
     await database.savedComposites.add({
@@ -364,5 +370,25 @@ describe('repositorios Dexie de datos guardados', () => {
       tags: [],
       assignments: [],
     })
+  })
+
+  it('persiste filtros de palabras con identidad por idioma', async () => {
+    const repository = new DexieWordFilterRepository(createDatabase())
+    const spanish = {
+      language: 'es',
+      normalizedWord: 'arbol',
+      displayWord: 'Árbol',
+      createdAt: '2026-10-04T10:00:00.000Z',
+    }
+    const galician = { ...spanish, language: 'gl', displayWord: 'Árbore' }
+
+    await repository.put(spanish)
+    await repository.put(galician)
+
+    expect(await repository.list('es')).toEqual([spanish])
+    expect(await repository.list()).toHaveLength(2)
+    await repository.remove('es', 'arbol')
+    expect(await repository.list('es')).toEqual([])
+    expect(await repository.list('gl')).toEqual([galician])
   })
 })

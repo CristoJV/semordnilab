@@ -25,6 +25,13 @@ type CatalogToolbarProps = {
   onSelect: () => void
   onReset: () => void
   onRestoreAll: () => void
+  wordFilterOptions: readonly {
+    code: string
+    label: string
+    count: number
+    active: boolean
+  }[]
+  onToggleWordFilter: (language: string) => void
 }
 
 export function CatalogToolbar({
@@ -47,6 +54,8 @@ export function CatalogToolbar({
   onSelect,
   onReset,
   onRestoreAll,
+  wordFilterOptions,
+  onToggleWordFilter,
 }: CatalogToolbarProps) {
   return (
     <>
@@ -64,6 +73,23 @@ export function CatalogToolbar({
           onApply={onApplyTagFilter}
           onManage={onManageTags}
         />
+        {wordFilterOptions.map(({ code, label, count, active }) => {
+          const countText = `${count} ${count === 1 ? 'palabra' : 'palabras'}`
+          return (
+            <button
+              key={code}
+              className={styles.wordFilterToggle}
+              type="button"
+              data-active={active}
+              aria-pressed={active}
+              aria-label={`${active ? 'Desactivar' : 'Activar'} filtro ${label}, ${countText}`}
+              disabled={count === 0 && !active}
+              onClick={() => onToggleWordFilter(code)}
+            >
+              {label} · {count}
+            </button>
+          )
+        })}
         {layout === 'compact' && hasViewModifiers && (
           <button
             className={styles.compactReset}

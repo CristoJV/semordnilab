@@ -37,6 +37,16 @@
   );
 }
 
+.toolbar .wordFilterToggle[data-active='true'] {
+  color: var(--color-violet-strong);
+  background: var(--color-violet-soft);
+  border-color: color-mix(
+    in srgb,
+    var(--color-violet) 45%,
+    var(--color-border)
+  );
+}
+
 .primaryControls,
 .secondaryControls,
 .selectionControls {

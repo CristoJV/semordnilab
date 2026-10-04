@@ -65,6 +65,10 @@ function Summary({ summary }: { summary: PersonalDataSummary }) {
         <dt>Etiquetados</dt>
         <dd>{summary.taggedSemordnilaps}</dd>
       </div>
+      <div>
+        <dt>Palabras filtradas</dt>
+        <dd>{summary.wordFilters}</dd>
+      </div>
     </dl>
   )
 }

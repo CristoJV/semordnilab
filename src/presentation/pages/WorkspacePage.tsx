@@ -15,11 +15,17 @@ import { useSemordnilapTags } from '@/presentation/hooks/useSemordnilapTags'
 import { useTransientNotifications } from '@/presentation/hooks/useTransientNotifications'
 import { useSavedCompositeSemordnilaps } from '@/presentation/hooks/useSavedCompositeSemordnilaps'
 import { useWorkspacePreferences } from '@/presentation/hooks/useWorkspacePreferences'
+import { useWordFilters } from '@/presentation/hooks/useWordFilters'
+import { semordnilapMatchesWordFilters } from '@/application'
 import type { CompositeSemordnilap } from '@/domain/semordnilap'
 import { TagManagerDialog } from '@/presentation/components/TagManagerDialog'
 import { tagsForSemordnilap } from '@/presentation/components/tag-view'
 import { DatasetPickerDialog } from '@/presentation/components/DatasetPickerDialog'
 import { useResponsiveLayout } from '@/presentation/responsive/useResponsiveLayout'
+import {
+  WordFilterPage,
+  type WordFilterMode,
+} from '@/presentation/pages/WordFilterPage'
 
 import styles from './WorkspacePage.module.css'
 
@@ -33,15 +39,23 @@ type WorkspaceUtilityOverlay =
   'app-menu' | 'dataset-picker' | 'tag-manager' | null
 
 export function WorkspacePage({ dependencies }: WorkspacePageProps) {
+  const [pageView, setPageView] = useState<'workspace' | 'word-filters'>(
+    'workspace',
+  )
+  const [wordFilterMode, setWordFilterMode] = useState<WordFilterMode>('filter')
   const [utilityOverlay, setUtilityOverlay] =
     useState<WorkspaceUtilityOverlay>(null)
   const [selectedComposite, setSelectedComposite] =
     useState<CompositeSemordnilap | null>(null)
   const [catalogSelectionRequested, setCatalogSelectionRequested] =
     useState(false)
+  const [activeWordFilterLanguages, setActiveWordFilterLanguages] = useState<
+    ReadonlySet<string>
+  >(new Set())
   const { notifications, notify, dismiss } = useTransientNotifications()
   const layout = useResponsiveLayout()
   const preferences = useWorkspacePreferences(dependencies)
+  const wordFilters = useWordFilters(dependencies)
   const catalog = useSemordnilapCatalog(dependencies)
   const statusAliases = useMemo(
     () =>
@@ -68,6 +82,44 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
   const catalogItems = useMemo(
     () => [...atomicItems, ...savedComposites.items],
     [atomicItems, savedComposites.items],
+  )
+  const wordFilterOptions = useMemo(() => {
+    if (!catalog.loadedDataset) return []
+    const byCode = new Map(
+      [
+        catalog.loadedDataset.dataset.sourceLanguage,
+        catalog.loadedDataset.dataset.targetLanguage,
+      ].map((language) => [language.code, language]),
+    )
+    return [...byCode.values()].map((language) => ({
+      ...language,
+      count: wordFilters.byLanguage.get(language.code)?.length ?? 0,
+      active: activeWordFilterLanguages.has(language.code),
+    }))
+  }, [activeWordFilterLanguages, catalog.loadedDataset, wordFilters.byLanguage])
+  const activeWordFilters = useMemo(() => {
+    const filters = new Map<string, ReadonlySet<string>>()
+    for (const language of activeWordFilterLanguages) {
+      filters.set(
+        language,
+        new Set(
+          (wordFilters.byLanguage.get(language) ?? []).map(
+            ({ normalizedWord }) => normalizedWord,
+          ),
+        ),
+      )
+    }
+    return filters
+  }, [activeWordFilterLanguages, wordFilters.byLanguage])
+  const filteredCatalogItems = useMemo(
+    () =>
+      activeWordFilters.size === 0
+        ? catalogItems
+        : catalogItems.filter(
+            ({ semordnilap }) =>
+              !semordnilapMatchesWordFilters(semordnilap, activeWordFilters),
+          ),
+    [activeWordFilters, catalogItems],
   )
   const library = useMemo(
     () => catalogItems.map(({ semordnilap }) => semordnilap),
@@ -106,10 +158,22 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
   }, [composition.components])
 
   const loadedDataset = catalog.loadedDataset
+  const wordFilterLanguages = useMemo(() => {
+    if (!loadedDataset) return []
+    return [
+      ...new Map(
+        [
+          loadedDataset.dataset.sourceLanguage,
+          loadedDataset.dataset.targetLanguage,
+        ].map((language) => [language.code, language]),
+      ).values(),
+    ]
+  }, [loadedDataset])
 
   return (
     <div className={styles.page}>
       <AppHeader
+        view={pageView}
         datasets={catalog.datasets}
         selectedDatasetId={catalog.selectedDatasetId}
         status={catalog.status}
@@ -118,124 +182,166 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
         onOpenMenu={() => setUtilityOverlay('app-menu')}
         onOpenDatasetPicker={() => setUtilityOverlay('dataset-picker')}
         layout={layout}
+        wordFilterTitle={
+          wordFilterMode === 'filter'
+            ? 'Filtrar palabras'
+            : 'Recuperar palabras'
+        }
+        canOpenWordFilters={Boolean(loadedDataset && wordFilters.ready)}
+        onOpenWordFilters={() => {
+          setUtilityOverlay(null)
+          setPageView('word-filters')
+        }}
+        onBackToWorkspace={() => setPageView('workspace')}
       />
 
-      <main className={styles.main}>
-        <CompositionWorkspace
-          key={`composition:${preferences.viewRevision}`}
-          dataset={loadedDataset?.dataset ?? null}
-          components={composition.components}
-          snapshot={composition.snapshot}
-          onRemove={removeComponent}
-          onMove={composition.move}
-          onMoveTo={composition.moveTo}
-          onRestoreRemoved={composition.restoreRemoved}
-          canRestoreRemoved={(semordnilapId) =>
-            library.some(({ id }) => id === semordnilapId)
-          }
-          insertionIndex={composition.insertionIndex}
-          onSelectInsertion={composition.selectInsertion}
-          onClear={clearComposition}
-          canUndo={composition.canUndo}
-          canRedo={composition.canRedo}
-          onUndo={composition.undo}
-          onRedo={composition.redo}
-          persistenceError={composition.persistenceError}
-          persistenceStatus={composition.persistenceStatus}
-          initialCollapsed={
-            preferences.preferences.rememberCompositionCollapsed &&
-            preferences.preferences.compositionCollapsed
-          }
-          onCollapsedChange={preferences.setCompositionCollapsed}
-          onDiscardIncompatibleDraft={composition.discardIncompatibleDraft}
-          onSave={(title) =>
-            savedComposites.save(
-              composition.components.map(({ semordnilap }) => semordnilap),
-              title,
-            )
-          }
-          onNotify={notify}
+      {pageView === 'word-filters' && loadedDataset ? (
+        <WordFilterPage
+          items={atomicItems}
+          languages={wordFilterLanguages}
+          state={wordFilters}
+          mode={wordFilterMode}
+          onModeChange={setWordFilterMode}
+          dependencies={dependencies}
         />
+      ) : (
+        <main className={styles.main}>
+          <CompositionWorkspace
+            key={`composition:${preferences.viewRevision}`}
+            dataset={loadedDataset?.dataset ?? null}
+            components={composition.components}
+            snapshot={composition.snapshot}
+            onRemove={removeComponent}
+            onMove={composition.move}
+            onMoveTo={composition.moveTo}
+            onRestoreRemoved={composition.restoreRemoved}
+            canRestoreRemoved={(semordnilapId) =>
+              library.some(({ id }) => id === semordnilapId)
+            }
+            insertionIndex={composition.insertionIndex}
+            onSelectInsertion={composition.selectInsertion}
+            onClear={clearComposition}
+            canUndo={composition.canUndo}
+            canRedo={composition.canRedo}
+            onUndo={composition.undo}
+            onRedo={composition.redo}
+            persistenceError={composition.persistenceError}
+            persistenceStatus={composition.persistenceStatus}
+            initialCollapsed={
+              preferences.preferences.rememberCompositionCollapsed &&
+              preferences.preferences.compositionCollapsed
+            }
+            onCollapsedChange={preferences.setCompositionCollapsed}
+            onDiscardIncompatibleDraft={composition.discardIncompatibleDraft}
+            onSave={(title) =>
+              savedComposites.save(
+                composition.components.map(({ semordnilap }) => semordnilap),
+                title,
+              )
+            }
+            onNotify={notify}
+          />
 
-        <div
-          className={styles.catalog}
-          aria-busy={catalog.status === 'loading'}
-        >
-          {catalog.status === 'ready' &&
-          loadedDataset &&
-          savedComposites.ready &&
-          composition.ready &&
-          preferences.ready &&
-          tagState.ready ? (
-            <PairedSemordnilapCatalog
-              key={`${loadedDataset.dataset.id}:${preferences.viewRevision}`}
-              dataset={loadedDataset.dataset}
-              items={catalogItems}
-              selectedCounts={selectedCounts}
-              statuses={statusState.statuses}
-              statusesReady={statusState.ready}
-              statusError={
-                statusState.errorMessage ?? savedComposites.errorMessage
-              }
-              tagState={tagState}
-              onAdd={addComponent}
-              onSetStatuses={statusState.setStatuses}
-              onRemoveAllStatus={statusState.removeAllStatus}
-              initialView={preferences.catalogView(loadedDataset.dataset.id)}
-              onViewChange={preferences.saveCatalogView}
-              onOpenComposite={setSelectedComposite}
-              onManageTags={() => setUtilityOverlay('tag-manager')}
-              onNotify={notify}
-              layout={layout}
-              overlayOpen={
-                utilityOverlay !== null || selectedComposite !== null
-              }
-              selectionRequested={catalogSelectionRequested}
-              onSelectionRequestHandled={acknowledgeCatalogSelection}
-            />
-          ) : (
-            <div className={styles.catalogState}>
-              {catalog.status === 'loading' && (
-                <>
-                  <span className={styles.loader} aria-hidden="true" />
-                  <p>Cargando y validando semordnilaps…</p>
-                </>
-              )}
-              {catalog.status === 'ready' && !composition.ready && (
-                <>
-                  <span className={styles.loader} aria-hidden="true" />
-                  <p>Recuperando tu espacio de trabajo...</p>
-                </>
-              )}
-              {catalog.status === 'ready' &&
-                composition.ready &&
-                (!preferences.ready || !tagState.ready) && (
+          <div
+            className={styles.catalog}
+            aria-busy={catalog.status === 'loading'}
+          >
+            {catalog.status === 'ready' &&
+            loadedDataset &&
+            savedComposites.ready &&
+            composition.ready &&
+            preferences.ready &&
+            tagState.ready &&
+            wordFilters.ready ? (
+              <PairedSemordnilapCatalog
+                key={`${loadedDataset.dataset.id}:${preferences.viewRevision}`}
+                dataset={loadedDataset.dataset}
+                items={filteredCatalogItems}
+                selectedCounts={selectedCounts}
+                statuses={statusState.statuses}
+                statusesReady={statusState.ready}
+                statusError={
+                  statusState.errorMessage ??
+                  savedComposites.errorMessage ??
+                  wordFilters.errorMessage
+                }
+                tagState={tagState}
+                onAdd={addComponent}
+                onSetStatuses={statusState.setStatuses}
+                initialView={preferences.catalogView(loadedDataset.dataset.id)}
+                onViewChange={preferences.saveCatalogView}
+                onOpenComposite={setSelectedComposite}
+                onManageTags={() => setUtilityOverlay('tag-manager')}
+                onNotify={notify}
+                layout={layout}
+                overlayOpen={
+                  utilityOverlay !== null || selectedComposite !== null
+                }
+                selectionRequested={catalogSelectionRequested}
+                onSelectionRequestHandled={acknowledgeCatalogSelection}
+                wordFilterOptions={wordFilterOptions.map(
+                  ({ code, label, count, active }) => ({
+                    code,
+                    label,
+                    count,
+                    active,
+                  }),
+                )}
+                onToggleWordFilter={(language) =>
+                  setActiveWordFilterLanguages((current) => {
+                    const next = new Set(current)
+                    if (next.has(language)) next.delete(language)
+                    else next.add(language)
+                    return next
+                  })
+                }
+              />
+            ) : (
+              <div className={styles.catalogState}>
+                {catalog.status === 'loading' && (
                   <>
                     <span className={styles.loader} aria-hidden="true" />
-                    <p>Recuperando tus preferencias...</p>
+                    <p>Cargando y validando semordnilaps…</p>
                   </>
                 )}
-              {catalog.status === 'idle' && (
-                <>
-                  <span className={styles.stateMark} aria-hidden="true">
-                    Aa
-                  </span>
-                  <p>Selecciona un conjunto lingüístico para explorar.</p>
-                </>
-              )}
-              {catalog.status === 'error' && (
-                <div role="alert" className={styles.error}>
-                  <strong>No se ha podido abrir el conjunto.</strong>
-                  <p>{catalog.errorMessage}</p>
-                  <button type="button" onClick={catalog.retry}>
-                    Reintentar
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </main>
+                {catalog.status === 'ready' && !composition.ready && (
+                  <>
+                    <span className={styles.loader} aria-hidden="true" />
+                    <p>Recuperando tu espacio de trabajo...</p>
+                  </>
+                )}
+                {catalog.status === 'ready' &&
+                  composition.ready &&
+                  (!preferences.ready ||
+                    !tagState.ready ||
+                    !wordFilters.ready) && (
+                    <>
+                      <span className={styles.loader} aria-hidden="true" />
+                      <p>Recuperando tus preferencias...</p>
+                    </>
+                  )}
+                {catalog.status === 'idle' && (
+                  <>
+                    <span className={styles.stateMark} aria-hidden="true">
+                      Aa
+                    </span>
+                    <p>Selecciona un conjunto lingüístico para explorar.</p>
+                  </>
+                )}
+                {catalog.status === 'error' && (
+                  <div role="alert" className={styles.error}>
+                    <strong>No se ha podido abrir el conjunto.</strong>
+                    <p>{catalog.errorMessage}</p>
+                    <button type="button" onClick={catalog.retry}>
+                      Reintentar
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </main>
+      )}
 
       <AppFooter />
       <NotificationViewport notifications={notifications} onDismiss={dismiss} />

@@ -5,3 +5,4 @@ export { DexieSemordnilapTagRepository } from './dexie-semordnilap-tag-repositor
 export { BrowserSelectedDatasetRepository } from './browser-selected-dataset-repository'
 export { DexiePersonalDataRepository } from './dexie-personal-data-repository'
 export { DexieWorkspacePreferencesRepository } from './dexie-workspace-preferences-repository'
+export { DexieWordFilterRepository } from './dexie-word-filter-repository'

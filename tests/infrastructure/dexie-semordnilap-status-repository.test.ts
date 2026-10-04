@@ -118,6 +118,7 @@ describe('DexieSemordnilapStatusRepository', () => {
     expect(await upgraded.workspacePreferences.count()).toBe(0)
     expect(await upgraded.tags.count()).toBe(0)
     expect(await upgraded.semordnilapTags.count()).toBe(0)
+    expect(await upgraded.wordFilters.count()).toBe(0)
   })
 
   it('actualiza una base v2 sin perder composites ni borradores', async () => {
@@ -235,5 +236,36 @@ describe('DexieSemordnilapStatusRepository', () => {
       { ...legacyTag, icon: 'tag' },
     ])
     expect(await upgraded.semordnilapTags.toArray()).toEqual([assignment])
+    expect(await upgraded.wordFilters.count()).toBe(0)
+  })
+
+  it('añade la tabla de palabras a una base v5 sin alterar sus datos', async () => {
+    const databaseName = `semordnilab-v5-${Date.now()}`
+    const legacy = new Dexie(databaseName)
+    legacy.version(5).stores({
+      semordnilapStatuses:
+        '[datasetId+semordnilapId+status], datasetId, semordnilapId, status, [datasetId+status]',
+      savedComposites: 'id, datasetId, createdAt, updatedAt',
+      compositionDrafts: 'datasetId, updatedAt',
+      workspacePreferences: 'id, updatedAt',
+      tags: 'id, &normalizedName, createdAt, updatedAt',
+      semordnilapTags:
+        '[datasetId+semordnilapId+tagId], datasetId, semordnilapId, tagId, [datasetId+tagId]',
+    })
+    const status = {
+      datasetId: 'es-gl',
+      semordnilapId: 'atomic:uno',
+      status: 'favorite',
+    }
+    await legacy.table('semordnilapStatuses').put(status)
+    legacy.close()
+
+    const upgraded = new SemordnilabDatabase(databaseName)
+    databases.push(upgraded)
+    await upgraded.open()
+
+    expect(upgraded.verno).toBe(DATABASE_VERSION)
+    expect(await upgraded.semordnilapStatuses.toArray()).toEqual([status])
+    expect(await upgraded.wordFilters.count()).toBe(0)
   })
 })

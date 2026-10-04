@@ -10,6 +10,7 @@ import type {
   WorkspacePreferencesRepository,
   SemordnilapTag,
   SemordnilapTagAssignment,
+  WordFilterRecord,
 } from '@/application'
 import { buildCompositeDeletionPlan } from '@/application/composites/build-composite-deletion-plan'
 
@@ -97,6 +98,7 @@ export class InMemoryPersonalDataRepository implements PersonalDataRepository {
   private readonly preferences: InMemoryWorkspacePreferencesRepository
   private tags: readonly SemordnilapTag[] = []
   private semordnilapTags: readonly SemordnilapTagAssignment[] = []
+  private wordFilters: readonly WordFilterRecord[] = []
 
   constructor(
     statuses: InMemorySemordnilapStatusRepository,
@@ -118,6 +120,7 @@ export class InMemoryPersonalDataRepository implements PersonalDataRepository {
       compositionDrafts: this.drafts.readAllRecords(),
       tags: this.tags,
       semordnilapTags: this.semordnilapTags,
+      wordFilters: this.wordFilters,
       ...(workspacePreferences ? { workspacePreferences } : {}),
     }
   }
@@ -128,6 +131,7 @@ export class InMemoryPersonalDataRepository implements PersonalDataRepository {
     this.drafts.replaceAllRecords(snapshot.compositionDrafts)
     this.tags = snapshot.tags
     this.semordnilapTags = snapshot.semordnilapTags
+    this.wordFilters = snapshot.wordFilters
     this.preferences.replace(snapshot.workspacePreferences)
   }
 

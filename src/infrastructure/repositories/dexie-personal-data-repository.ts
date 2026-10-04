@@ -22,6 +22,7 @@ export class DexiePersonalDataRepository implements PersonalDataRepository {
       workspacePreferences,
       tags,
       semordnilapTags,
+      wordFilters,
     ] = await this.database.transaction(
       'r',
       [
@@ -31,6 +32,7 @@ export class DexiePersonalDataRepository implements PersonalDataRepository {
         this.database.workspacePreferences,
         this.database.tags,
         this.database.semordnilapTags,
+        this.database.wordFilters,
       ],
       async () =>
         Promise.all([
@@ -40,6 +42,7 @@ export class DexiePersonalDataRepository implements PersonalDataRepository {
           this.database.workspacePreferences.get('workspace'),
           this.database.tags.toArray(),
           this.database.semordnilapTags.toArray(),
+          this.database.wordFilters.toArray(),
         ]),
     )
 
@@ -49,6 +52,7 @@ export class DexiePersonalDataRepository implements PersonalDataRepository {
       compositionDrafts,
       tags,
       semordnilapTags,
+      wordFilters,
       ...(workspacePreferences ? { workspacePreferences } : {}),
     }
   }
@@ -63,6 +67,7 @@ export class DexiePersonalDataRepository implements PersonalDataRepository {
         this.database.workspacePreferences,
         this.database.tags,
         this.database.semordnilapTags,
+        this.database.wordFilters,
       ],
       async () => {
         await Promise.all([
@@ -72,6 +77,7 @@ export class DexiePersonalDataRepository implements PersonalDataRepository {
           this.database.workspacePreferences.clear(),
           this.database.tags.clear(),
           this.database.semordnilapTags.clear(),
+          this.database.wordFilters.clear(),
         ])
         await Promise.all([
           this.database.semordnilapStatuses.bulkPut([...snapshot.statuses]),
@@ -81,6 +87,7 @@ export class DexiePersonalDataRepository implements PersonalDataRepository {
           ]),
           this.database.tags.bulkPut([...snapshot.tags]),
           this.database.semordnilapTags.bulkPut([...snapshot.semordnilapTags]),
+          this.database.wordFilters.bulkPut([...snapshot.wordFilters]),
           snapshot.workspacePreferences
             ? this.database.workspacePreferences.put(
                 snapshot.workspacePreferences,

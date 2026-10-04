@@ -12,6 +12,7 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   AddSemordnilapTagAssignments,
   ApplySemordnilapTagChanges,
+  AddWordFilter,
   ClearCompositionDraft,
   DeleteSavedComposite,
   DeleteSemordnilapTag,
@@ -23,6 +24,7 @@ import {
   ListSavedCompositeSemordnilaps,
   ListSemordnilapStatuses,
   ListSemordnilapTags,
+  ListWordFilters,
   LoadAtomicSemordnilaps,
   LoadCompositionDraft,
   LoadSelectedDataset,
@@ -31,6 +33,7 @@ import {
   NormalizeSemordnilapStatuses,
   RemoveAllSemordnilapStatuses,
   RemoveSemordnilapTagAssignments,
+  RemoveWordFilter,
   RenameSavedComposite,
   SaveCompositeSemordnilap,
   SaveCompositionDraft,
@@ -42,6 +45,7 @@ import {
   PreviewPersonalDataImport,
   type LoadedSemordnilapDataset,
   type SemordnilapDatasetSource,
+  type WordFilterRecord,
 } from '@/application'
 import type { ApplicationDependencies } from '@/app/composition/create-application-dependencies'
 import { WorkspacePage } from '@/presentation/pages/WorkspacePage'
@@ -60,6 +64,7 @@ import {
   InMemorySavedCompositeSemordnilapRepository,
   InMemoryWorkspacePreferencesRepository,
 } from '../support/in-memory-saved-data-repositories'
+import { InMemoryWordFilterRepository } from '../support/in-memory-word-filter-repository'
 
 const ella = createAtomicSemordnilap('ella', 'ella', 'ella', 'a lle', 'alle')
 const noSe = createAtomicSemordnilap('no-se', 'no se', 'nose', 'e son', 'eson')
@@ -72,6 +77,7 @@ const loadedDataset: LoadedSemordnilapDataset = {
 function createDependencies(
   sourceOverrides: Partial<SemordnilapDatasetSource> = {},
   selectedDatasetId: string = '',
+  wordFilters: readonly WordFilterRecord[] = [],
 ): ApplicationDependencies {
   const source: SemordnilapDatasetSource = {
     listAvailable: () => [testDataset],
@@ -92,6 +98,7 @@ function createDependencies(
     draftRepository,
     preferencesRepository,
   )
+  const wordFilterRepository = new InMemoryWordFilterRepository(wordFilters)
 
   return {
     listAvailableDatasets: new ListAvailableDatasets(source),
@@ -149,6 +156,9 @@ function createDependencies(
       readText: (file) => file.text(),
       downloadText: vi.fn(),
     },
+    listWordFilters: new ListWordFilters(wordFilterRepository),
+    addWordFilter: new AddWordFilter(wordFilterRepository),
+    removeWordFilter: new RemoveWordFilter(wordFilterRepository),
   }
 }
 
@@ -159,6 +169,127 @@ function getComponentTexts(list: HTMLElement): string[] {
 }
 
 describe('WorkspacePage', () => {
+  it('navega a una vista común para filtrar, recuperar y exportar palabras', async () => {
+    const user = userEvent.setup()
+    const dependencies = createDependencies({}, testDataset.id)
+    render(<WorkspacePage dependencies={dependencies} />)
+
+    await screen.findByRole('region', { name: 'Catálogo bilingüe' })
+    await user.click(screen.getByRole('button', { name: 'Filtrar palabras' }))
+
+    expect(
+      screen.getByRole('heading', { name: 'Filtrar palabras' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('combobox', { name: 'Idioma de las palabras' }),
+    ).toHaveValue('es')
+
+    await user.type(
+      screen.getByRole('searchbox', { name: 'Buscar palabras' }),
+      'ela',
+    )
+    const ellaButton = screen.getByRole('button', { name: 'Filtrar ella' })
+    await user.click(ellaButton)
+    expect(ellaButton).toHaveAttribute('data-transition', 'filter')
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: 'Filtrar ella' }),
+      ).not.toBeInTheDocument(),
+    )
+
+    await user.click(screen.getByRole('button', { name: /Recuperar 1/ }))
+    expect(
+      screen.getByRole('heading', { name: 'Recuperar palabras' }),
+    ).toBeInTheDocument()
+    const restore = screen.getByRole('button', { name: 'Recuperar ella' })
+    await user.click(restore)
+    expect(restore).toHaveAttribute('data-transition', 'restore')
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: 'Recuperar ella' }),
+      ).not.toBeInTheDocument(),
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Exportar backup' }))
+    expect(
+      dependencies.personalDataFileGateway.downloadText,
+    ).toHaveBeenCalledTimes(1)
+
+    await user.click(screen.getByRole('button', { name: 'Volver a componer' }))
+    expect(
+      await screen.findByRole('region', { name: 'Catálogo bilingüe' }),
+    ).toBeInTheDocument()
+  })
+
+  it('activa los filtros de palabras de cada idioma de forma independiente', async () => {
+    const user = userEvent.setup()
+    render(
+      <WorkspacePage
+        dependencies={createDependencies({}, testDataset.id, [
+          {
+            language: 'es',
+            normalizedWord: 'ella',
+            displayWord: 'ella',
+            createdAt: '2026-10-04T10:00:00.000Z',
+          },
+          {
+            language: 'gl',
+            normalizedWord: 'e',
+            displayWord: 'e',
+            createdAt: '2026-10-04T10:00:00.000Z',
+          },
+        ])}
+      />,
+    )
+
+    const catalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
+    expect(
+      within(catalog).getByRole('button', {
+        name: 'Añadir ella a la composición',
+      }),
+    ).toBeInTheDocument()
+
+    await user.click(
+      within(catalog).getByRole('button', {
+        name: 'Activar filtro Español, 1 palabra',
+      }),
+    )
+    expect(
+      within(catalog).queryByRole('button', {
+        name: 'Añadir ella a la composición',
+      }),
+    ).not.toBeInTheDocument()
+    expect(
+      within(catalog).getByRole('button', {
+        name: 'Añadir no se a la composición',
+      }),
+    ).toBeInTheDocument()
+
+    await user.click(
+      within(catalog).getByRole('button', {
+        name: 'Activar filtro Gallego, 1 palabra',
+      }),
+    )
+    expect(
+      within(catalog).queryByRole('button', {
+        name: 'Añadir no se a la composición',
+      }),
+    ).not.toBeInTheDocument()
+
+    await user.click(
+      within(catalog).getByRole('button', {
+        name: 'Desactivar filtro Español, 1 palabra',
+      }),
+    )
+    expect(
+      within(catalog).getByRole('button', {
+        name: 'Añadir ella a la composición',
+      }),
+    ).toBeInTheDocument()
+  })
+
   it('ofrece los controles esenciales en la disposición móvil', async () => {
     const matchMedia = vi.fn((query: string) => ({
       media: query,

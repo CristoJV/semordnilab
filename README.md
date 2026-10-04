@@ -15,6 +15,7 @@ Con Semordnilab puedes:
 - recorrer colecciones de español, gallego y portugués sin perder la alineación entre pares;
 - buscar, ordenar y descubrir resultados desde cualquiera de los dos idiomas;
 - marcar favoritos o apartar temporalmente palabras que no te interesan;
+- crear listas por idioma para excluir de una vez todos los n-gramas que contengan palabras inválidas;
 - crear etiquetas personales para clasificar y filtrar hallazgos;
 - arrastrar semordnilaps hasta el área de trabajo y colocarlos en el punto exacto de una composición;
 - guardar composites y reutilizarlos como nuevas piezas;

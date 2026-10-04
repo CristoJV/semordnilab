@@ -18,6 +18,7 @@ import {
   cleanTagName,
   normalizeTagName,
 } from '@/application/tags/tag-validation'
+import { normalizeWordFilterKey } from '@/application/word-filters/word-filter-policy'
 import type {
   DatasetId,
   SemordnilapId,
@@ -25,8 +26,8 @@ import type {
 } from '@/domain/semordnilap'
 
 const BACKUP_FORMAT = 'semordnilab-personal-data'
-const BACKUP_VERSION = 3
-const LEGACY_BACKUP_VERSIONS = [1, 2] as const
+const BACKUP_VERSION = 4
+const LEGACY_BACKUP_VERSIONS = [1, 2, 3] as const
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -78,7 +79,7 @@ function parseReference(value: unknown, context: string): SemordnilapReference {
 
 function parseSnapshot(
   value: unknown,
-  version: 1 | 2 | 3,
+  version: 1 | 2 | 3 | 4,
 ): PersonalDataSnapshot {
   if (!isRecord(value)) throw new Error('La copia no contiene datos válidos.')
   const statusesValue = value.statuses
@@ -102,6 +103,13 @@ function parseSnapshot(
   const semordnilapTagsValue = value.semordnilapTags ?? []
   if (!Array.isArray(tagsValue) || !Array.isArray(semordnilapTagsValue)) {
     throw new Error('Las colecciones de etiquetas no son válidas.')
+  }
+  if (version >= 4 && !Array.isArray(value.wordFilters)) {
+    throw new Error('La copia no contiene la colección de filtros de palabras.')
+  }
+  const wordFiltersValue = value.wordFilters ?? []
+  if (!Array.isArray(wordFiltersValue)) {
+    throw new Error('La colección de filtros de palabras no es válida.')
   }
 
   const statuses = statusesValue.map((entry, index) => {
@@ -238,6 +246,26 @@ function parseSnapshot(
     }
   })
 
+  const wordFilters = wordFiltersValue.map((entry, index) => {
+    const context = `Filtro de palabra ${index + 1}`
+    if (!isRecord(entry)) throw new Error(`${context}: registro no válido.`)
+    const language = requiredString(entry, 'language', context)
+    const displayWord = requiredString(entry, 'displayWord', context).trim()
+    const normalizedWord = requiredString(entry, 'normalizedWord', context)
+    if (normalizeWordFilterKey(displayWord) !== normalizedWord) {
+      throw new Error(`${context}: palabra normalizada no válida.`)
+    }
+    return {
+      language,
+      displayWord,
+      normalizedWord,
+      createdAt: timestamp(
+        requiredString(entry, 'createdAt', context),
+        context,
+      ),
+    }
+  })
+
   let workspacePreferences
   if (value.workspacePreferences !== undefined) {
     const entry = value.workspacePreferences
@@ -318,6 +346,7 @@ function parseSnapshot(
     compositionDrafts,
     tags,
     semordnilapTags,
+    wordFilters,
     ...(workspacePreferences ? { workspacePreferences } : {}),
   }
 }
@@ -340,11 +369,11 @@ export function parseSemordnilabBackup(input: string): SemordnilabBackup {
   }
   if (
     value.version !== BACKUP_VERSION &&
-    !LEGACY_BACKUP_VERSIONS.includes(value.version as 1 | 2)
+    !LEGACY_BACKUP_VERSIONS.includes(value.version as 1 | 2 | 3)
   ) {
     throw new Error('La versión de la copia no es compatible.')
   }
-  const version = value.version as 1 | 2 | 3
+  const version = value.version as 1 | 2 | 3 | 4
   const exportedAt = timestamp(
     requiredString(value, 'exportedAt', 'Copia'),
     'Copia',
@@ -385,6 +414,12 @@ export function parseSemordnilabBackup(input: string): SemordnilabBackup {
     ),
     'asignaciones de etiquetas',
   )
+  assertUnique(
+    data.wordFilters.map(
+      ({ language, normalizedWord }) => `${language}\u001f${normalizedWord}`,
+    ),
+    'filtros de palabras',
+  )
   return { format: BACKUP_FORMAT, version, exportedAt, data }
 }
 
@@ -419,6 +454,7 @@ export function summarizePersonalData(
         ({ datasetId, semordnilapId }) => `${datasetId}\u001f${semordnilapId}`,
       ),
     ).size,
+    wordFilters: data.wordFilters.length,
     includesPreferences: Boolean(data.workspacePreferences),
   }
 }
@@ -439,6 +475,7 @@ export function buildImportedSnapshot(
       compositionDrafts: imported.compositionDrafts,
       tags: imported.tags,
       semordnilapTags: imported.semordnilapTags,
+      wordFilters: imported.wordFilters,
     }
     const preferences = options.importPreferences
       ? imported.workspacePreferences
@@ -506,12 +543,23 @@ export function buildImportedSnapshot(
     )
   }
 
+  const wordFilters = new Map(
+    current.wordFilters.map((record) => [
+      `${record.language}\u001f${record.normalizedWord}`,
+      record,
+    ]),
+  )
+  for (const record of imported.wordFilters) {
+    wordFilters.set(`${record.language}\u001f${record.normalizedWord}`, record)
+  }
+
   return {
     statuses: normalizeSemordnilapStatusRecords([...statuses.values()]),
     savedComposites: [...composites.values()],
     compositionDrafts: [...drafts.values()],
     tags: [...tags.values()],
     semordnilapTags: [...tagAssignments.values()],
+    wordFilters: [...wordFilters.values()],
     ...(options.importPreferences && imported.workspacePreferences
       ? { workspacePreferences: imported.workspacePreferences }
       : current.workspacePreferences

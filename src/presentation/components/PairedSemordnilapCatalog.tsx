@@ -62,7 +62,6 @@ type PairedSemordnilapCatalogProps = {
   onSetStatuses: (
     selections: readonly SemordnilapStatusSelection[],
   ) => Promise<void>
-  onRemoveAllStatus: (status: SemordnilapCatalogStatus) => Promise<void>
   initialView?: DatasetCatalogViewPreference
   onViewChange: (view: DatasetCatalogViewPreference) => void
   onOpenComposite: (composite: CompositeSemordnilap) => void
@@ -72,6 +71,13 @@ type PairedSemordnilapCatalogProps = {
   overlayOpen: boolean
   selectionRequested: boolean
   onSelectionRequestHandled: () => void
+  wordFilterOptions: readonly {
+    code: string
+    label: string
+    count: number
+    active: boolean
+  }[]
+  onToggleWordFilter: (language: string) => void
 }
 
 export function PairedSemordnilapCatalog({
@@ -84,7 +90,6 @@ export function PairedSemordnilapCatalog({
   tagState,
   onAdd,
   onSetStatuses,
-  onRemoveAllStatus,
   initialView,
   onViewChange,
   onOpenComposite,
@@ -94,6 +99,8 @@ export function PairedSemordnilapCatalog({
   overlayOpen,
   selectionRequested,
   onSelectionRequestHandled,
+  wordFilterOptions,
+  onToggleWordFilter,
 }: PairedSemordnilapCatalogProps) {
   const [sourceQuery, setSourceQuery] = useState(initialView?.sourceQuery ?? '')
   const [targetQuery, setTargetQuery] = useState(initialView?.targetQuery ?? '')
@@ -404,7 +411,9 @@ export function PairedSemordnilapCatalog({
       .filter((item) => hasStatus(item.semordnilap.id, 'discarded'))
       .map((item) => item.semordnilap.id)
     setRestoreAllConfirmation(false)
-    void onRemoveAllStatus('discarded')
+    void onSetStatuses(
+      ids.map((semordnilapId) => ({ semordnilapId, status: null })),
+    )
     onNotify({
       tone: 'success',
       message: `${ids.length} semordnilaps restaurados.`,
@@ -532,6 +541,8 @@ export function PairedSemordnilapCatalog({
             onSelect={() => setInternalSelectionMode(true)}
             onReset={resetView}
             onRestoreAll={requestRestoreAll}
+            wordFilterOptions={wordFilterOptions}
+            onToggleWordFilter={onToggleWordFilter}
           />
         )}
       </div>

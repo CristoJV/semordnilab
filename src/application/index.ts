@@ -7,6 +7,7 @@ export type {
 } from './dto/semordnilap-catalog'
 export type { CompositionDraftRecord } from './dto/composition-draft'
 export type { SavedCompositeSemordnilapRecord } from './dto/saved-composite'
+export type { VocabularyWord, WordFilterRecord } from './dto/word-filter'
 export {
   TAG_COLORS,
   TAG_ICONS,
@@ -53,6 +54,7 @@ export type {
   PersonalDataRepository,
 } from './ports/personal-data-repository'
 export type { WorkspacePreferencesRepository } from './ports/workspace-preferences-repository'
+export type { WordFilterRepository } from './ports/word-filter-repository'
 export type {
   PersonalDataFileGateway,
   ReadableTextFile,
@@ -85,6 +87,17 @@ export { RenameSavedComposite } from './use-cases/rename-saved-composite'
 export { DeleteSavedComposite } from './use-cases/delete-saved-composite'
 export { InspectSavedCompositeDeletion } from './use-cases/inspect-saved-composite-deletion'
 export { GetPersonalDataSummary } from './use-cases/get-personal-data-summary'
+export {
+  AddWordFilter,
+  ListWordFilters,
+  RemoveWordFilter,
+} from './use-cases/word-filters'
+export {
+  expressionWords,
+  extractLanguageVocabulary,
+  normalizeWordFilterKey,
+  semordnilapMatchesWordFilters,
+} from './word-filters/word-filter-policy'
 export { ListSemordnilapTags } from './use-cases/list-semordnilap-tags'
 export {
   CreateSemordnilapTag,

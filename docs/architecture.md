@@ -15,6 +15,7 @@ El repositorio contiene actualmente:
 - un catálogo bilingüe con filas alineadas y filtros combinados;
 - estados genéricos de catálogo persistidos con Dexie e IndexedDB;
 - etiquetas personales globales con asignación y filtrado por dataset;
+- listas personales de palabras por idioma, con revisión, recuperación y aplicación independiente a cada lado del catálogo;
 - favoritos de posición estable, vista de descartados, restauración y selección múltiple;
 - búsqueda con relevancia visual, resaltado, descubrimiento y ventana virtual;
 - criterios de ordenación combinables desde cualquiera de los idiomas;
@@ -22,9 +23,9 @@ El repositorio contiene actualmente:
 - diálogos portados al documento con hoja inferior y zonas seguras en móvil;
 - guardado, deduplicación y resolución recursiva de composites;
 - gestión de composites con análisis transitivo y eliminación en cascada protegida;
-- copias JSON versionadas con inspección, combinación, validación semántica e importación atómica;
+- copias JSON en versión 4 con inspección, combinación, validación semántica e importación atómica, compatibles con las versiones 1–3;
 - preferencias de vista persistentes por dataset;
-- esquema IndexedDB en versión 5 con migraciones comprobadas desde las versiones 1, 2, 3 y 4;
+- esquema IndexedDB en versión 6, con filtros de palabras indexados por idioma y migraciones desde versiones anteriores;
 - CSS Modules y estilos globales basados en tokens;
 - pruebas con Vitest para dominio, aplicación, infraestructura y presentación;
 - TypeScript estricto, alias `@/`, ESLint y Prettier;

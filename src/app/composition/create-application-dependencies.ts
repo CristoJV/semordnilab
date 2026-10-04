@@ -30,6 +30,9 @@ import {
   UpdateSemordnilapTag,
   PreviewPersonalDataImport,
   type PersonalDataFileGateway,
+  AddWordFilter,
+  ListWordFilters,
+  RemoveWordFilter,
 } from '@/application'
 import { BrowserPersonalDataFileGateway } from '@/infrastructure/files/browser-personal-data-file-gateway'
 import { SemordnilabDatabase } from '@/infrastructure/database'
@@ -42,6 +45,7 @@ import {
   DexieSemordnilapTagRepository,
   DexieWorkspacePreferencesRepository,
   BrowserSelectedDatasetRepository,
+  DexieWordFilterRepository,
 } from '@/infrastructure/repositories'
 
 export type ApplicationDependencies = {
@@ -76,6 +80,9 @@ export type ApplicationDependencies = {
   importPersonalData: ImportPersonalData
   getPersonalDataSummary: GetPersonalDataSummary
   personalDataFileGateway: PersonalDataFileGateway
+  listWordFilters: ListWordFilters
+  addWordFilter: AddWordFilter
+  removeWordFilter: RemoveWordFilter
 }
 
 export function createApplicationDependencies(): ApplicationDependencies {
@@ -94,6 +101,7 @@ export function createApplicationDependencies(): ApplicationDependencies {
     database,
   )
   const personalDataRepository = new DexiePersonalDataRepository(database)
+  const wordFilterRepository = new DexieWordFilterRepository(database)
 
   return {
     listAvailableDatasets: new ListAvailableDatasets(datasetSource),
@@ -151,5 +159,8 @@ export function createApplicationDependencies(): ApplicationDependencies {
     ),
     getPersonalDataSummary: new GetPersonalDataSummary(personalDataRepository),
     personalDataFileGateway: new BrowserPersonalDataFileGateway(),
+    listWordFilters: new ListWordFilters(wordFilterRepository),
+    addWordFilter: new AddWordFilter(wordFilterRepository),
+    removeWordFilter: new RemoveWordFilter(wordFilterRepository),
   }
 }

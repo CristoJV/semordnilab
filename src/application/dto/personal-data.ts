@@ -6,6 +6,7 @@ import type {
   SemordnilapTagAssignment,
 } from './semordnilap-tag'
 import type { WorkspacePreferencesRecord } from './workspace-preferences'
+import type { WordFilterRecord } from './word-filter'
 
 export type PersonalDataSnapshot = {
   statuses: readonly SemordnilapStatusRecord[]
@@ -13,12 +14,13 @@ export type PersonalDataSnapshot = {
   compositionDrafts: readonly CompositionDraftRecord[]
   tags: readonly SemordnilapTag[]
   semordnilapTags: readonly SemordnilapTagAssignment[]
+  wordFilters: readonly WordFilterRecord[]
   workspacePreferences?: WorkspacePreferencesRecord
 }
 
 export type SemordnilabBackup = {
   format: 'semordnilab-personal-data'
-  version: 1 | 2 | 3
+  version: 1 | 2 | 3 | 4
   exportedAt: string
   data: PersonalDataSnapshot
 }
@@ -31,6 +33,7 @@ export type PersonalDataSummary = {
   compositionDrafts: number
   tags: number
   taggedSemordnilaps: number
+  wordFilters: number
   includesPreferences: boolean
 }
 
