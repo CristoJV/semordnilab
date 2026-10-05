@@ -50,13 +50,10 @@ export function AppHeader({
       </div>
 
       {view === 'workspace' ? (
-        <DatasetPicker
-          datasets={datasets}
-          selectedDatasetId={selectedDatasetId}
-          layout={layout}
-          onChange={onDatasetChange}
-          onOpenCompact={onOpenDatasetPicker}
-        />
+        <div className={styles.pageTitle}>
+          <span>Espacio de trabajo</span>
+          <strong>Composición</strong>
+        </div>
       ) : view === 'word-filters' ? (
         <div className={styles.pageTitle}>
           <span>Revisión léxica</span>
@@ -71,9 +68,18 @@ export function AppHeader({
 
       <div className={styles.trailing}>
         {view === 'workspace' && (
-          <p className={styles.status} aria-live="polite">
-            {statusText}
-          </p>
+          <>
+            <p className={styles.status} aria-live="polite">
+              {statusText}
+            </p>
+            <DatasetPicker
+              datasets={datasets}
+              selectedDatasetId={selectedDatasetId}
+              layout={layout}
+              onChange={onDatasetChange}
+              onOpenCompact={onOpenDatasetPicker}
+            />
+          </>
         )}
         <button
           className={`${styles.menuButton} ${styles.iconButton}`}

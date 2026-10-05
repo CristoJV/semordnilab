@@ -60,8 +60,6 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
     useState<WorkspaceUtilityOverlay>(null)
   const [selectedComposite, setSelectedComposite] =
     useState<CompositeSemordnilap | null>(null)
-  const [catalogSelectionRequested, setCatalogSelectionRequested] =
-    useState(false)
   const { notifications, notify, dismiss } = useTransientNotifications()
   const layout = useResponsiveLayout()
   const preferences = useWorkspacePreferences(dependencies)
@@ -158,15 +156,6 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
     (datasetId: string) => selectDataset(datasetId),
     [selectDataset],
   )
-  const startCatalogSelection = useCallback(
-    () => setCatalogSelectionRequested(true),
-    [],
-  )
-  const acknowledgeCatalogSelection = useCallback(
-    () => setCatalogSelectionRequested(false),
-    [],
-  )
-
   const applyRoute = useCallback((route: WorkspaceRoute) => {
     setPageView(route.view)
     if (route.view === 'word-filters') setWordFilterMode(route.mode)
@@ -370,8 +359,6 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
                 overlayOpen={
                   utilityOverlay !== null || selectedComposite !== null
                 }
-                selectionRequested={catalogSelectionRequested}
-                onSelectionRequestHandled={acknowledgeCatalogSelection}
                 wordFilterOptions={wordFilterOptions.map(
                   ({ code, label, count, active }) => ({
                     code,
@@ -452,14 +439,6 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
           onNavigateWorkspace={openWorkspace}
           onNavigateWordFilters={openWordFilters}
           onManageTags={openTagManager}
-          onStartSelection={
-            layout === 'compact' && pageView === 'workspace'
-              ? () => {
-                  setUtilityOverlay(null)
-                  startCatalogSelection()
-                }
-              : undefined
-          }
         />
       )}
 

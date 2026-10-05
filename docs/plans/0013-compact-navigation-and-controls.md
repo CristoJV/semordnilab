@@ -30,6 +30,18 @@ Resultado: el catálogo concentra sus cinco vistas en una fila, cada idioma cont
 
 Resultado: la navegación se mantiene disponible en composición, revisión y etiquetas; el gestor deja de apilar modales. Formato, lint y tipos terminan sin avisos, las 39 suites con 169 pruebas pasan y el build Vite de producción se genera correctamente.
 
+## Ajuste posterior — pulido de cabeceras y marca
+
+- [x] Asegurar que el drawer entra desde el borde derecho hacia el centro y eliminar su redondeo.
+- [x] Igualar su cabecera con la global y sustituir `Menú` por el icono y `SemordniLAB`.
+- [x] Unificar visualmente exportación e importación, retirar la selección del drawer y enlazar About al repositorio.
+- [x] Añadir título y subtítulo de composición y acercar el selector lingüístico al menú.
+- [x] Sustituir `Compón` por el acceso condicional a la revisión léxica, alineado con las acciones.
+- [x] Actualizar el pie a `Semordnilab ♥ CristoJV` y ampliar las pruebas responsivas.
+- [x] Repetir formato, lint, tipos, pruebas completas y build de producción.
+
+Resultado: el drawer entra de derecha a izquierda sin redondeo, las dos cabeceras comparten altura y la composición mantiene alineadas la revisión y las acciones. Formato, lint y tipos terminan sin avisos; pasan 39 suites con 169 pruebas y el build Vite de producción se genera correctamente.
+
 ## Verificación
 
 ```text

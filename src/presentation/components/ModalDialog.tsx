@@ -4,9 +4,10 @@ import { createPortal } from 'react-dom'
 import styles from './ModalDialog.module.css'
 
 type ModalDialogProps = {
-  title: string
+  title: ReactNode
   onClose: () => void
   children: ReactNode
+  accessibleLabel?: string
   wide?: boolean
   centered?: boolean
   drawer?: boolean
@@ -16,6 +17,7 @@ export function ModalDialog({
   title,
   onClose,
   children,
+  accessibleLabel,
   wide = false,
   centered = false,
   drawer = false,
@@ -73,7 +75,8 @@ export function ModalDialog({
         data-drawer={drawer}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={titleId}
+        aria-label={accessibleLabel}
+        aria-labelledby={accessibleLabel ? undefined : titleId}
       >
         <header className={styles.header}>
           <h2 id={titleId}>{title}</h2>

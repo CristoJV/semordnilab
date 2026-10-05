@@ -51,6 +51,8 @@ export function CompositionLexicalInspector({
   )
   const count = sides.reduce((total, side) => total + side.words.length, 0)
 
+  if (count === 0) return null
+
   const close = () => {
     setOpen(false)
     triggerRef.current?.focus()

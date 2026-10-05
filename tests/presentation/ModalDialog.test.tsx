@@ -81,4 +81,6 @@ it('marca la variante de navegación lateral sin perder el portal', () => {
   expect(container).not.toContainElement(dialog)
   expect(dialog).toHaveAttribute('data-drawer', 'true')
   expect(dialog.parentElement).toHaveAttribute('data-drawer', 'true')
+  expect(getComputedStyle(dialog).borderRadius).toBe('0px')
+  expect(getComputedStyle(dialog).animation).toContain('drawer-in')
 })

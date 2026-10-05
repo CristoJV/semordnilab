@@ -1,25 +1,31 @@
 .inspector {
-  width: 100%;
-  max-width: 100%;
+  display: flex;
+  flex: 0 1 auto;
+  width: auto;
+  max-width: min(14rem, 42vw);
   min-width: 0;
-  margin-top: 0.65rem;
+  margin: 0;
+  align-items: center;
   color: var(--color-text-muted);
   font-size: 0.72rem;
 }
 
 .trigger {
   width: fit-content;
-  padding: 0;
+  min-height: 2.25rem;
+  padding: 0.45rem 0.7rem;
   color: var(--color-violet-strong);
   font: inherit;
   font-weight: 800;
   background: transparent;
   border: 0;
+  border-radius: 0.65rem;
   cursor: pointer;
 }
 
 .trigger:hover {
   color: var(--color-violet);
+  background: color-mix(in srgb, var(--color-violet-soft) 62%, transparent);
 }
 
 .trigger:focus-visible {
@@ -154,6 +160,19 @@
 }
 
 @media (max-width: 560px) {
+  .inspector {
+    max-width: 7.5rem;
+  }
+
+  .trigger {
+    min-height: 2.35rem;
+    padding: 0.45rem 0.5rem;
+    overflow: hidden;
+    font-size: 0.68rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .panel {
     gap: 0.45rem;
     padding: 0.55rem;

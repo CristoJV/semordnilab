@@ -1,5 +1,6 @@
 .footer {
   display: flex;
+  gap: 0.4rem;
   align-items: baseline;
   justify-content: center;
   min-height: 2rem;
@@ -7,14 +8,20 @@
   color: var(--color-text-muted);
   font-family: var(--font-display);
   font-size: 0.8rem;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   background: var(--color-surface);
   border-top: 1px solid var(--color-border);
 }
 
 .footer strong {
   color: var(--color-violet-strong);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.03em;
+}
+
+.footer svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  fill: var(--color-violet);
 }
 
 @media (max-width: 560px) {

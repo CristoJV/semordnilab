@@ -38,7 +38,7 @@ La fila se mueve mediante `transform` y revela `CatalogSwipeFeedback`. Este fond
 
 El centro móvil utiliza cheurones como indicación visual. En una unidad atómica activa no constituyen un botón. En los composites activos aparece una nota con lápiz entre ellos y tocarla abre directamente la gestión. En la vista de descartados solo permanece un cheurón izquierdo sutil; no existe acción central ni indicación hacia la derecha. La restauración se mantiene mediante el gesto izquierdo y la selección múltiple.
 
-La selección múltiple continúa disponible mediante la pulsación prolongada y una entrada alternativa en el menú superior. Una casilla triestado selecciona el conjunto filtrado completo, no únicamente las filas virtualizadas visibles. En `Descartados`, esta combinación sustituye al botón móvil `Restaurar todos`.
+La selección múltiple continúa disponible mediante la pulsación prolongada. Una casilla triestado selecciona el conjunto filtrado completo, no únicamente las filas virtualizadas visibles. En `Descartados`, esta combinación sustituye al botón móvil `Restaurar todos`.
 
 La fila se representa como una unidad visual continua: el centro no añade bordes ni un fondo independiente, y un gradiente muy suave enlaza los colores de ambos idiomas. Cuando no existe una acción central, los cheurones se agrupan sin distribuirse por todo el canal y su aspecto no cambia por el estado favorito. La cabecera conserva su separación mediante una línea vertical fina cuyo canal se estrecha en móvil. La selección cambia el matiz de la pareja completa sin incorporar contornos ni modificar sus dimensiones.
 

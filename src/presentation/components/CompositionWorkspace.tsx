@@ -174,15 +174,15 @@ export function CompositionWorkspace({
     <section
       className={styles.workspace}
       data-collapsed={collapsed}
-      aria-labelledby="composition-title"
+      aria-label="Composición"
     >
       <div className={styles.heading}>
-        <div className={styles.titleBlock}>
-          <h1 id="composition-title">Compón</h1>
-          <p className={styles.persistenceStatus} aria-live="polite">
-            {persistenceLabel}
-          </p>
-        </div>
+        {components.length > 0 && dataset && (
+          <CompositionLexicalInspector dataset={dataset} snapshot={snapshot} />
+        )}
+        <p className={styles.persistenceStatus} aria-live="polite">
+          {persistenceLabel}
+        </p>
         <CompositionToolbar
           collapsed={collapsed}
           canUndo={canUndo}
@@ -258,9 +258,6 @@ export function CompositionWorkspace({
               />
             </div>
           ))}
-        {!collapsed && components.length > 0 && dataset && (
-          <CompositionLexicalInspector dataset={dataset} snapshot={snapshot} />
-        )}
       </div>
 
       {pointerInteraction.dragging && (

@@ -73,8 +73,6 @@ type PairedSemordnilapCatalogProps = {
   onNotify: Notify
   layout: ResponsiveLayout
   overlayOpen: boolean
-  selectionRequested: boolean
-  onSelectionRequestHandled: () => void
   wordFilterOptions: readonly {
     code: string
     label: string
@@ -101,8 +99,6 @@ export function PairedSemordnilapCatalog({
   onNotify,
   layout,
   overlayOpen,
-  selectionRequested,
-  onSelectionRequestHandled,
   wordFilterOptions,
   onToggleWordFilter,
 }: PairedSemordnilapCatalogProps) {
@@ -133,7 +129,7 @@ export function PairedSemordnilapCatalog({
     useDeferredValue(targetQuery),
   )
   const discardedView = viewMode === 'discarded'
-  const selectionMode = selectionRequested || internalSelectionMode
+  const selectionMode = internalSelectionMode
 
   useCatalogSwipeHint(layout === 'compact' && statusesReady, onNotify)
 
@@ -318,7 +314,6 @@ export function PairedSemordnilapCatalog({
   const leaveSelectionMode = () => {
     setInternalSelectionMode(false)
     setSelectedIds(new Set())
-    if (selectionRequested) onSelectionRequestHandled()
   }
 
   const applySelectedStatus = (status: SemordnilapCatalogStatus) => {

@@ -36,7 +36,6 @@ type AppMenuDialogProps = {
   onNavigateWorkspace: () => void
   onNavigateWordFilters: () => void
   onManageTags: () => void
-  onStartSelection?: () => void
 }
 
 const DEFAULT_IMPORT_OPTIONS: PersonalDataImportOptions = {
@@ -95,7 +94,6 @@ export function AppMenuDialog({
   onNavigateWorkspace,
   onNavigateWordFilters,
   onManageTags,
-  onStartSelection,
 }: AppMenuDialogProps) {
   const [summary, setSummary] = useState<PersonalDataSummary | null>(null)
   const [content, setContent] = useState<string | null>(null)
@@ -216,7 +214,19 @@ export function AppMenuDialog({
   }
 
   return (
-    <ModalDialog title="Menú" onClose={onClose} drawer>
+    <ModalDialog
+      title={
+        <span className={styles.drawerTitle}>
+          <span className={styles.drawerMark} aria-hidden="true">
+            S
+          </span>
+          <span>SemordniLAB</span>
+        </span>
+      }
+      accessibleLabel="Menú"
+      onClose={onClose}
+      drawer
+    >
       <nav className={styles.navigation} aria-label="Navegación principal">
         <button
           type="button"
@@ -235,15 +245,6 @@ export function AppMenuDialog({
         >
           Filtrado
         </button>
-        {onStartSelection && currentView === 'workspace' && (
-          <button
-            className={styles.secondaryNavigation}
-            type="button"
-            onClick={onStartSelection}
-          >
-            Seleccionar semordnilaps
-          </button>
-        )}
       </nav>
 
       <section className={styles.menuSection} aria-labelledby="menu-data-title">
@@ -434,12 +435,18 @@ export function AppMenuDialog({
         )}
       </section>
 
-      <section
-        className={styles.menuSection}
-        aria-labelledby="menu-about-title"
-      >
-        <h3 id="menu-about-title">About</h3>
-        <p>SemordniLAB ayuda a explorar, componer y revisar semordnilaps.</p>
+      <section className={styles.menuSection} aria-label="About">
+        <a
+          className={styles.aboutLink}
+          href="https://github.com/CristoJV/semordnilab"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          About
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M14 5h5v5M19 5l-8 8M18 13v6H5V6h6" />
+          </svg>
+        </a>
       </section>
 
       {message && (

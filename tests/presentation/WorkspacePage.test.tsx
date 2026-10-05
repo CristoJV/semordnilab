@@ -381,15 +381,18 @@ describe('WorkspacePage', () => {
     const catalog = await screen.findByRole('region', {
       name: 'Catálogo bilingüe',
     })
-    expect(screen.getByRole('heading', { name: 'Compón' })).toBeInTheDocument()
+    expect(screen.getByText('Espacio de trabajo')).toBeInTheDocument()
+    expect(screen.getByText('Composición')).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Plegar composición' }),
     ).toHaveAttribute('aria-expanded', 'true')
-    expect(
-      screen.getByRole('button', {
-        name: /Cambiar conjunto lingüístico, actual Español \/ Gallego/,
-      }),
-    ).toHaveTextContent('ES ⇄ GL')
+    const compactDatasetPicker = screen.getByRole('button', {
+      name: /Cambiar conjunto lingüístico, actual Español \/ Gallego/,
+    })
+    expect(compactDatasetPicker).toHaveTextContent('ES ⇄ GL')
+    expect(compactDatasetPicker.nextElementSibling).toBe(
+      screen.getByRole('button', { name: 'Menú' }),
+    )
     expect(
       within(catalog).getByRole('button', { name: 'Ordenar Español' }),
     ).toBeInTheDocument()
@@ -447,6 +450,9 @@ describe('WorkspacePage', () => {
     })
     expect(clearComposition).toBeDisabled()
     expect(saveComposition).toBeDisabled()
+    expect(
+      screen.queryByRole('button', { name: /Revisar palabras/ }),
+    ).not.toBeInTheDocument()
 
     await user.click(
       within(catalog).getByRole('button', {
@@ -457,6 +463,16 @@ describe('WorkspacePage', () => {
     expect(clearComposition).toContainHTML('svg')
     expect(saveComposition).toBeDisabled()
     expect(saveComposition).toContainHTML('svg')
+    const lexicalReview = screen.getByRole('button', {
+      name: /Revisar palabras/,
+    })
+    const compositionActions = screen.getByLabelText('Acciones de composición')
+    expect(lexicalReview.parentElement?.parentElement).toBe(
+      compositionActions.parentElement,
+    )
+    expect(
+      getComputedStyle(compositionActions.parentElement as Element).alignItems,
+    ).toBe('center')
     const persistenceStatus = await screen.findByText(
       'Borrador guardado localmente',
     )
@@ -704,7 +720,7 @@ describe('WorkspacePage', () => {
     )
   })
 
-  it('ofrece selección accesible desde el menú móvil y controla todo el filtro', async () => {
+  it('retira la selección del menú móvil y controla todo el filtro por pulsación prolongada', async () => {
     vi.stubGlobal(
       'matchMedia',
       vi.fn((query: string) => ({
@@ -723,22 +739,43 @@ describe('WorkspacePage', () => {
     })
 
     await user.click(screen.getByRole('button', { name: 'Menú' }))
+    const menu = screen.getByRole('dialog', { name: 'Menú' })
     expect(
       within(catalog).queryByRole('button', {
         name: 'Descubrir semordnilaps',
       }),
     ).not.toBeInTheDocument()
+    expect(
+      within(menu).queryByRole('button', { name: 'Seleccionar semordnilaps' }),
+    ).not.toBeInTheDocument()
     await user.click(
-      screen.getByRole('button', { name: 'Seleccionar semordnilaps' }),
+      within(menu).getByRole('button', { name: 'Cerrar diálogo' }),
     )
+
+    const option = within(catalog).getByRole('button', {
+      name: 'Añadir ella a la composición',
+    })
+    vi.useFakeTimers()
+    fireEvent.pointerDown(option, {
+      button: 0,
+      pointerId: 40,
+      pointerType: 'touch',
+      clientX: 20,
+      clientY: 20,
+    })
+    act(() => vi.advanceTimersByTime(420))
+    fireEvent.pointerUp(option, {
+      button: 0,
+      pointerId: 40,
+      pointerType: 'touch',
+      clientX: 20,
+      clientY: 20,
+    })
+    vi.useRealTimers()
 
     const selectAll = within(catalog).getByRole('checkbox', {
       name: 'Seleccionar los 2 resultados',
     })
-    expect(selectAll).not.toBeChecked()
-    await user.click(
-      within(catalog).getByRole('button', { name: 'Seleccionar ella' }),
-    )
     expect(selectAll).toBePartiallyChecked()
     expect(selectAll).toHaveAttribute('aria-checked', 'mixed')
     await user.click(selectAll)
@@ -1877,14 +1914,26 @@ describe('WorkspacePage', () => {
     const menuButton = screen.getByRole('button', { name: 'Menú' })
     expect(menuButton).toHaveTextContent('')
     expect(screen.queryByRole('button', { name: 'Filtrar' })).toBeNull()
+    expect(screen.getByText('CristoJV')).toBeInTheDocument()
+    expect(screen.getByLabelText('con cariño por')).toBeInTheDocument()
     await user.click(menuButton)
     const dialog = screen.getByRole('dialog', { name: 'Menú' })
     expect(dialog).toHaveAttribute('data-drawer', 'true')
     expect(
+      within(dialog).getByRole('heading', { name: 'SemordniLAB' }),
+    ).toBeInTheDocument()
+    expect(
+      getComputedStyle(
+        within(dialog)
+          .getByRole('heading', { name: 'SemordniLAB' })
+          .closest('header')!,
+      ).minHeight,
+    ).toBe(getComputedStyle(menuButton.closest('header')!).minHeight)
+    expect(
       within(dialog)
-        .getAllByRole('heading')
+        .getAllByRole('heading', { level: 3 })
         .map((heading) => heading.textContent),
-    ).toEqual(['Menú', 'Datos', 'Preferencias', 'Etiquetas', 'About'])
+    ).toEqual(['Datos', 'Preferencias', 'Etiquetas'])
     expect(
       within(
         within(dialog).getByRole('navigation', {
@@ -1894,7 +1943,19 @@ describe('WorkspacePage', () => {
         .getAllByRole('button')
         .map((button) => button.textContent),
     ).toEqual(['Composición', 'Filtrado'])
-    await user.click(within(dialog).getByRole('button', { name: 'Exportar' }))
+    const exportButton = within(dialog).getByRole('button', {
+      name: 'Exportar',
+    })
+    const importButton = within(dialog).getByText('Importar').closest('label')
+    expect(importButton).not.toBeNull()
+    expect(getComputedStyle(exportButton).backgroundColor).toBe(
+      getComputedStyle(importButton!).backgroundColor,
+    )
+    expect(within(dialog).getByRole('link', { name: 'About' })).toHaveAttribute(
+      'href',
+      'https://github.com/CristoJV/semordnilab',
+    )
+    await user.click(exportButton)
     await waitFor(() => expect(download).toHaveBeenCalledOnce())
 
     await user.click(

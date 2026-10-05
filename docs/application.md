@@ -41,7 +41,7 @@ La pantalla se organiza verticalmente para aprovechar una ventana más ancha que
 1. Una barra superior compacta con la identidad de la aplicación, el selector del conjunto lingüístico, el estado de carga y el acceso al menú.
 2. Un área de composición donde se agrupan los semordnilaps seleccionados.
 3. Un catálogo inferior con los dos idiomas en columnas paralelas.
-4. Un pie de página compacto con la marca `SemordniLAB`.
+4. Un pie de página compacto con `Semordnilab`, un corazón y `CristoJV`.
 
 El área de composición ocupa todo el ancho disponible y permanece por encima de las listas. Muestra dos secuencias relacionadas. La secuencia de origen conserva el orden de selección y la secuencia de destino se presenta en orden inverso. El documento ocupa la altura de la ventana y el desplazamiento vertical pertenece al catálogo. El área comienza expandida tanto en escritorio como en móvil y puede plegarse para dejar más espacio a las listas. Si el usuario decide recordar este estado, su preferencia explícita prevalece en visitas posteriores.
 
@@ -78,16 +78,17 @@ La correspondencia visual entre componentes permanece visible para que se entien
 
 La versión móvil conserva la misma pantalla, los mismos datos y las mismas operaciones. No existe una página móvil independiente. La adaptación solo cambia cómo se presentan los controles:
 
-- el selector central muestra los códigos del par lingüístico y abre una hoja de selección;
+- la cabecera de composición muestra el subtítulo `Espacio de trabajo` y el título `Composición`; el selector lingüístico queda junto al botón de menú y abre una hoja de selección;
 - el estado general de carga deja de ocupar espacio en la barra superior, aunque sigue disponible mediante anuncios accesibles;
 - la cabecera global muestra únicamente el icono de hamburguesa para abrir la navegación; `Filtrado` vive dentro de ese drawer;
-- el área se titula `Compón` y mantiene siempre visibles los iconos para plegar, deshacer, rehacer, guardar y vaciar;
+- el área de edición elimina el título redundante `Compón` y mantiene siempre visibles los iconos para plegar, deshacer, rehacer, guardar y vaciar;
+- `Revisar palabras` aparece en la misma línea que esas acciones únicamente cuando la composición contiene palabras;
 - todas esas acciones usan fondo transparente, violeta cuando están disponibles y violeta claro cuando están deshabilitadas; guardar también se deshabilita después de guardar la misma pieza y vaciar cuando no hay componentes;
 - las acciones principales conservan nombre accesible aunque oculten su etiqueta visual;
 - las vistas se presentan en una única fila: `Todos` como texto y `Guardados`, `Favoritos`, `Descartados` y `Etiquetas` como iconos;
 - el control de calidad no ocupa actualmente un botón en esta barra;
 - `Descubrir` se presenta como un botón flotante circular con dados en la esquina inferior derecha, respeta la zona segura y reserva espacio para no cubrir la última fila;
-- `Seleccionar` y `Restaurar todos` no ocupan una segunda barra; una pulsación prolongada abre la selección y el menú superior conserva una entrada accesible alternativa;
+- `Seleccionar` y `Restaurar todos` no ocupan una segunda barra; una pulsación prolongada abre la selección múltiple;
 - una pulsación prolongada sobre cualquier expresión entra directamente en selección múltiple y selecciona su fila bilingüe; un toque normal sigue añadiendo la pieza a la composición y el movimiento vertical cede el control al scroll;
 - desplazar una fila activa hacia la derecha añade o retira el favorito, mientras que desplazarla hacia la izquierda la descarta; en `Descartados` solo el gesto izquierdo restaura y el movimiento derecho no desplaza la fila ni revela una acción;
 - el centro de cada fila muestra dos cheurones como indicación del gesto; en un composite aparece entre ellos una nota con lápiz en lugar del símbolo de agrupación;
@@ -116,7 +117,7 @@ La interfaz utiliza una base neutra y una combinación de violeta y mostaza:
 
 El mostaza intenso se reserva para fondos, bordes e indicadores. Sobre superficies claras se utiliza una variante mostaza oscura para mantener la legibilidad.
 
-La marca del pie de página se escribe como `SemordniLAB`, destacando visualmente `LAB` sin alterar el texto accesible.
+El pie de página presenta `Semordnilab`, un corazón violeta y la firma `CristoJV`.
 
 ## Selección de un conjunto lingüístico
 
@@ -235,7 +236,7 @@ El conjunto lingüístico seleccionado se conserva como estado ligero de sesión
 
 La base tiene una versión explícita y las actualizaciones conservan las tablas anteriores mediante migraciones aditivas. Los identificadores atómicos son estables aunque una fila cambie de posición en el TSV. Los estados guardados con los identificadores antiguos se convierten dentro de una transacción cuando se carga cada dataset.
 
-El icono de hamburguesa abre desde la derecha un drawer con un orden estable: `Composición` y `Filtrado`; `Datos` con resumen, exportación e importación; `Preferencias`; `Etiquetas` con su lista y acceso al gestor; y `About`. La copia JSON versionada contiene estados, composites, borradores, etiquetas, asignaciones y preferencias, pero no duplica los TSV incluidos.
+El icono de hamburguesa abre desde el borde derecho un drawer recto, sin esquinas redondeadas, cuya cabecera iguala la altura de la barra principal y muestra el icono de la aplicación junto a `SemordniLAB`. Mantiene este orden: `Composición` y `Filtrado`; `Datos` con resumen y dos acciones visualmente iguales para exportar e importar; `Preferencias`; `Etiquetas` con su lista y acceso al gestor; y el enlace `About` al repositorio de GitHub. La copia JSON versionada contiene estados, composites, borradores, etiquetas, asignaciones y preferencias, pero no duplica los TSV incluidos.
 
 Antes de importar se analiza todo el archivo y se muestra un resumen. El usuario puede combinarlo con los datos actuales o sustituirlos, decidir cómo resolver conflictos de borradores y excluir las preferencias. La validación comprueba formato, versión, datasets, identificadores, referencias, ciclos e integridad de composites. Solo después se reemplazan las tablas dentro de una única transacción. La aplicación descarga automáticamente una copia del estado anterior antes de confirmar la escritura.
 
