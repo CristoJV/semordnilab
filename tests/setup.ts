@@ -6,4 +6,5 @@ import '@testing-library/jest-dom/vitest'
 afterEach(() => {
   cleanup()
   vi.unstubAllGlobals()
+  window.history.replaceState(null, '', '/')
 })

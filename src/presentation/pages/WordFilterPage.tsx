@@ -1,21 +1,32 @@
-import { useDeferredValue, useMemo, useState } from 'react'
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 
 import {
+  buildLanguageWordImpact,
   extractLanguageVocabulary,
   type LanguageDescriptor,
   type SemordnilapCatalogItem,
   type VocabularyWord,
+  type WordReviewStatus,
 } from '@/application'
-import type { LanguageCode } from '@/domain/semordnilap'
 import type { ApplicationDependencies } from '@/app/composition/create-application-dependencies'
-import type { WordFilterState } from '@/presentation/hooks/useWordFilters'
+import type { LanguageCode } from '@/domain/semordnilap'
+import { dictionaryLinksForWord } from '@/presentation/components/dictionary-links'
 import { searchVocabulary } from '@/presentation/components/word-filter-search'
+import type { Notify } from '@/presentation/hooks/useTransientNotifications'
+import type { WordFilterState } from '@/presentation/hooks/useWordFilters'
 
 import styles from './WordFilterPage.module.css'
 
-export type WordFilterMode = 'filter' | 'restore'
+export type WordFilterMode = 'pending' | 'verified' | 'excluded'
 
 const WORD_BATCH_SIZE = 600
+
+type PendingWord = {
+  word: VocabularyWord
+  language: LanguageCode
+  mode: WordFilterMode
+  transition: 'filter' | 'restore'
+}
 
 type WordFilterPageProps = {
   items: readonly SemordnilapCatalogItem[]
@@ -27,6 +38,7 @@ type WordFilterPageProps = {
     ApplicationDependencies,
     'exportPersonalData' | 'personalDataFileGateway'
   >
+  onNotify: Notify
 }
 
 export function WordFilterPage({
@@ -36,50 +48,99 @@ export function WordFilterPage({
   mode,
   onModeChange,
   dependencies,
+  onNotify,
 }: WordFilterPageProps) {
   const [language, setLanguage] = useState<LanguageCode>(
     languages[0]?.code ?? '',
   )
   const [query, setQuery] = useState('')
-  const [pending, setPending] = useState<ReadonlySet<string>>(new Set())
+  const [pending, setPending] = useState<ReadonlyMap<string, PendingWord>>(
+    new Map(),
+  )
+  const animationTimers = useRef<Set<number>>(new Set())
+  const mounted = useRef(true)
   const [actionError, setActionError] = useState<string | null>(null)
   const [visibleLimit, setVisibleLimit] = useState(WORD_BATCH_SIZE)
+  const [focusWordKey, setFocusWordKey] = useState<string | null>(null)
+  const actionButtons = useRef(new Map<string, HTMLButtonElement>())
   const deferredQuery = useDeferredValue(query)
+
+  useEffect(() => {
+    mounted.current = true
+    const timers = animationTimers.current
+    return () => {
+      mounted.current = false
+      for (const timer of timers) window.clearTimeout(timer)
+      timers.clear()
+    }
+  }, [])
 
   const selectedLanguage = languages.some(({ code }) => code === language)
     ? language
     : (languages[0]?.code ?? '')
-
   const vocabulary = useMemo(
     () => extractLanguageVocabulary(items, selectedLanguage),
     [items, selectedLanguage],
   )
-  const filteredRecords = useMemo(
+  const excludedRecords = useMemo(
     () => state.byLanguage.get(selectedLanguage) ?? [],
     [selectedLanguage, state.byLanguage],
   )
-  const filteredKeys = useMemo(
-    () => new Set(filteredRecords.map(({ normalizedWord }) => normalizedWord)),
-    [filteredRecords],
+  const verifiedRecords = useMemo(
+    () => state.verifiedByLanguage.get(selectedLanguage) ?? [],
+    [selectedLanguage, state.verifiedByLanguage],
   )
-  const availableWords = useMemo<readonly VocabularyWord[]>(
+  const reviewedKeys = useMemo(
     () =>
-      mode === 'filter'
-        ? vocabulary.filter(
-            ({ normalizedWord }) => !filteredKeys.has(normalizedWord),
-          )
-        : filteredRecords.map(({ displayWord, normalizedWord }) => ({
-            displayWord,
-            normalizedWord,
-          })),
-    [filteredKeys, filteredRecords, mode, vocabulary],
+      new Set(
+        (state.reviewsByLanguage.get(selectedLanguage) ?? []).map(
+          ({ normalizedWord }) => normalizedWord,
+        ),
+      ),
+    [selectedLanguage, state.reviewsByLanguage],
   )
-  const filterableCount = useMemo(
+  const impactByWord = useMemo(
+    () => buildLanguageWordImpact(items, selectedLanguage),
+    [items, selectedLanguage],
+  )
+  const availableWords = useMemo<readonly VocabularyWord[]>(() => {
+    const available =
+      mode === 'pending'
+        ? vocabulary.filter(
+            ({ normalizedWord }) => !reviewedKeys.has(normalizedWord),
+          )
+        : (mode === 'verified' ? verifiedRecords : excludedRecords).map(
+            ({ displayWord, normalizedWord }) => ({
+              displayWord,
+              normalizedWord,
+            }),
+          )
+    const keys = new Set(available.map(({ normalizedWord }) => normalizedWord))
+    for (const entry of pending.values()) {
+      if (
+        entry.language === selectedLanguage &&
+        entry.mode === mode &&
+        !keys.has(entry.word.normalizedWord)
+      ) {
+        available.push(entry.word)
+      }
+    }
+    return available
+  }, [
+    excludedRecords,
+    mode,
+    pending,
+    reviewedKeys,
+    selectedLanguage,
+    verifiedRecords,
+    vocabulary,
+  ])
+  const pendingCount = useMemo(
     () =>
       vocabulary.filter(
-        ({ normalizedWord }) => !filteredKeys.has(normalizedWord),
+        ({ normalizedWord }) => !reviewedKeys.has(normalizedWord),
       ).length,
-    [filteredKeys, vocabulary],
+    [reviewedKeys, vocabulary],
   )
   const visibleWords = useMemo(
     () => searchVocabulary(availableWords, deferredQuery),
@@ -87,32 +148,91 @@ export function WordFilterPage({
   )
   const renderedWords = visibleWords.slice(0, visibleLimit)
 
-  const apply = (word: VocabularyWord) => {
-    const key = word.normalizedWord
+  useEffect(() => {
+    if (!focusWordKey) return
+    const button = actionButtons.current.get(focusWordKey)
+    if (!button) return
+    button.focus()
+    setFocusWordKey(null)
+  }, [focusWordKey, renderedWords])
+
+  const apply = (
+    word: VocabularyWord,
+    nextStatus: WordReviewStatus | null = mode === 'pending'
+      ? 'excluded'
+      : null,
+  ) => {
+    const key = `${selectedLanguage}\u001f${word.normalizedWord}`
     if (pending.has(key)) return
-    setPending((current) => new Set(current).add(key))
+    const previousStatus: WordReviewStatus | null =
+      mode === 'pending' ? null : mode === 'verified' ? 'verified' : 'excluded'
+    const wordIndex = visibleWords.findIndex(
+      ({ normalizedWord }) => normalizedWord === word.normalizedWord,
+    )
+    const nextFocusWord =
+      visibleWords[wordIndex + 1] ?? visibleWords[wordIndex - 1]
+    setPending((current) =>
+      new Map(current).set(key, {
+        word,
+        language: selectedLanguage,
+        mode,
+        transition: nextStatus === 'excluded' ? 'filter' : 'restore',
+      }),
+    )
     setActionError(null)
-    window.setTimeout(() => {
-      const operation =
-        mode === 'filter'
-          ? state.add(selectedLanguage, word.displayWord)
-          : state.remove(selectedLanguage, word.normalizedWord)
-      void operation
-        .catch((error: unknown) =>
+    const operation = nextStatus
+      ? state.setStatus(selectedLanguage, word.displayWord, nextStatus)
+      : state.clear(selectedLanguage, word.normalizedWord)
+    void operation
+      .then(() => {
+        const message =
+          nextStatus === 'excluded'
+            ? `${word.displayWord}: palabra excluida.`
+            : nextStatus === 'verified'
+              ? `${word.displayWord}: palabra verificada.`
+              : `${word.displayWord}: devuelta a pendientes.`
+        onNotify({
+          tone: nextStatus === 'excluded' ? 'warning' : 'success',
+          message,
+          action: {
+            label: 'Deshacer',
+            run: () => {
+              if (previousStatus) {
+                void state.setStatus(
+                  selectedLanguage,
+                  word.displayWord,
+                  previousStatus,
+                )
+              } else {
+                void state.clear(selectedLanguage, word.normalizedWord)
+              }
+            },
+          },
+          lifetime: 4200,
+        })
+      })
+      .catch((error: unknown) => {
+        if (mounted.current) {
           setActionError(
             error instanceof Error
               ? error.message
               : 'No se ha podido actualizar la lista.',
-          ),
-        )
-        .finally(() =>
+          )
+        }
+      })
+      .finally(() => {
+        if (!mounted.current) return
+        const timer = window.setTimeout(() => {
+          animationTimers.current.delete(timer)
           setPending((current) => {
-            const next = new Set(current)
+            const next = new Map(current)
             next.delete(key)
             return next
-          }),
-        )
-    }, 180)
+          })
+          setFocusWordKey(nextFocusWord?.normalizedWord ?? null)
+        }, 180)
+        animationTimers.current.add(timer)
+      })
   }
 
   const exportBackup = async () => {
@@ -132,23 +252,30 @@ export function WordFilterPage({
     }
   }
 
-  const title = mode === 'filter' ? 'Filtrar palabras' : 'Recuperar palabras'
+  const title =
+    mode === 'pending'
+      ? 'Palabras pendientes'
+      : mode === 'verified'
+        ? 'Palabras verificadas'
+        : 'Palabras excluidas'
   const empty = query
     ? 'No hay palabras que coincidan con la búsqueda.'
-    : mode === 'filter'
-      ? 'Todas las palabras de este idioma ya están filtradas.'
-      : 'Todavía no hay palabras filtradas en este idioma.'
+    : mode === 'pending'
+      ? 'Todas las palabras de este idioma ya están revisadas.'
+      : mode === 'verified'
+        ? 'Todavía no hay palabras verificadas en este idioma.'
+        : 'Todavía no hay palabras excluidas en este idioma.'
 
   return (
     <main className={styles.page}>
       <section className={styles.controls} aria-labelledby="word-filter-title">
         <div className={styles.introduction}>
-          <p>Lista personal por idioma</p>
+          <p>Revisión léxica por idioma</p>
           <h1 id="word-filter-title">{title}</h1>
           <span>
-            {mode === 'filter'
-              ? 'Toca una palabra para excluir los semordnilaps que la contengan.'
-              : 'Toca una palabra para devolverla al vocabulario disponible.'}
+            {mode === 'pending'
+              ? 'Excluye una palabra o márcala como válida. Puedes consultar antes su impacto y diccionario.'
+              : 'Toca una palabra para devolverla a la cola de pendientes.'}
           </span>
         </div>
 
@@ -190,32 +317,30 @@ export function WordFilterPage({
         <div className={styles.actions}>
           <div
             className={styles.modeSwitcher}
-            aria-label="Acción sobre palabras"
+            aria-label="Estado de revisión"
+            role="group"
           >
-            <button
-              type="button"
-              data-active={mode === 'filter'}
-              aria-pressed={mode === 'filter'}
-              onClick={() => {
-                setQuery('')
-                setVisibleLimit(WORD_BATCH_SIZE)
-                onModeChange('filter')
-              }}
-            >
-              Filtrar {filterableCount}
-            </button>
-            <button
-              type="button"
-              data-active={mode === 'restore'}
-              aria-pressed={mode === 'restore'}
-              onClick={() => {
-                setQuery('')
-                setVisibleLimit(WORD_BATCH_SIZE)
-                onModeChange('restore')
-              }}
-            >
-              Recuperar {filteredRecords.length}
-            </button>
+            {(
+              [
+                ['pending', 'Pendientes', pendingCount],
+                ['verified', 'Verificadas', verifiedRecords.length],
+                ['excluded', 'Excluidas', excludedRecords.length],
+              ] as const
+            ).map(([nextMode, label, count]) => (
+              <button
+                key={nextMode}
+                type="button"
+                data-active={mode === nextMode}
+                aria-pressed={mode === nextMode}
+                onClick={() => {
+                  setQuery('')
+                  setVisibleLimit(WORD_BATCH_SIZE)
+                  onModeChange(nextMode)
+                }}
+              >
+                {label} {count}
+              </button>
+            ))}
           </div>
           <button
             className={styles.exportButton}
@@ -243,24 +368,74 @@ export function WordFilterPage({
         ) : (
           <ul className={styles.grid}>
             {renderedWords.map((word) => {
-              const transitioning = pending.has(word.normalizedWord)
+              const key = `${selectedLanguage}\u001f${word.normalizedWord}`
+              const pendingEntry = pending.get(key)
+              const impact = impactByWord.get(word.normalizedWord)
+              const dictionaryLinks = dictionaryLinksForWord(
+                selectedLanguage,
+                word.displayWord,
+              )
               return (
-                <li key={word.normalizedWord}>
+                <li className={styles.wordCard} key={word.normalizedWord}>
                   <button
+                    className={styles.wordAction}
+                    ref={(element) => {
+                      if (element)
+                        actionButtons.current.set(word.normalizedWord, element)
+                      else actionButtons.current.delete(word.normalizedWord)
+                    }}
                     type="button"
-                    aria-label={`${mode === 'filter' ? 'Filtrar' : 'Recuperar'} ${word.displayWord}`}
-                    data-transition={
-                      transitioning
-                        ? mode === 'filter'
-                          ? 'filter'
-                          : 'restore'
-                        : undefined
+                    aria-label={
+                      mode === 'pending'
+                        ? `Excluir ${word.displayWord}`
+                        : `Devolver ${word.displayWord} a pendientes`
                     }
-                    disabled={transitioning}
+                    data-transition={pendingEntry?.transition}
+                    disabled={pendingEntry !== undefined}
                     onClick={() => apply(word)}
                   >
-                    {word.displayWord}
+                    <strong>{word.displayWord}</strong>
+                    <span>
+                      {impact?.count ?? 0}{' '}
+                      {(impact?.count ?? 0) === 1 ? 'resultado' : 'resultados'}
+                    </span>
                   </button>
+                  <div className={styles.wordTools}>
+                    {mode === 'pending' && (
+                      <button
+                        type="button"
+                        aria-label={`Verificar ${word.displayWord}`}
+                        disabled={pendingEntry !== undefined}
+                        onClick={() => apply(word, 'verified')}
+                      >
+                        ✓
+                      </button>
+                    )}
+                    {dictionaryLinks.map((link) => (
+                      <a
+                        key={link.label}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`Consultar ${word.displayWord} en ${link.label}`}
+                        title={link.label}
+                      >
+                        {dictionaryLinks.length > 1
+                          ? link.label
+                          : 'Diccionario'}
+                      </a>
+                    ))}
+                  </div>
+                  {(impact?.examples.length ?? 0) > 0 && (
+                    <details className={styles.examples}>
+                      <summary>Ver ejemplos</summary>
+                      <ul>
+                        {impact?.examples.map((example) => (
+                          <li key={example}>{example}</li>
+                        ))}
+                      </ul>
+                    </details>
+                  )}
                 </li>
               )
             })}

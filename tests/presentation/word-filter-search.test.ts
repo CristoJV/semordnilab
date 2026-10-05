@@ -3,13 +3,18 @@ import { describe, expect, it } from 'vitest'
 import { searchVocabulary } from '@/presentation/components/word-filter-search'
 
 const words = [
-  { displayWord: 'Árbol', normalizedWord: 'arbol' },
+  { displayWord: 'Árbol', normalizedWord: 'árbol' },
   { displayWord: 'Alba', normalizedWord: 'alba' },
   { displayWord: 'Ella', normalizedWord: 'ella' },
   { displayWord: 'Sol', normalizedWord: 'sol' },
 ]
 
 describe('búsqueda aproximada de palabras', () => {
+  it('busca sin diacríticos aunque la identidad exacta los conserve', () => {
+    expect(
+      searchVocabulary(words, 'arbol').map(({ displayWord }) => displayWord),
+    ).toContain('Árbol')
+  })
   it('ignora acentos y prioriza prefijos sobre subsecuencias', () => {
     expect(
       searchVocabulary(words, 'arb').map((word) => word.displayWord),

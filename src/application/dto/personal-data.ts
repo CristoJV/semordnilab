@@ -20,7 +20,7 @@ export type PersonalDataSnapshot = {
 
 export type SemordnilabBackup = {
   format: 'semordnilab-personal-data'
-  version: 1 | 2 | 3 | 4
+  version: 1 | 2 | 3 | 4 | 5 | 6
   exportedAt: string
   data: PersonalDataSnapshot
 }
@@ -34,6 +34,7 @@ export type PersonalDataSummary = {
   tags: number
   taggedSemordnilaps: number
   wordFilters: number
+  verifiedWords: number
   includesPreferences: boolean
 }
 

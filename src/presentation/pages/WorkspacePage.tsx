@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import type { ApplicationDependencies } from '@/app/composition/create-application-dependencies'
 import { AppFooter } from '@/presentation/components/AppFooter'
@@ -26,6 +26,11 @@ import {
   WordFilterPage,
   type WordFilterMode,
 } from '@/presentation/pages/WordFilterPage'
+import {
+  parseWorkspaceHash,
+  workspaceHashFor,
+  type WorkspaceRoute,
+} from '@/presentation/pages/workspace-route'
 
 import styles from './WorkspacePage.module.css'
 
@@ -39,24 +44,36 @@ type WorkspaceUtilityOverlay =
   'app-menu' | 'dataset-picker' | 'tag-manager' | null
 
 export function WorkspacePage({ dependencies }: WorkspacePageProps) {
-  const [pageView, setPageView] = useState<'workspace' | 'word-filters'>(
-    'workspace',
+  const initialRoute = useMemo(
+    () => parseWorkspaceHash(window.location.hash),
+    [],
   )
-  const [wordFilterMode, setWordFilterMode] = useState<WordFilterMode>('filter')
+  const [pageView, setPageView] = useState<'workspace' | 'word-filters'>(
+    initialRoute.view,
+  )
+  const [wordFilterMode, setWordFilterMode] = useState<WordFilterMode>(
+    initialRoute.view === 'word-filters' ? initialRoute.mode : 'pending',
+  )
+  const reviewHistoryEntry = useRef(false)
   const [utilityOverlay, setUtilityOverlay] =
     useState<WorkspaceUtilityOverlay>(null)
   const [selectedComposite, setSelectedComposite] =
     useState<CompositeSemordnilap | null>(null)
   const [catalogSelectionRequested, setCatalogSelectionRequested] =
     useState(false)
-  const [activeWordFilterLanguages, setActiveWordFilterLanguages] = useState<
-    ReadonlySet<string>
-  >(new Set())
   const { notifications, notify, dismiss } = useTransientNotifications()
   const layout = useResponsiveLayout()
   const preferences = useWorkspacePreferences(dependencies)
   const wordFilters = useWordFilters(dependencies)
   const catalog = useSemordnilapCatalog(dependencies)
+  const getActiveWordFilterLanguages = preferences.activeWordFilterLanguages
+  const activeWordFilterLanguages = useMemo(
+    () =>
+      catalog.selectedDatasetId
+        ? getActiveWordFilterLanguages(catalog.selectedDatasetId)
+        : new Set<string>(),
+    [catalog.selectedDatasetId, getActiveWordFilterLanguages],
+  )
   const statusAliases = useMemo(
     () =>
       (catalog.loadedDataset?.items ?? []).flatMap((item) =>
@@ -149,6 +166,54 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
     [],
   )
 
+  const applyRoute = useCallback((route: WorkspaceRoute) => {
+    setPageView(route.view)
+    if (route.view === 'word-filters') setWordFilterMode(route.mode)
+  }, [])
+
+  useEffect(() => {
+    const syncFromHistory = () => {
+      const route = parseWorkspaceHash(window.location.hash)
+      reviewHistoryEntry.current = route.view === 'word-filters'
+      applyRoute(route)
+    }
+    window.addEventListener('popstate', syncFromHistory)
+    window.addEventListener('hashchange', syncFromHistory)
+    return () => {
+      window.removeEventListener('popstate', syncFromHistory)
+      window.removeEventListener('hashchange', syncFromHistory)
+    }
+  }, [applyRoute])
+
+  const openWordFilters = useCallback(() => {
+    const route: WorkspaceRoute = { view: 'word-filters', mode: 'pending' }
+    window.history.pushState(null, '', workspaceHashFor(route))
+    reviewHistoryEntry.current = true
+    setUtilityOverlay(null)
+    applyRoute(route)
+  }, [applyRoute])
+
+  const changeWordFilterMode = useCallback(
+    (mode: WordFilterMode) => {
+      const route: WorkspaceRoute = { view: 'word-filters', mode }
+      window.history.replaceState(null, '', workspaceHashFor(route))
+      applyRoute(route)
+    },
+    [applyRoute],
+  )
+
+  const backToWorkspace = useCallback(() => {
+    if (reviewHistoryEntry.current) {
+      reviewHistoryEntry.current = false
+      window.history.back()
+      applyRoute({ view: 'workspace' })
+      return
+    }
+    const route: WorkspaceRoute = { view: 'workspace' }
+    window.history.replaceState(null, '', workspaceHashFor(route))
+    applyRoute(route)
+  }, [applyRoute])
+
   const selectedCounts = useMemo(() => {
     const counts = new Map<string, number>()
     for (const { semordnilap } of composition.components) {
@@ -183,16 +248,15 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
         onOpenDatasetPicker={() => setUtilityOverlay('dataset-picker')}
         layout={layout}
         wordFilterTitle={
-          wordFilterMode === 'filter'
-            ? 'Filtrar palabras'
-            : 'Recuperar palabras'
+          wordFilterMode === 'pending'
+            ? 'Palabras pendientes'
+            : wordFilterMode === 'verified'
+              ? 'Palabras verificadas'
+              : 'Palabras excluidas'
         }
         canOpenWordFilters={Boolean(loadedDataset && wordFilters.ready)}
-        onOpenWordFilters={() => {
-          setUtilityOverlay(null)
-          setPageView('word-filters')
-        }}
-        onBackToWorkspace={() => setPageView('workspace')}
+        onOpenWordFilters={openWordFilters}
+        onBackToWorkspace={backToWorkspace}
       />
 
       {pageView === 'word-filters' && loadedDataset ? (
@@ -201,8 +265,9 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
           languages={wordFilterLanguages}
           state={wordFilters}
           mode={wordFilterMode}
-          onModeChange={setWordFilterMode}
+          onModeChange={changeWordFilterMode}
           dependencies={dependencies}
+          onNotify={notify}
         />
       ) : (
         <main className={styles.main}>
@@ -287,13 +352,17 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
                     active,
                   }),
                 )}
-                onToggleWordFilter={(language) =>
-                  setActiveWordFilterLanguages((current) => {
-                    const next = new Set(current)
-                    if (next.has(language)) next.delete(language)
-                    else next.add(language)
-                    return next
-                  })
+                onToggleWordFilter={(language) => {
+                  const next = new Set(activeWordFilterLanguages)
+                  if (next.has(language)) next.delete(language)
+                  else next.add(language)
+                  preferences.setActiveWordFilterLanguages(
+                    loadedDataset.dataset.id,
+                    next,
+                  )
+                }}
+                wordFilterHiddenCount={
+                  catalogItems.length - filteredCatalogItems.length
                 }
               />
             ) : (

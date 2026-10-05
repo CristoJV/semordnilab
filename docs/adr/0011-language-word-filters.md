@@ -1,6 +1,6 @@
 # ADR 0011: Filtros personales de palabras por idioma
 
-- Estado: aceptado
+- Estado: reemplazado parcialmente por ADR 0012
 - Fecha: 2026-10-04
 
 ## Contexto
@@ -11,11 +11,11 @@ Las listas son datos personales locales: deben sobrevivir a una recarga, viajar 
 
 ## Decisión
 
-Cada filtro se guarda como un registro identificado por `(language, normalizedWord)`, junto con su grafía visible y fecha de creación. La normalización usa Unicode NFKD, elimina marcas diacríticas, unifica apóstrofos y pasa a minúsculas. La coincidencia se realiza sobre tokens completos de las expresiones visibles, no sobre subcadenas ni sobre la clave normalizada continua del semordnilap.
+Cada filtro se guarda como un registro identificado por `(language, normalizedWord)`, junto con su grafía visible y fecha de creación. Desde la versión 7 de la base, la identidad usa Unicode NFKC, conserva diacríticos, unifica apóstrofos y pasa a minúsculas. La búsqueda dispone de una proyección separada sin diacríticos. La coincidencia se realiza sobre tokens completos de las expresiones visibles, no sobre subcadenas ni sobre la clave normalizada continua del semordnilap.
 
 El vocabulario disponible se deriva de las expresiones del dataset cargado. Si ambos lados comparten idioma, sus palabras se combinan. Las listas son globales por código de idioma, de modo que una palabra española se reutiliza en todos los datasets que incluyan español.
 
-La tabla `wordFilters` se añade en la versión 6 de IndexedDB. Los casos de uso y el puerto de aplicación aíslan Dexie de presentación. El backup personal pasa a versión 4, incorpora la colección y acepta versiones 1–3 como listas vacías. La importación por combinación une registros por su identidad compuesta; la sustitución reemplaza también las listas.
+La tabla `wordFilters` se añade en la versión 6 de IndexedDB y migra sus claves exactas en la versión 7. ADR 0012 amplía los registros con su estado en la versión 8. Los casos de uso y el puerto de aplicación aíslan Dexie de presentación. El backup personal se amplía en la versión 4, migra a la versión 5 para distinguir la nueva identidad y a la versión 6 para conservar la revisión; acepta versiones anteriores y reconstruye las claves antiguas desde la grafía visible. La importación por combinación une registros por su identidad compuesta; la sustitución reemplaza también las listas.
 
 En el catálogo, cada idioma del dataset tiene una activación independiente y desactivada inicialmente. Un semordnilap desaparece si cualquiera de sus expresiones contiene una palabra filtrada en uno de los idiomas activos. Esta operación sólo modifica la proyección del catálogo: no borra semordnilaps, estados, composites ni componentes del borrador.
 
@@ -28,4 +28,4 @@ La aplicación utiliza estado de navegación interno en lugar de añadir una dep
 - Los filtros se pueden activar en un solo lado o en ambos, y no alteran los datos que ya forman parte de una composición.
 - La copia personal crece con las listas, pero sigue siendo un único JSON importable de forma atómica.
 - El vocabulario depende del dataset cargado; una palabra filtrada que no aparezca en él continúa guardada y se ofrece en la vista de recuperación.
-- Navegar a la revisión de palabras no crea rutas compartibles en esta iteración.
+- ADR 0012 reemplaza la limitación anterior y añade rutas hash compartibles para cada colección de revisión.

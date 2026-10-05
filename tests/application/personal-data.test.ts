@@ -139,7 +139,7 @@ describe('copias de datos personales', () => {
       origin.repository,
       () => new Date('2026-08-06T12:00:00.000Z'),
     ).execute()
-    expect(JSON.parse(exported.content)).toMatchObject({ version: 4 })
+    expect(JSON.parse(exported.content)).toMatchObject({ version: 6 })
 
     const target = createRepository()
     await target.statuses.setForSemordnilaps(testDataset.id, [
@@ -216,7 +216,7 @@ describe('copias de datos personales', () => {
     ).rejects.toThrow('versión')
   })
 
-  it('incluye filtros por idioma en el backup y acepta copias anteriores', async () => {
+  it('conserva decisiones léxicas en el backup y acepta copias anteriores', async () => {
     const base = createRepository()
     const snapshot = await base.repository.readAll()
     await base.repository.replaceAll({
@@ -224,15 +224,33 @@ describe('copias de datos personales', () => {
       wordFilters: [
         {
           language: 'es',
-          normalizedWord: 'arbol',
+          normalizedWord: 'árbol',
           displayWord: 'Árbol',
+          status: 'verified',
           createdAt: '2026-10-04T10:00:00.000Z',
         },
       ],
     })
 
     const exported = await new ExportPersonalData(base.repository).execute()
-    expect(JSON.parse(exported.content).data.wordFilters).toHaveLength(1)
+    expect(JSON.parse(exported.content).data.wordFilters).toEqual([
+      expect.objectContaining({
+        normalizedWord: 'árbol',
+        status: 'verified',
+      }),
+    ])
+
+    const restored = createRepository()
+    await new ImportPersonalData(restored.repository, source).execute(
+      exported.content,
+      { ...mergeOptions, mode: 'replace' },
+    )
+    expect((await restored.repository.readAll()).wordFilters).toEqual([
+      expect.objectContaining({
+        displayWord: 'Árbol',
+        status: 'verified',
+      }),
+    ])
 
     const legacy = JSON.stringify({
       format: 'semordnilab-personal-data',
@@ -251,6 +269,37 @@ describe('copias de datos personales', () => {
       mode: 'replace',
     })
     expect((await base.repository.readAll()).wordFilters).toEqual([])
+  })
+
+  it('rechaza filtros de idiomas que no pertenecen a los datasets disponibles', async () => {
+    const base = createRepository()
+    const backup = JSON.stringify({
+      format: 'semordnilab-personal-data',
+      version: 4,
+      exportedAt: '2026-10-04T10:00:00.000Z',
+      data: {
+        statuses: [],
+        savedComposites: [],
+        compositionDrafts: [],
+        tags: [],
+        semordnilapTags: [],
+        wordFilters: [
+          {
+            language: 'idioma_inexistente',
+            normalizedWord: 'hola',
+            displayWord: 'hola',
+            createdAt: '2026-10-04T10:00:00.000Z',
+          },
+        ],
+      },
+    })
+
+    await expect(
+      new PreviewPersonalDataImport(base.repository, source).execute(
+        backup,
+        mergeOptions,
+      ),
+    ).rejects.toThrow(/idioma/u)
   })
 
   it('fusiona etiquetas equivalentes y remapea sus asignaciones', async () => {

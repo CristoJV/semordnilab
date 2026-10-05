@@ -20,6 +20,43 @@ type SelectCatalogItemsOptions = {
     semordnilapId: SemordnilapId,
     status: SemordnilapCatalogStatus,
   ) => boolean
+  qualityFilters?: CatalogQualityFilters
+}
+
+export type CatalogQualityFilters = {
+  sourceMinFrequency: number | null
+  targetMinFrequency: number | null
+  sourceMaxWordCount: number | null
+  targetMaxWordCount: number | null
+  minPairScore: number | null
+}
+
+export const EMPTY_CATALOG_QUALITY_FILTERS: CatalogQualityFilters = {
+  sourceMinFrequency: null,
+  targetMinFrequency: null,
+  sourceMaxWordCount: null,
+  targetMaxWordCount: null,
+  minPairScore: null,
+}
+
+function numericCriterionValue(
+  item: SemordnilapCatalogItem,
+  criterion: CatalogSortCriterion,
+): number | null {
+  const metadata = item.metadata
+  if (!metadata) return null
+  if (criterion.field === 'pairScore') return metadata.pairScore
+  if (criterion.field === 'frequency') {
+    return criterion.side === 'source'
+      ? metadata.sourceFrequency
+      : metadata.targetFrequency
+  }
+  if (criterion.field === 'wordCount') {
+    return criterion.side === 'source'
+      ? metadata.sourceWordCount
+      : metadata.targetWordCount
+  }
+  return null
 }
 
 function compareByCriterion(
@@ -30,12 +67,41 @@ function compareByCriterion(
 ): number {
   const firstExpression = first.semordnilap[criterion.side]
   const secondExpression = second.semordnilap[criterion.side]
-  const comparison =
-    criterion.field === 'alphabetical'
-      ? collator.compare(firstExpression.text, secondExpression.text)
-      : Array.from(firstExpression.normalized).length -
-        Array.from(secondExpression.normalized).length
+  let comparison: number
+  if (criterion.field === 'alphabetical') {
+    comparison = collator.compare(firstExpression.text, secondExpression.text)
+  } else if (criterion.field === 'length') {
+    comparison =
+      Array.from(firstExpression.normalized).length -
+      Array.from(secondExpression.normalized).length
+  } else {
+    const firstValue = numericCriterionValue(first, criterion)
+    const secondValue = numericCriterionValue(second, criterion)
+    if (firstValue === null) return secondValue === null ? 0 : 1
+    if (secondValue === null) return -1
+    comparison = firstValue - secondValue
+  }
   return criterion.direction === 'descending' ? comparison * -1 : comparison
+}
+
+function matchesQualityFilters(
+  item: SemordnilapCatalogItem,
+  filters: CatalogQualityFilters,
+): boolean {
+  const metadata = item.metadata
+  if (!metadata) return true
+  return (
+    (filters.sourceMinFrequency === null ||
+      metadata.sourceFrequency >= filters.sourceMinFrequency) &&
+    (filters.targetMinFrequency === null ||
+      metadata.targetFrequency >= filters.targetMinFrequency) &&
+    (filters.sourceMaxWordCount === null ||
+      metadata.sourceWordCount <= filters.sourceMaxWordCount) &&
+    (filters.targetMaxWordCount === null ||
+      metadata.targetWordCount <= filters.targetMaxWordCount) &&
+    (filters.minPairScore === null ||
+      metadata.pairScore >= filters.minPairScore)
+  )
 }
 
 export function selectVisibleCatalogItems({
@@ -47,6 +113,7 @@ export function selectVisibleCatalogItems({
   sourceLanguageCode,
   targetLanguageCode,
   hasStatus,
+  qualityFilters = EMPTY_CATALOG_QUALITY_FILTERS,
 }: SelectCatalogItemsOptions): readonly SemordnilapCatalogItem[] {
   const collators = {
     source: new Intl.Collator(sourceLanguageCode, {
@@ -69,7 +136,8 @@ export function selectVisibleCatalogItems({
             : viewMode === 'favorites'
               ? hasStatus(item.semordnilap.id, 'favorite')
               : true)
-    if (!belongsToView) return []
+    if (!belongsToView || !matchesQualityFilters(item, qualityFilters))
+      return []
     const relevance = scoreCatalogMatch(item, sourceQuery, targetQuery)
     return relevance === null ? [] : [{ item, relevance, originalPosition }]
   })

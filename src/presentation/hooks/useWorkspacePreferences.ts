@@ -23,6 +23,11 @@ export type WorkspacePreferencesState = {
     datasetId: DatasetId,
   ) => DatasetCatalogViewPreference | undefined
   saveCatalogView: (view: DatasetCatalogViewPreference) => void
+  activeWordFilterLanguages: (datasetId: DatasetId) => ReadonlySet<string>
+  setActiveWordFilterLanguages: (
+    datasetId: DatasetId,
+    languages: ReadonlySet<string>,
+  ) => void
   setCompositionCollapsed: (collapsed: boolean) => void
   setRememberCatalogView: (remember: boolean) => void
   setRememberCompositionCollapsed: (remember: boolean) => void
@@ -93,6 +98,29 @@ export function useWorkspacePreferences(
     (datasetId: DatasetId) => catalogViews.get(datasetId),
     [catalogViews],
   )
+  const activeWordFilterLanguages = useCallback(
+    (datasetId: DatasetId) =>
+      new Set(
+        preferences.activeWordFilterLanguages?.find(
+          (entry) => entry.datasetId === datasetId,
+        )?.languages ?? [],
+      ),
+    [preferences.activeWordFilterLanguages],
+  )
+  const setActiveWordFilterLanguages = useCallback(
+    (datasetId: DatasetId, languages: ReadonlySet<string>) => {
+      setPreferences((current) => ({
+        ...current,
+        activeWordFilterLanguages: [
+          ...(current.activeWordFilterLanguages ?? []).filter(
+            (entry) => entry.datasetId !== datasetId,
+          ),
+          { datasetId, languages: [...languages].sort() },
+        ],
+      }))
+    },
+    [],
+  )
   const saveCatalogView = useCallback((view: DatasetCatalogViewPreference) => {
     setPreferences((current) => {
       if (!current.rememberCatalogView) return current
@@ -139,6 +167,8 @@ export function useWorkspacePreferences(
     errorMessage,
     catalogView,
     saveCatalogView,
+    activeWordFilterLanguages,
+    setActiveWordFilterLanguages,
     setCompositionCollapsed,
     setRememberCatalogView,
     setRememberCompositionCollapsed,

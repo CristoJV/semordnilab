@@ -18,7 +18,10 @@ import {
   cleanTagName,
   normalizeTagName,
 } from '@/application/tags/tag-validation'
-import { normalizeWordFilterKey } from '@/application/word-filters/word-filter-policy'
+import {
+  isWordFilterValue,
+  normalizeWordFilterKey,
+} from '@/application/word-filters/word-filter-policy'
 import type {
   DatasetId,
   SemordnilapId,
@@ -26,8 +29,8 @@ import type {
 } from '@/domain/semordnilap'
 
 const BACKUP_FORMAT = 'semordnilab-personal-data'
-const BACKUP_VERSION = 4
-const LEGACY_BACKUP_VERSIONS = [1, 2, 3] as const
+const BACKUP_VERSION = 6
+const LEGACY_BACKUP_VERSIONS = [1, 2, 3, 4, 5] as const
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -79,7 +82,7 @@ function parseReference(value: unknown, context: string): SemordnilapReference {
 
 function parseSnapshot(
   value: unknown,
-  version: 1 | 2 | 3 | 4,
+  version: 1 | 2 | 3 | 4 | 5 | 6,
 ): PersonalDataSnapshot {
   if (!isRecord(value)) throw new Error('La copia no contiene datos válidos.')
   const statusesValue = value.statuses
@@ -249,16 +252,38 @@ function parseSnapshot(
   const wordFilters = wordFiltersValue.map((entry, index) => {
     const context = `Filtro de palabra ${index + 1}`
     if (!isRecord(entry)) throw new Error(`${context}: registro no válido.`)
-    const language = requiredString(entry, 'language', context)
+    const language = requiredString(entry, 'language', context).trim()
     const displayWord = requiredString(entry, 'displayWord', context).trim()
-    const normalizedWord = requiredString(entry, 'normalizedWord', context)
-    if (normalizeWordFilterKey(displayWord) !== normalizedWord) {
+    if (!isWordFilterValue(displayWord)) {
+      throw new Error(`${context}: debe contener una única palabra válida.`)
+    }
+    const storedNormalizedWord = requiredString(
+      entry,
+      'normalizedWord',
+      context,
+    )
+    const normalizedWord = normalizeWordFilterKey(displayWord)
+    if (version >= 5 && normalizedWord !== storedNormalizedWord) {
       throw new Error(`${context}: palabra normalizada no válida.`)
     }
+    const statusValue = entry.status
+    if (
+      version >= 6 &&
+      statusValue !== 'verified' &&
+      statusValue !== 'excluded'
+    ) {
+      throw new Error(`${context}: estado de revisión no válido.`)
+    }
+    const status: 'verified' | 'excluded' =
+      statusValue === 'verified' || statusValue === 'excluded'
+        ? statusValue
+        : 'excluded'
+
     return {
       language,
       displayWord,
       normalizedWord,
+      status,
       createdAt: timestamp(
         requiredString(entry, 'createdAt', context),
         context,
@@ -299,19 +324,26 @@ function parseSnapshot(
         const side = requiredString(criterion, 'side', context)
         const direction = requiredString(criterion, 'direction', context)
         if (
-          !['alphabetical', 'length'].includes(field) ||
+          ![
+            'alphabetical',
+            'length',
+            'frequency',
+            'wordCount',
+            'pairScore',
+          ].includes(field) ||
           !['source', 'target'].includes(side) ||
           !['ascending', 'descending'].includes(direction)
         ) {
           throw new Error(`${context}: criterio de ordenación desconocido.`)
         }
         return {
-          field: field as 'alphabetical' | 'length',
+          field: field as
+            'alphabetical' | 'length' | 'frequency' | 'wordCount' | 'pairScore',
           side: side as 'source' | 'target',
           direction: direction as 'ascending' | 'descending',
         }
       })
-      if (sort.length > 4) {
+      if (sort.length > 10) {
         throw new Error(`${context}: contiene demasiados criterios.`)
       }
       const sourceQuery = plainString(view, 'sourceQuery', context)
@@ -327,12 +359,38 @@ function parseSnapshot(
         sort,
       }
     })
+    const activeFiltersValue = entry.activeWordFilterLanguages ?? []
+    if (!Array.isArray(activeFiltersValue)) {
+      throw new Error('Las preferencias de filtros léxicos no son válidas.')
+    }
+    const activeWordFilterLanguages = activeFiltersValue.map(
+      (active, index) => {
+        const context = `Activación de filtros ${index + 1}`
+        if (!isRecord(active) || !Array.isArray(active.languages)) {
+          throw new Error(`${context}: registro no válido.`)
+        }
+        const languages = active.languages.map((language) => {
+          if (typeof language !== 'string' || !language.trim()) {
+            throw new Error(`${context}: idioma no válido.`)
+          }
+          return language.trim()
+        })
+        if (new Set(languages).size !== languages.length) {
+          throw new Error(`${context}: contiene idiomas duplicados.`)
+        }
+        return {
+          datasetId: requiredString(active, 'datasetId', context),
+          languages,
+        }
+      },
+    )
     workspacePreferences = {
       id: 'workspace' as const,
       rememberCatalogView: entry.rememberCatalogView,
       rememberCompositionCollapsed: entry.rememberCompositionCollapsed,
       compositionCollapsed: entry.compositionCollapsed,
       catalogViews,
+      activeWordFilterLanguages,
       updatedAt: timestamp(
         requiredString(entry, 'updatedAt', 'Preferencias'),
         'Preferencias',
@@ -369,11 +427,11 @@ export function parseSemordnilabBackup(input: string): SemordnilabBackup {
   }
   if (
     value.version !== BACKUP_VERSION &&
-    !LEGACY_BACKUP_VERSIONS.includes(value.version as 1 | 2 | 3)
+    !LEGACY_BACKUP_VERSIONS.includes(value.version as 1 | 2 | 3 | 4 | 5)
   ) {
     throw new Error('La versión de la copia no es compatible.')
   }
-  const version = value.version as 1 | 2 | 3 | 4
+  const version = value.version as 1 | 2 | 3 | 4 | 5 | 6
   const exportedAt = timestamp(
     requiredString(value, 'exportedAt', 'Copia'),
     'Copia',
@@ -398,6 +456,12 @@ export function parseSemordnilabBackup(input: string): SemordnilabBackup {
     data.workspacePreferences?.catalogViews.map(({ datasetId }) => datasetId) ??
       [],
     'preferencias de catálogo',
+  )
+  assertUnique(
+    data.workspacePreferences?.activeWordFilterLanguages?.map(
+      ({ datasetId }) => datasetId,
+    ) ?? [],
+    'preferencias de filtros léxicos',
   )
   assertUnique(
     data.tags.map(({ id }) => id),
@@ -454,7 +518,12 @@ export function summarizePersonalData(
         ({ datasetId, semordnilapId }) => `${datasetId}\u001f${semordnilapId}`,
       ),
     ).size,
-    wordFilters: data.wordFilters.length,
+    wordFilters: data.wordFilters.filter(
+      ({ status }) => status === undefined || status === 'excluded',
+    ).length,
+    verifiedWords: data.wordFilters.filter(
+      ({ status }) => status === 'verified',
+    ).length,
     includesPreferences: Boolean(data.workspacePreferences),
   }
 }
@@ -573,12 +642,30 @@ export async function validatePersonalDataSnapshot(
   source: SemordnilapDatasetSource,
 ): Promise<void> {
   const knownDatasets = new Set(source.listAvailable().map(({ id }) => id))
+  const knownLanguages = new Set(
+    source
+      .listAvailable()
+      .flatMap(({ sourceLanguage, targetLanguage }) => [
+        sourceLanguage.code,
+        targetLanguage.code,
+      ]),
+  )
+  for (const filter of data.wordFilters) {
+    if (!knownLanguages.has(filter.language)) {
+      throw new Error(
+        `El idioma ${filter.language} de un filtro no está disponible en esta aplicación.`,
+      )
+    }
+  }
   const referencedDatasets = new Set<DatasetId>([
     ...data.statuses.map(({ datasetId }) => datasetId),
     ...data.savedComposites.map(({ datasetId }) => datasetId),
     ...data.compositionDrafts.map(({ datasetId }) => datasetId),
     ...data.semordnilapTags.map(({ datasetId }) => datasetId),
     ...(data.workspacePreferences?.catalogViews.map(
+      ({ datasetId }) => datasetId,
+    ) ?? []),
+    ...(data.workspacePreferences?.activeWordFilterLanguages?.map(
       ({ datasetId }) => datasetId,
     ) ?? []),
   ])
@@ -598,6 +685,19 @@ export async function validatePersonalDataSnapshot(
       )
     }
     const loaded = await source.load(datasetId)
+    const allowedLanguages = new Set([
+      loaded.dataset.sourceLanguage.code,
+      loaded.dataset.targetLanguage.code,
+    ])
+    const activeLanguages =
+      data.workspacePreferences?.activeWordFilterLanguages?.find(
+        (entry) => entry.datasetId === datasetId,
+      )?.languages ?? []
+    if (activeLanguages.some((language) => !allowedLanguages.has(language))) {
+      throw new Error(
+        `Las preferencias de ${datasetId} contienen un idioma no disponible.`,
+      )
+    }
     const atomics = loaded.items
       .map(({ semordnilap }) => semordnilap)
       .filter((item) => item.kind === 'atomic')

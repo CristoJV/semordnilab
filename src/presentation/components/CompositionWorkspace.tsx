@@ -12,6 +12,7 @@ import type { Notify } from '@/presentation/hooks/useTransientNotifications'
 import { CompositionLane } from './CompositionLane'
 import { CompositionPhrasesViewport } from './CompositionPhrasesViewport'
 import { CompositionToolbar } from './CompositionToolbar'
+import { CompositionLexicalInspector } from './CompositionLexicalInspector'
 import styles from './CompositionWorkspace.module.css'
 
 type CompositionWorkspaceProps = {
@@ -255,6 +256,9 @@ export function CompositionWorkspace({
               />
             </div>
           ))}
+        {!collapsed && components.length > 0 && dataset && (
+          <CompositionLexicalInspector dataset={dataset} snapshot={snapshot} />
+        )}
       </div>
 
       {pointerInteraction.dragging && (

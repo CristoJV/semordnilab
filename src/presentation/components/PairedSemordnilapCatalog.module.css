@@ -47,6 +47,14 @@
   );
 }
 
+.filterImpact {
+  align-self: center;
+  color: var(--color-text-muted);
+  font-size: 0.68rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
 .primaryControls,
 .secondaryControls,
 .selectionControls {

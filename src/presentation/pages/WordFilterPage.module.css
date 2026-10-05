@@ -143,7 +143,15 @@
   list-style: none;
 }
 
-.grid button {
+.wordCard {
+  min-width: 0;
+  overflow: hidden;
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-border);
+  border-radius: 0.7rem;
+}
+
+.wordAction {
   width: 100%;
   min-height: 3rem;
   padding: 0.55rem 0.7rem;
@@ -154,22 +162,87 @@
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
-  background: var(--color-surface-strong);
-  border: 1px solid var(--color-border);
-  border-radius: 0.7rem;
+  background: transparent;
+  border: 0;
   cursor: pointer;
   transition:
     transform var(--motion-fast) var(--motion-easing),
     border-color var(--motion-fast) var(--motion-easing);
 }
 
-.grid button:hover:not(:disabled) {
+.wordAction strong,
+.wordAction span {
+  display: block;
+}
+
+.wordAction span {
+  margin-top: 0.15rem;
+  color: var(--color-text-muted);
+  font-size: 0.66rem;
+  font-weight: 650;
+}
+
+.wordAction:hover:not(:disabled) {
   color: var(--color-violet-strong);
-  border-color: var(--color-violet);
   transform: translateY(-1px);
 }
 
-.grid button:focus-visible,
+.wordTools {
+  display: flex;
+  min-height: 2rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.wordTools button,
+.wordTools a {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  min-height: 2rem;
+  padding: 0.25rem 0.4rem;
+  overflow: hidden;
+  color: var(--color-violet-strong);
+  font: inherit;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.wordTools > * + * {
+  border-left: 1px solid var(--color-border);
+}
+
+.examples {
+  padding: 0.4rem 0.6rem;
+  color: var(--color-text-muted);
+  font-size: 0.65rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.examples summary {
+  color: var(--color-violet-strong);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.examples ul {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0;
+  margin: 0.45rem 0 0;
+  list-style: none;
+}
+
+.wordAction:focus-visible,
+.wordTools button:focus-visible,
+.wordTools a:focus-visible,
 .modeSwitcher button:focus-visible,
 .exportButton:focus-visible,
 .showMore:focus-visible {
@@ -192,11 +265,11 @@
   cursor: pointer;
 }
 
-.grid button[data-transition='filter'] {
+.wordAction[data-transition='filter'] {
   animation: filter-word 180ms var(--motion-easing) forwards;
 }
 
-.grid button[data-transition='restore'] {
+.wordAction[data-transition='restore'] {
   animation: restore-word 180ms var(--motion-easing) forwards;
 }
 
@@ -271,7 +344,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .grid button[data-transition] {
+  .wordAction[data-transition] {
     animation-duration: 0.01ms;
   }
 }

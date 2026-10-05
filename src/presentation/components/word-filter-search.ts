@@ -1,5 +1,5 @@
 import type { VocabularyWord } from '@/application'
-import { normalizeWordFilterKey } from '@/application'
+import { normalizeWordSearchKey } from '@/application'
 
 function subsequenceSpan(value: string, query: string): number | null {
   let queryIndex = 0
@@ -17,12 +17,12 @@ export function searchVocabulary<T extends VocabularyWord>(
   words: readonly T[],
   rawQuery: string,
 ): readonly T[] {
-  const query = normalizeWordFilterKey(rawQuery)
+  const query = normalizeWordSearchKey(rawQuery)
   if (!query) return words
 
   return words
     .map((word, index) => {
-      const value = word.normalizedWord
+      const value = normalizeWordSearchKey(word.displayWord)
       const substringIndex = value.indexOf(query)
       const span = subsequenceSpan(value, query)
       if (span === null) return null

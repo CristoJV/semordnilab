@@ -2,10 +2,14 @@ import { describe, expect, it } from 'vitest'
 
 import {
   AddWordFilter,
+  buildLanguageWordImpact,
   ListWordFilters,
   RemoveWordFilter,
+  SetWordReview,
+  ListWordReviews,
   extractLanguageVocabulary,
   normalizeWordFilterKey,
+  normalizeWordSearchKey,
   semordnilapMatchesWordFilters,
   type WordFilterRecord,
   type WordFilterRepository,
@@ -46,9 +50,13 @@ class MemoryWordFilterRepository implements WordFilterRepository {
 }
 
 describe('filtros de palabras por idioma', () => {
-  it('normaliza de forma estable sin perder separadores internos', () => {
-    expect(normalizeWordFilterKey('  Ár-BOL  ')).toBe('ar-bol')
-    expect(normalizeWordFilterKey('D’ALGUÉN')).toBe("d'alguen")
+  it('conserva los diacríticos en la identidad y los pliega sólo al buscar', () => {
+    expect(normalizeWordFilterKey('  Ár-BOL  ')).toBe('ár-bol')
+    expect(normalizeWordFilterKey('D’ALGUÉN')).toBe("d'alguén")
+    expect(normalizeWordFilterKey('años')).not.toBe(
+      normalizeWordFilterKey('anos'),
+    )
+    expect(normalizeWordSearchKey('D’ALGUÉN')).toBe("d'alguen")
   })
 
   it('deriva palabras únicas del idioma y conserva una forma visible', () => {
@@ -75,7 +83,7 @@ describe('filtros de palabras por idioma', () => {
 
     expect(extractLanguageVocabulary(items, 'es')).toEqual([
       { displayWord: 'alto', normalizedWord: 'alto' },
-      { displayWord: 'Árbol', normalizedWord: 'arbol' },
+      { displayWord: 'Árbol', normalizedWord: 'árbol' },
       { displayWord: 'azul', normalizedWord: 'azul' },
     ])
     expect(extractLanguageVocabulary(items, 'pt')).toEqual([])
@@ -95,7 +103,8 @@ describe('filtros de palabras por idioma', () => {
       {
         language: 'es',
         displayWord: 'Árbol',
-        normalizedWord: 'arbol',
+        normalizedWord: 'árbol',
+        status: 'excluded',
         createdAt: '2026-10-04T10:00:00.000Z',
       },
     ])
@@ -115,7 +124,7 @@ describe('filtros de palabras por idioma', () => {
     expect(
       semordnilapMatchesWordFilters(
         item,
-        new Map([['es', new Set(['arbol'])]]),
+        new Map([['es', new Set(['árbol'])]]),
       ),
     ).toBe(true)
     expect(
@@ -147,5 +156,36 @@ describe('filtros de palabras por idioma', () => {
         new Map([['es', new Set(['se'])]]),
       ),
     ).toBe(true)
+  })
+
+  it('registra palabras verificadas sin convertirlas en filtros', async () => {
+    const repository = new MemoryWordFilterRepository()
+    await new SetWordReview(
+      repository,
+      () => new Date('2026-10-04T10:00:00.000Z'),
+    ).execute('es', 'sí', 'verified')
+
+    expect(await new ListWordFilters(repository).execute('es')).toEqual([])
+    expect(await new ListWordReviews(repository).execute('es')).toEqual([
+      {
+        language: 'es',
+        displayWord: 'sí',
+        normalizedWord: 'sí',
+        status: 'verified',
+        createdAt: '2026-10-04T10:00:00.000Z',
+      },
+    ])
+  })
+
+  it('calcula una vez por semordnilap el impacto y conserva ejemplos', () => {
+    const items = [
+      createCatalogItem(
+        createAtomicSemordnilap('uno', 'sí sí', 'sisi', 'is is', 'isis'),
+      ),
+    ]
+    expect(buildLanguageWordImpact(items, 'es').get('sí')).toEqual({
+      count: 1,
+      examples: ['sí sí ↔ is is'],
+    })
   })
 })

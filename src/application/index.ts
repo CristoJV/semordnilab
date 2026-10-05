@@ -7,7 +7,11 @@ export type {
 } from './dto/semordnilap-catalog'
 export type { CompositionDraftRecord } from './dto/composition-draft'
 export type { SavedCompositeSemordnilapRecord } from './dto/saved-composite'
-export type { VocabularyWord, WordFilterRecord } from './dto/word-filter'
+export type {
+  VocabularyWord,
+  WordFilterRecord,
+  WordReviewStatus,
+} from './dto/word-filter'
 export {
   TAG_COLORS,
   TAG_ICONS,
@@ -89,14 +93,21 @@ export { InspectSavedCompositeDeletion } from './use-cases/inspect-saved-composi
 export { GetPersonalDataSummary } from './use-cases/get-personal-data-summary'
 export {
   AddWordFilter,
+  ClearWordReview,
+  ListWordReviews,
   ListWordFilters,
   RemoveWordFilter,
+  SetWordReview,
 } from './use-cases/word-filters'
 export {
   expressionWords,
   extractLanguageVocabulary,
+  buildLanguageWordImpact,
+  isWordFilterValue,
   normalizeWordFilterKey,
+  normalizeWordSearchKey,
   semordnilapMatchesWordFilters,
+  type WordImpact,
 } from './word-filters/word-filter-policy'
 export { ListSemordnilapTags } from './use-cases/list-semordnilap-tags'
 export {

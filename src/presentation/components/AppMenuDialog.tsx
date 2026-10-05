@@ -69,6 +69,10 @@ function Summary({ summary }: { summary: PersonalDataSummary }) {
         <dt>Palabras filtradas</dt>
         <dd>{summary.wordFilters}</dd>
       </div>
+      <div>
+        <dt>Palabras verificadas</dt>
+        <dd>{summary.verifiedWords}</dd>
+      </div>
     </dl>
   )
 }

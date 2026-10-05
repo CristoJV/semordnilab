@@ -39,7 +39,11 @@ import {
   resolveDiscoveryItems,
   type CatalogDiscoverySession,
 } from './catalog-discovery'
-import { selectVisibleCatalogItems } from './catalog-items-view'
+import {
+  EMPTY_CATALOG_QUALITY_FILTERS,
+  selectVisibleCatalogItems,
+  type CatalogQualityFilters,
+} from './catalog-items-view'
 import { normalizeCatalogQuery } from './catalog-search'
 import { cycleCatalogSort, setCatalogSort } from './catalog-sort'
 import type { CatalogSide, CatalogSort, CatalogSortField } from './catalog-view'
@@ -78,6 +82,7 @@ type PairedSemordnilapCatalogProps = {
     active: boolean
   }[]
   onToggleWordFilter: (language: string) => void
+  wordFilterHiddenCount: number
 }
 
 export function PairedSemordnilapCatalog({
@@ -101,6 +106,7 @@ export function PairedSemordnilapCatalog({
   onSelectionRequestHandled,
   wordFilterOptions,
   onToggleWordFilter,
+  wordFilterHiddenCount,
 }: PairedSemordnilapCatalogProps) {
   const [sourceQuery, setSourceQuery] = useState(initialView?.sourceQuery ?? '')
   const [targetQuery, setTargetQuery] = useState(initialView?.targetQuery ?? '')
@@ -108,6 +114,9 @@ export function PairedSemordnilapCatalog({
     initialView?.viewMode ?? 'active',
   )
   const [sort, setSort] = useState<CatalogSort>(initialView?.sort ?? [])
+  const [qualityFilters, setQualityFilters] = useState<CatalogQualityFilters>(
+    EMPTY_CATALOG_QUALITY_FILTERS,
+  )
   const [internalSelectionMode, setInternalSelectionMode] = useState(false)
   const [restoreAllConfirmation, setRestoreAllConfirmation] = useState(false)
   const [discoverySession, setDiscoverySession] =
@@ -138,6 +147,7 @@ export function PairedSemordnilapCatalog({
     sourceQuery ||
     targetQuery ||
     sort.length > 0 ||
+    Object.values(qualityFilters).some((value) => value !== null) ||
     effectiveSelectedTagIds.size > 0,
   )
 
@@ -195,6 +205,7 @@ export function PairedSemordnilapCatalog({
       sourceLanguageCode: dataset.sourceLanguage.code,
       targetLanguageCode: dataset.targetLanguage.code,
       hasStatus,
+      qualityFilters,
     })
     if (effectiveSelectedTagIds.size === 0) return byCatalogState
     return byCatalogState.filter((item) => {
@@ -212,6 +223,7 @@ export function PairedSemordnilapCatalog({
     hasStatus,
     effectiveSelectedTagIds,
     tagState.assignments,
+    qualityFilters,
   ])
 
   const discoveryEligibleItems = useMemo(() => {
@@ -224,6 +236,7 @@ export function PairedSemordnilapCatalog({
       sourceLanguageCode: dataset.sourceLanguage.code,
       targetLanguageCode: dataset.targetLanguage.code,
       hasStatus,
+      qualityFilters,
     }).filter(({ semordnilap }) => semordnilap.kind === 'atomic')
     if (effectiveSelectedTagIds.size === 0) return activeAtomicItems
     return activeAtomicItems.filter((item) => {
@@ -236,6 +249,7 @@ export function PairedSemordnilapCatalog({
     effectiveSelectedTagIds,
     hasStatus,
     items,
+    qualityFilters,
     tagState.assignments,
   ])
 
@@ -276,6 +290,7 @@ export function PairedSemordnilapCatalog({
     setSourceQuery('')
     setTargetQuery('')
     setSort([])
+    setQualityFilters(EMPTY_CATALOG_QUALITY_FILTERS)
     setDiscoverySession(null)
     setSelectedTagIds(new Set())
     virtualRows.reset()
@@ -543,6 +558,15 @@ export function PairedSemordnilapCatalog({
             onRestoreAll={requestRestoreAll}
             wordFilterOptions={wordFilterOptions}
             onToggleWordFilter={onToggleWordFilter}
+            qualityFilters={qualityFilters}
+            sourceLanguage={dataset.sourceLanguage.label}
+            targetLanguage={dataset.targetLanguage.label}
+            wordFilterHiddenCount={wordFilterHiddenCount}
+            onQualityFiltersChange={(filters) => {
+              setDiscoverySession(null)
+              setQualityFilters(filters)
+              virtualRows.reset()
+            }}
           />
         )}
       </div>
@@ -586,9 +610,11 @@ export function PairedSemordnilapCatalog({
       >
         {displayedItems.length === 0 ? (
           <p className={styles.empty}>
-            {discardedView
-              ? 'No hay semordnilaps descartados que coincidan con ambas búsquedas.'
-              : 'No hay semordnilaps que coincidan con ambas búsquedas.'}
+            {viewMode === 'saved'
+              ? 'No hay composites guardados que coincidan con ambas búsquedas.'
+              : discardedView
+                ? 'No hay semordnilaps descartados que coincidan con ambas búsquedas.'
+                : 'No hay semordnilaps que coincidan con ambas búsquedas.'}
           </p>
         ) : (
           <ol

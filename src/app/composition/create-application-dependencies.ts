@@ -31,8 +31,11 @@ import {
   PreviewPersonalDataImport,
   type PersonalDataFileGateway,
   AddWordFilter,
+  ClearWordReview,
+  ListWordReviews,
   ListWordFilters,
   RemoveWordFilter,
+  SetWordReview,
 } from '@/application'
 import { BrowserPersonalDataFileGateway } from '@/infrastructure/files/browser-personal-data-file-gateway'
 import { SemordnilabDatabase } from '@/infrastructure/database'
@@ -83,6 +86,9 @@ export type ApplicationDependencies = {
   listWordFilters: ListWordFilters
   addWordFilter: AddWordFilter
   removeWordFilter: RemoveWordFilter
+  listWordReviews: ListWordReviews
+  setWordReview: SetWordReview
+  clearWordReview: ClearWordReview
 }
 
 export function createApplicationDependencies(): ApplicationDependencies {
@@ -162,5 +168,8 @@ export function createApplicationDependencies(): ApplicationDependencies {
     listWordFilters: new ListWordFilters(wordFilterRepository),
     addWordFilter: new AddWordFilter(wordFilterRepository),
     removeWordFilter: new RemoveWordFilter(wordFilterRepository),
+    listWordReviews: new ListWordReviews(wordFilterRepository),
+    setWordReview: new SetWordReview(wordFilterRepository),
+    clearWordReview: new ClearWordReview(wordFilterRepository),
   }
 }

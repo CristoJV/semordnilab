@@ -24,14 +24,28 @@ type CatalogSortControlProps = {
   ) => void
 }
 
-const FIELDS = ['alphabetical', 'length'] as const
+const FIELDS = [
+  'alphabetical',
+  'length',
+  'frequency',
+  'wordCount',
+  'pairScore',
+] as const
 
 function fieldName(field: CatalogSortField) {
-  return field === 'alphabetical' ? 'Alfabético' : 'Longitud'
+  if (field === 'alphabetical') return 'Alfabético'
+  if (field === 'length') return 'Longitud en caracteres'
+  if (field === 'frequency') return 'Frecuencia'
+  if (field === 'wordCount') return 'Número de palabras'
+  return 'Puntuación de pareja'
 }
 
 function fieldDescription(field: CatalogSortField) {
-  return field === 'alphabetical' ? 'alfabético' : 'por longitud'
+  if (field === 'alphabetical') return 'alfabético'
+  if (field === 'length') return 'por longitud'
+  if (field === 'frequency') return 'por frecuencia'
+  if (field === 'wordCount') return 'por número de palabras'
+  return 'por puntuación de pareja'
 }
 
 function directionLabel(
@@ -41,7 +55,10 @@ function directionLabel(
   if (field === 'alphabetical') {
     return direction === 'ascending' ? 'A → Z' : 'Z → A'
   }
-  return direction === 'ascending' ? 'Corta → larga' : 'Larga → corta'
+  if (field === 'length') {
+    return direction === 'ascending' ? 'Corta → larga' : 'Larga → corta'
+  }
+  return direction === 'ascending' ? 'Menor → mayor' : 'Mayor → menor'
 }
 
 export function CatalogSortControl({
@@ -74,9 +91,11 @@ export function CatalogSortControl({
               ? active?.direction === 'descending'
                 ? 'Z→A'
                 : 'A→Z'
-              : active?.direction === 'descending'
-                ? '9→1'
-                : '1→9'
+              : field === 'length'
+                ? active?.direction === 'descending'
+                  ? '9→1'
+                  : '1→9'
+                : `${field === 'frequency' ? 'Frec.' : field === 'wordCount' ? 'N-grama' : 'Score'}${active?.direction === 'descending' ? '↓' : '↑'}`
           const stateDescription = !active
             ? `Activar orden ${fieldDescription(field)} ascendente en ${languageLabel}`
             : active.direction === 'ascending'

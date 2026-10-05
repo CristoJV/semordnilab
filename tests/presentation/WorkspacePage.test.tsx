@@ -13,6 +13,7 @@ import {
   AddSemordnilapTagAssignments,
   ApplySemordnilapTagChanges,
   AddWordFilter,
+  ClearWordReview,
   ClearCompositionDraft,
   DeleteSavedComposite,
   DeleteSemordnilapTag,
@@ -25,6 +26,7 @@ import {
   ListSemordnilapStatuses,
   ListSemordnilapTags,
   ListWordFilters,
+  ListWordReviews,
   LoadAtomicSemordnilaps,
   LoadCompositionDraft,
   LoadSelectedDataset,
@@ -34,6 +36,7 @@ import {
   RemoveAllSemordnilapStatuses,
   RemoveSemordnilapTagAssignments,
   RemoveWordFilter,
+  SetWordReview,
   RenameSavedComposite,
   SaveCompositeSemordnilap,
   SaveCompositionDraft,
@@ -159,6 +162,9 @@ function createDependencies(
     listWordFilters: new ListWordFilters(wordFilterRepository),
     addWordFilter: new AddWordFilter(wordFilterRepository),
     removeWordFilter: new RemoveWordFilter(wordFilterRepository),
+    listWordReviews: new ListWordReviews(wordFilterRepository),
+    setWordReview: new SetWordReview(wordFilterRepository),
+    clearWordReview: new ClearWordReview(wordFilterRepository),
   }
 }
 
@@ -169,6 +175,21 @@ function getComponentTexts(list: HTMLElement): string[] {
 }
 
 describe('WorkspacePage', () => {
+  it('termina de cargar un dataset válido sin resultados', async () => {
+    render(
+      <WorkspacePage
+        dependencies={createDependencies(
+          { load: async () => ({ ...loadedDataset, items: [] }) },
+          testDataset.id,
+        )}
+      />,
+    )
+
+    expect(
+      await screen.findByRole('region', { name: 'Catálogo bilingüe' }),
+    ).toBeInTheDocument()
+  })
+
   it('navega a una vista común para filtrar, recuperar y exportar palabras', async () => {
     const user = userEvent.setup()
     const dependencies = createDependencies({}, testDataset.id)
@@ -176,9 +197,10 @@ describe('WorkspacePage', () => {
 
     await screen.findByRole('region', { name: 'Catálogo bilingüe' })
     await user.click(screen.getByRole('button', { name: 'Filtrar palabras' }))
+    expect(window.location.hash).toBe('#/words/pending')
 
     expect(
-      screen.getByRole('heading', { name: 'Filtrar palabras' }),
+      screen.getByRole('heading', { name: 'Palabras pendientes' }),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('combobox', { name: 'Idioma de las palabras' }),
@@ -188,25 +210,32 @@ describe('WorkspacePage', () => {
       screen.getByRole('searchbox', { name: 'Buscar palabras' }),
       'ela',
     )
-    const ellaButton = screen.getByRole('button', { name: 'Filtrar ella' })
+    const ellaButton = screen.getByRole('button', { name: 'Excluir ella' })
+    expect(
+      screen.getByRole('link', { name: /Consultar ella/u }),
+    ).toHaveAttribute('href', 'https://dle.rae.es/ella')
+    expect(ellaButton).toHaveTextContent('1')
     await user.click(ellaButton)
     expect(ellaButton).toHaveAttribute('data-transition', 'filter')
     await waitFor(() =>
       expect(
-        screen.queryByRole('button', { name: 'Filtrar ella' }),
+        screen.queryByRole('button', { name: 'Excluir ella' }),
       ).not.toBeInTheDocument(),
     )
 
-    await user.click(screen.getByRole('button', { name: /Recuperar 1/ }))
+    await user.click(screen.getByRole('button', { name: /Excluidas 1/ }))
+    expect(window.location.hash).toBe('#/words/excluded')
     expect(
-      screen.getByRole('heading', { name: 'Recuperar palabras' }),
+      screen.getByRole('heading', { name: 'Palabras excluidas' }),
     ).toBeInTheDocument()
-    const restore = screen.getByRole('button', { name: 'Recuperar ella' })
+    const restore = screen.getByRole('button', {
+      name: 'Devolver ella a pendientes',
+    })
     await user.click(restore)
     expect(restore).toHaveAttribute('data-transition', 'restore')
     await waitFor(() =>
       expect(
-        screen.queryByRole('button', { name: 'Recuperar ella' }),
+        screen.queryByRole('button', { name: 'Devolver ella a pendientes' }),
       ).not.toBeInTheDocument(),
     )
 
@@ -223,24 +252,21 @@ describe('WorkspacePage', () => {
 
   it('activa los filtros de palabras de cada idioma de forma independiente', async () => {
     const user = userEvent.setup()
-    render(
-      <WorkspacePage
-        dependencies={createDependencies({}, testDataset.id, [
-          {
-            language: 'es',
-            normalizedWord: 'ella',
-            displayWord: 'ella',
-            createdAt: '2026-10-04T10:00:00.000Z',
-          },
-          {
-            language: 'gl',
-            normalizedWord: 'e',
-            displayWord: 'e',
-            createdAt: '2026-10-04T10:00:00.000Z',
-          },
-        ])}
-      />,
-    )
+    const dependencies = createDependencies({}, testDataset.id, [
+      {
+        language: 'es',
+        normalizedWord: 'ella',
+        displayWord: 'ella',
+        createdAt: '2026-10-04T10:00:00.000Z',
+      },
+      {
+        language: 'gl',
+        normalizedWord: 'e',
+        displayWord: 'e',
+        createdAt: '2026-10-04T10:00:00.000Z',
+      },
+    ])
+    render(<WorkspacePage dependencies={dependencies} />)
 
     const catalog = await screen.findByRole('region', {
       name: 'Catálogo bilingüe',
@@ -261,6 +287,7 @@ describe('WorkspacePage', () => {
         name: 'Añadir ella a la composición',
       }),
     ).not.toBeInTheDocument()
+    expect(within(catalog).getByText('1 resultado oculto')).toBeInTheDocument()
     expect(
       within(catalog).getByRole('button', {
         name: 'Añadir no se a la composición',
@@ -277,6 +304,9 @@ describe('WorkspacePage', () => {
         name: 'Añadir no se a la composición',
       }),
     ).not.toBeInTheDocument()
+    expect(
+      within(catalog).getByText('2 resultados ocultos'),
+    ).toBeInTheDocument()
 
     await user.click(
       within(catalog).getByRole('button', {
@@ -287,6 +317,31 @@ describe('WorkspacePage', () => {
       within(catalog).getByRole('button', {
         name: 'Añadir ella a la composición',
       }),
+    ).toBeInTheDocument()
+    await waitFor(async () =>
+      expect(
+        (await dependencies.loadWorkspacePreferences.execute())
+          .activeWordFilterLanguages,
+      ).toEqual([
+        {
+          datasetId: testDataset.id,
+          languages: ['gl'],
+        },
+      ]),
+    )
+  })
+
+  it('abre una colección de revisión desde su enlace directo', async () => {
+    window.history.replaceState(null, '', '#/words/verified')
+    render(
+      <WorkspacePage dependencies={createDependencies({}, testDataset.id)} />,
+    )
+
+    expect(
+      await screen.findByRole('heading', { name: 'Palabras verificadas' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Volver a componer' }),
     ).toBeInTheDocument()
   })
 

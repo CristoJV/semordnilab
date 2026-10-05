@@ -17,7 +17,9 @@ Esta carpeta reúne la documentación funcional y técnica del proyecto. Su prop
 - [ADR 0009: gestos táctiles en las filas](adr/0009-catalog-row-gestures.md): coordinación de toque, scroll, selección y acciones laterales.
 - [ADR 0010: gestión compacta de composites](adr/0010-compact-composite-management.md): resumen estructural, confirmación segura y política de dependencias.
 - [ADR 0011: filtros personales de palabras](adr/0011-language-word-filters.md): vocabulario por idioma, coincidencia por token, persistencia y navegación de revisión.
+- [ADR 0012: revisión léxica y calidad](adr/0012-lexical-review-and-quality.md): identidad exacta, estados de revisión, diccionarios y señales de calidad.
 - [Plan 0011: filtros de palabras por idioma](plans/0011-language-word-filters.md): fases y verificación de la implementación.
+- [Plan 0012: revisión léxica y calidad](plans/0012-lexical-review-quality-workflow.md): implementación por fases del flujo de revisión y asistencia.
 
 ## Estado del proyecto
 

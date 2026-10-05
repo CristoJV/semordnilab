@@ -59,12 +59,15 @@ export function useSavedCompositeSemordnilaps(
   const [reloadToken, setReloadToken] = useState(0)
 
   useEffect(() => {
-    if (!datasetId || atomics.length === 0) {
+    if (!datasetId) {
       return undefined
     }
     let active = true
-    void useCases.listSavedCompositeSemordnilaps
-      .execute(datasetId, atomics)
+    const loading =
+      atomics.length === 0
+        ? Promise.resolve([])
+        : useCases.listSavedCompositeSemordnilaps.execute(datasetId, atomics)
+    void loading
       .then((composites) => {
         if (!active) return
         setItems(composites.map(createCompositeCatalogItem))

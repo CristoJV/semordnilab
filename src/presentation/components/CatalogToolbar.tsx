@@ -4,6 +4,8 @@ import type { ResponsiveLayout } from '@/presentation/responsive/useResponsiveLa
 import styles from './PairedSemordnilapCatalog.module.css'
 import { CatalogViewSwitcher } from './CatalogViewSwitcher'
 import { TagFilterMenu } from './TagControls'
+import { CatalogQualityControl } from './CatalogQualityControl'
+import type { CatalogQualityFilters } from './catalog-items-view'
 
 type CatalogToolbarProps = {
   layout: ResponsiveLayout
@@ -32,6 +34,11 @@ type CatalogToolbarProps = {
     active: boolean
   }[]
   onToggleWordFilter: (language: string) => void
+  qualityFilters: CatalogQualityFilters
+  sourceLanguage: string
+  targetLanguage: string
+  wordFilterHiddenCount: number
+  onQualityFiltersChange: (filters: CatalogQualityFilters) => void
 }
 
 export function CatalogToolbar({
@@ -56,6 +63,11 @@ export function CatalogToolbar({
   onRestoreAll,
   wordFilterOptions,
   onToggleWordFilter,
+  qualityFilters,
+  sourceLanguage,
+  targetLanguage,
+  wordFilterHiddenCount,
+  onQualityFiltersChange,
 }: CatalogToolbarProps) {
   return (
     <>
@@ -72,6 +84,12 @@ export function CatalogToolbar({
           layout={layout}
           onApply={onApplyTagFilter}
           onManage={onManageTags}
+        />
+        <CatalogQualityControl
+          filters={qualityFilters}
+          sourceLanguage={sourceLanguage}
+          targetLanguage={targetLanguage}
+          onChange={onQualityFiltersChange}
         />
         {wordFilterOptions.map(({ code, label, count, active }) => {
           const countText = `${count} ${count === 1 ? 'palabra' : 'palabras'}`
@@ -90,6 +108,14 @@ export function CatalogToolbar({
             </button>
           )
         })}
+        {wordFilterHiddenCount > 0 && (
+          <span className={styles.filterImpact} aria-live="polite">
+            {wordFilterHiddenCount}{' '}
+            {wordFilterHiddenCount === 1
+              ? 'resultado oculto'
+              : 'resultados ocultos'}
+          </span>
+        )}
         {layout === 'compact' && hasViewModifiers && (
           <button
             className={styles.compactReset}

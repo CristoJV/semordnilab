@@ -15,17 +15,19 @@ El repositorio contiene actualmente:
 - un catálogo bilingüe con filas alineadas y filtros combinados;
 - estados genéricos de catálogo persistidos con Dexie e IndexedDB;
 - etiquetas personales globales con asignación y filtrado por dataset;
-- listas personales de palabras por idioma, con revisión, recuperación y aplicación independiente a cada lado del catálogo;
+- revisión léxica por idioma con estados pendiente, verificado y excluido, diccionarios, impacto y aplicación independiente por lado;
 - favoritos de posición estable, vista de descartados, restauración y selección múltiple;
 - búsqueda con relevancia visual, resaltado, descubrimiento y ventana virtual;
 - criterios de ordenación combinables desde cualquiera de los idiomas;
+- filtros reversibles por frecuencia, número de palabras y puntuación, con impacto visible de exclusiones;
+- inspector léxico derivado para la composición;
 - presentación adaptable con selector compacto, barras táctiles y ordenación móvil;
 - diálogos portados al documento con hoja inferior y zonas seguras en móvil;
 - guardado, deduplicación y resolución recursiva de composites;
 - gestión de composites con análisis transitivo y eliminación en cascada protegida;
-- copias JSON en versión 4 con inspección, combinación, validación semántica e importación atómica, compatibles con las versiones 1–3;
+- copias JSON en versión 6 con inspección, combinación, validación semántica e importación atómica, compatibles con las versiones 1–5;
 - preferencias de vista persistentes por dataset;
-- esquema IndexedDB en versión 6, con filtros de palabras indexados por idioma y migraciones desde versiones anteriores;
+- esquema IndexedDB en versión 8, con decisiones léxicas de identidad exacta indexadas por idioma y estado;
 - CSS Modules y estilos globales basados en tokens;
 - pruebas con Vitest para dominio, aplicación, infraestructura y presentación;
 - TypeScript estricto, alias `@/`, ESLint y Prettier;
@@ -417,7 +419,7 @@ La implementación actual mantiene dos consultas visuales, una para cada idioma.
 
 El filtrado y la relevancia sencilla pertenecen a presentación porque solo adaptan un catálogo ya cargado a la vista actual. Las funciones puras normalizan una consulta continua, comprueban cada lado y asignan prioridad a coincidencia exacta, inicial o parcial. Las reglas de normalización lingüística compartidas con la composición permanecen en el dominio. Si la búsqueda incorpora indexación persistente u otras reglas de producto reutilizables, esa coordinación se trasladará a un caso de uso y el índice optimizado permanecerá en infraestructura.
 
-La implementación actual busca y ordena en memoria. La ordenación mantiene una lista de criterios con lado, campo y dirección. Se evalúan según su prioridad de activación y el orden original resuelve el último empate. Favoritos y composites no forman grupos prioritarios, por lo que cambiar un estado no desplaza inesperadamente la fila ni reinicia su contenedor.
+La implementación actual busca, filtra y ordena en memoria. La ordenación mantiene una lista de criterios con lado, campo y dirección. Además de texto y longitud, compara frecuencia, número de palabras y puntuación de pareja desde los metadatos de catálogo. Se evalúan según su prioridad de activación y el orden original resuelve el último empate. Los composites, que no contienen esas magnitudes, permanecen visibles y quedan después de los resultados medibles. Favoritos y composites no forman grupos prioritarios, por lo que cambiar un estado no desplaza inesperadamente la fila ni reinicia su contenedor.
 
 `advanceDiscoverySession` mantiene una bolsa efímera de identificadores atómicos elegibles. `shuffleCatalogItems` aplica Fisher-Yates y recibe una fuente de azar opcional para poder verificarse de forma determinista. Cada avance consume hasta 24 identificadores sin reemplazo; al agotar la bolsa se crea otra permutación. `resolveDiscoveryItems` cruza después esos identificadores con el catálogo activo, de modo que un descarte concurrente no mantenga una unidad obsoleta en pantalla. Los composites se excluyen antes de barajar y las etiquetas activas delimitan el universo. Este estado no amplía las preferencias persistidas.
 
@@ -427,7 +429,7 @@ La implementación no añade una librería de búsqueda ni una dependencia de vi
 
 ## Persistencia local
 
-Dexie implementa repositorios internos sobre IndexedDB. `DATABASE_VERSION` marca actualmente la versión 5. La declaración de la versión 1 permanece intacta y contiene `semordnilapStatuses`, con la clave compuesta:
+Dexie implementa repositorios internos sobre IndexedDB. `DATABASE_VERSION` marca actualmente la versión 8. La declaración de la versión 1 permanece intacta y contiene `semordnilapStatuses`, con la clave compuesta:
 
 ```text
 [datasetId + semordnilapId + status]
@@ -453,6 +455,8 @@ La versión 4 conserva las cuatro tablas y añade:
 
 La versión 5 conserva los esquemas y completa cada etiqueta con un identificador de icono. La migración asigna `tag` a los registros de versión 4, sin modificar nombres, colores ni asignaciones.
 
+La versión 6 añade `wordFilters`, con clave compuesta `[language + normalizedWord]`. La versión 7 reconstruye esa clave desde la grafía visible para conservar diacríticos. La versión 8 añade índices por estado y migra cada registro histórico a `excluded`; las nuevas decisiones pueden ser `verified` o `excluded`, mientras que `pending` se deriva del vocabulario.
+
 Las actualizaciones son aditivas. Las pruebas abren bases reales de versiones 1, 2, 3 y 4, las actualizan a la versión actual y comprueban que los datos anteriores sobreviven. Las referencias de estado basadas en antiguas posiciones del TSV se reemplazan posteriormente dentro de una transacción, una vez que el dataset permite conocer la correspondencia segura.
 
 La base local almacena únicamente aquello que no pueda reconstruirse de forma fiable. Actualmente persiste:
@@ -462,12 +466,13 @@ La base local almacena únicamente aquello que no pueda reconstruirse de forma f
 - un borrador y su posición de inserción por dataset;
 - preferencias globales y vistas de catálogo por dataset.
 - definiciones globales de etiquetas y sus asignaciones a semordnilaps.
+- decisiones léxicas por idioma y la activación de filtros por dataset.
 
-La copia de seguridad utiliza un sobre con nombre de formato, versión y fecha de exportación. La versión 2 incorporó etiquetas y asignaciones. La versión 3 añade el icono de cada etiqueta. El analizador continúa aceptando las versiones 1 y 2, e incorpora el icono neutro al leer una etiqueta antigua. En una combinación, las etiquetas se reconcilian por identidad y nombre normalizado antes de unir sus asignaciones.
+La copia de seguridad utiliza un sobre con nombre de formato, versión y fecha de exportación. La versión 2 incorporó etiquetas y asignaciones; la 3, sus iconos; la 4, filtros por palabra; la 5, claves con diacríticos, y la 6, estados de revisión y filtros activos por dataset. El analizador continúa aceptando las versiones 1–5 y completa los campos ausentes durante la migración. En una combinación, las etiquetas se reconcilian por identidad y nombre normalizado antes de unir sus asignaciones.
 
 La selección del dataset utiliza un puerto de aplicación independiente y una implementación pequeña sobre `localStorage`. La presentación solo conoce los casos de uso de lectura y escritura. Esta sesión ligera queda fuera de IndexedDB y de las copias personales porque puede reconstruirse y no contiene trabajo creado por el usuario.
 
-La capa de aplicación analiza datos desconocidos, construye el resultado de la estrategia elegida y vuelve a resolver todos los composites contra los datasets incluidos. La infraestructura solo sustituye las seis tablas después de completar esa validación y lo hace dentro de una transacción Dexie. Un error de escritura revierte también los vaciados previos.
+La capa de aplicación analiza datos desconocidos, construye el resultado de la estrategia elegida y vuelve a resolver todos los composites contra los datasets incluidos. La infraestructura solo sustituye las siete tablas después de completar esa validación y lo hace dentro de una transacción Dexie. Un error de escritura revierte también los vaciados previos.
 
 Renombrar un composite actualiza únicamente su título y fecha. La eliminación construye primero el cierre transitivo de sus dependencias. La presentación utiliza el plan para enumerar los derivados y la capa de aplicación rechaza la operación mientras exista alguno o mientras un borrador conserve la referencia. Solo un plan sin dependientes abre la confirmación final. La transacción vuelve a construir ese plan, bloquea la escritura si el grafo ha cambiado y elimina el composite, sus estados y sus asignaciones de etiquetas. El repositorio conserva la operación atómica sobre el conjunto exacto descrito por el plan como garantía de integridad, aunque la política de aplicación actual solo autoriza una raíz sin derivados. Estas operaciones dirigidas evitan reescribir colecciones no relacionadas y reducen el riesgo de perder una escritura concurrente.
 

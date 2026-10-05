@@ -1,0 +1,80 @@
+.quality {
+  position: relative;
+}
+
+.quality summary {
+  min-height: 2.2rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--color-text);
+  font-size: 0.72rem;
+  font-weight: 800;
+  list-style: none;
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.quality summary::-webkit-details-marker {
+  display: none;
+}
+
+.panel {
+  position: absolute;
+  z-index: 24;
+  top: calc(100% + 0.45rem);
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(10rem, 1fr));
+  gap: 0.65rem;
+  width: min(32rem, calc(100vw - 2rem));
+  padding: 0.85rem;
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-border);
+  border-radius: 0.8rem;
+  box-shadow: 0 0.8rem 2rem rgb(39 35 47 / 16%);
+}
+
+.panel label {
+  display: grid;
+  gap: 0.25rem;
+  color: var(--color-text-muted);
+  font-size: 0.68rem;
+  font-weight: 750;
+}
+
+.panel input {
+  min-width: 0;
+  min-height: 2.3rem;
+  padding: 0.4rem 0.55rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.55rem;
+}
+
+.panel button {
+  min-height: 2.3rem;
+  color: var(--color-violet-strong);
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 800;
+  background: transparent;
+  border: 1px solid var(--color-violet);
+  border-radius: 0.55rem;
+  cursor: pointer;
+}
+
+@media (max-width: 560px) {
+  .panel {
+    position: fixed;
+    top: auto;
+    right: 0.7rem;
+    bottom: calc(4.5rem + env(safe-area-inset-bottom));
+    left: 0.7rem;
+    grid-template-columns: 1fr;
+    width: auto;
+    max-height: 70dvh;
+    overflow-y: auto;
+  }
+}

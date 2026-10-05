@@ -33,6 +33,34 @@ function parseNumber(
   return parsed
 }
 
+function parsePositiveInteger(
+  value: string,
+  column: ColumnName,
+  rowNumber: number,
+): number {
+  const parsed = parseNumber(value, column, rowNumber)
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    throw new DatasetLoadError(
+      `La fila ${rowNumber} debe contener un entero positivo en ${column}.`,
+    )
+  }
+  return parsed
+}
+
+function parseNonNegativeNumber(
+  value: string,
+  column: ColumnName,
+  rowNumber: number,
+): number {
+  const parsed = parseNumber(value, column, rowNumber)
+  if (parsed < 0) {
+    throw new DatasetLoadError(
+      `La fila ${rowNumber} debe contener una cantidad no negativa en ${column}.`,
+    )
+  }
+  return parsed
+}
+
 export function parseSemordnilapTsv(
   content: string,
 ): readonly TsvSemordnilapRecord[] {
@@ -78,12 +106,12 @@ export function parseSemordnilapTsv(
       sourceLang: read(cells, 'source_lang', rowNumber),
       sourceCorpus: read(cells, 'source_corpus', rowNumber),
       sourceText: read(cells, 'source_text', rowNumber),
-      sourceWordCount: parseNumber(
+      sourceWordCount: parsePositiveInteger(
         read(cells, 'source_n', rowNumber),
         'source_n',
         rowNumber,
       ),
-      sourceFrequency: parseNumber(
+      sourceFrequency: parseNonNegativeNumber(
         read(cells, 'source_count', rowNumber),
         'source_count',
         rowNumber,
@@ -92,12 +120,12 @@ export function parseSemordnilapTsv(
       targetLang: read(cells, 'target_lang', rowNumber),
       targetCorpus: read(cells, 'target_corpus', rowNumber),
       targetText: read(cells, 'target_text', rowNumber),
-      targetWordCount: parseNumber(
+      targetWordCount: parsePositiveInteger(
         read(cells, 'target_n', rowNumber),
         'target_n',
         rowNumber,
       ),
-      targetFrequency: parseNumber(
+      targetFrequency: parseNonNegativeNumber(
         read(cells, 'target_count', rowNumber),
         'target_count',
         rowNumber,

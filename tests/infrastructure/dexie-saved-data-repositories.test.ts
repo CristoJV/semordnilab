@@ -1,6 +1,7 @@
 import 'fake-indexeddb/auto'
 
 import { afterEach, describe, expect, it } from 'vitest'
+import Dexie from 'dexie'
 
 import { SemordnilabDatabase } from '@/infrastructure/database'
 import {
@@ -390,5 +391,33 @@ describe('repositorios Dexie de datos guardados', () => {
     await repository.remove('es', 'arbol')
     expect(await repository.list('es')).toEqual([])
     expect(await repository.list('gl')).toEqual([galician])
+  })
+
+  it('migra las claves antiguas de filtros conservando la grafía visible', async () => {
+    const databaseName = `semordnilab-legacy-filters-${Date.now()}`
+    const legacy = new Dexie(databaseName)
+    legacy.version(6).stores({
+      wordFilters: '[language+normalizedWord], language, createdAt',
+    })
+    await legacy.open()
+    await legacy.table('wordFilters').put({
+      language: 'es',
+      normalizedWord: 'arbol',
+      displayWord: 'Árbol',
+      createdAt: '2026-10-04T10:00:00.000Z',
+    })
+    legacy.close()
+
+    const database = new SemordnilabDatabase(databaseName)
+    databases.push(database)
+    expect(await database.wordFilters.toArray()).toEqual([
+      {
+        language: 'es',
+        normalizedWord: 'árbol',
+        displayWord: 'Árbol',
+        createdAt: '2026-10-04T10:00:00.000Z',
+        status: 'excluded',
+      },
+    ])
   })
 })

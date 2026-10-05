@@ -11,13 +11,14 @@ import type {
   WorkspacePreferencesRecord,
   WordFilterRecord,
 } from '@/application'
+import { normalizeWordFilterKey } from '@/application'
 import type {
   DatasetId,
   LanguageCode,
   SemordnilapId,
 } from '@/domain/semordnilap'
 
-export const DATABASE_VERSION = 6
+export const DATABASE_VERSION = 8
 
 export type SemordnilapStatusKey = [
   DatasetId,
@@ -82,7 +83,7 @@ export class SemordnilabDatabase extends Dexie {
             if (!tag.icon) tag.icon = 'tag'
           }),
       )
-    this.version(DATABASE_VERSION).stores({
+    this.version(6).stores({
       semordnilapStatuses: statusSchema,
       savedComposites: 'id, datasetId, createdAt, updatedAt',
       compositionDrafts: 'datasetId, updatedAt',
@@ -92,6 +93,53 @@ export class SemordnilabDatabase extends Dexie {
         '[datasetId+semordnilapId+tagId], datasetId, semordnilapId, tagId, [datasetId+tagId]',
       wordFilters: '[language+normalizedWord], language, createdAt',
     })
+    this.version(7)
+      .stores({
+        semordnilapStatuses: statusSchema,
+        savedComposites: 'id, datasetId, createdAt, updatedAt',
+        compositionDrafts: 'datasetId, updatedAt',
+        workspacePreferences: 'id, updatedAt',
+        tags: 'id, &normalizedName, createdAt, updatedAt',
+        semordnilapTags:
+          '[datasetId+semordnilapId+tagId], datasetId, semordnilapId, tagId, [datasetId+tagId]',
+        wordFilters: '[language+normalizedWord], language, createdAt',
+      })
+      .upgrade(async (transaction) => {
+        const table = transaction.table<
+          WordFilterRecord,
+          [LanguageCode, string]
+        >('wordFilters')
+        const records = await table.toArray()
+        await table.clear()
+        await table.bulkPut(
+          records.map((record) => ({
+            ...record,
+            language: record.language.trim(),
+            displayWord: record.displayWord.trim().normalize('NFC'),
+            normalizedWord: normalizeWordFilterKey(record.displayWord),
+          })),
+        )
+      })
+    this.version(DATABASE_VERSION)
+      .stores({
+        semordnilapStatuses: statusSchema,
+        savedComposites: 'id, datasetId, createdAt, updatedAt',
+        compositionDrafts: 'datasetId, updatedAt',
+        workspacePreferences: 'id, updatedAt',
+        tags: 'id, &normalizedName, createdAt, updatedAt',
+        semordnilapTags:
+          '[datasetId+semordnilapId+tagId], datasetId, semordnilapId, tagId, [datasetId+tagId]',
+        wordFilters:
+          '[language+normalizedWord], language, status, [language+status], createdAt',
+      })
+      .upgrade((transaction) =>
+        transaction
+          .table<WordFilterRecord, [LanguageCode, string]>('wordFilters')
+          .toCollection()
+          .modify((record) => {
+            if (!record.status) record.status = 'excluded'
+          }),
+      )
 
     this.semordnilapStatuses = this.table('semordnilapStatuses')
     this.savedComposites = this.table('savedComposites')

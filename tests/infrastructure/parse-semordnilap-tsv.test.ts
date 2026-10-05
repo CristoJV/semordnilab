@@ -45,4 +45,12 @@ describe('parseSemordnilapTsv', () => {
     expect(() => parseSemordnilapTsv(content)).toThrow(DatasetLoadError)
     expect(() => parseSemordnilapTsv(content)).toThrow(/fila 2/u)
   })
+
+  it('rechaza conteos no enteros y frecuencias negativas', () => {
+    const fractional = `${header}\nes\twikisource\tella\t1.5\t5\tella\tgl\twikisource\ta lle\t2\t5\talle\t1\n`
+    const negative = `${header}\nes\twikisource\tella\t1\t-1\tella\tgl\twikisource\ta lle\t2\t5\talle\t1\n`
+
+    expect(() => parseSemordnilapTsv(fractional)).toThrow(/entero positivo/u)
+    expect(() => parseSemordnilapTsv(negative)).toThrow(/no negativa/u)
+  })
 })

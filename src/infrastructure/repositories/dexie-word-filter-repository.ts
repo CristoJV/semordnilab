@@ -16,10 +16,14 @@ export class DexieWordFilterRepository implements WordFilterRepository {
           .equals(language)
           .toArray()
       : await this.database.wordFilters.toArray()
+    let collator: Intl.Collator
+    try {
+      collator = new Intl.Collator(language, { sensitivity: 'base' })
+    } catch {
+      collator = new Intl.Collator(undefined, { sensitivity: 'base' })
+    }
     return records.sort((left, right) =>
-      left.displayWord.localeCompare(right.displayWord, language, {
-        sensitivity: 'base',
-      }),
+      collator.compare(left.displayWord, right.displayWord),
     )
   }
 
