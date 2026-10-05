@@ -77,14 +77,11 @@ export function AppHeader({
               {statusText}
             </p>
             <button
-              className={styles.menuButton}
+              className={`${styles.menuButton} ${styles.filterButton}`}
               type="button"
               disabled={!canOpenWordFilters}
               onClick={onOpenWordFilters}
             >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 5h16M7 12h10m-7 7h4" />
-              </svg>
               Filtrar <span className={styles.buttonQualifier}>palabras</span>
             </button>
             <button

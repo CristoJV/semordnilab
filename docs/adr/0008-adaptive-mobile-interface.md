@@ -41,13 +41,19 @@ El área mantiene su tamaño y el título corto `Compón`. Comienza expandida en
 
 `ModalDialog` utiliza un portal a `document.body`. En móvil se presenta como una hoja inferior, limita su altura con unidades dinámicas, contiene su propio scroll y respeta las zonas seguras. Las confirmaciones breves y decisivas pueden solicitar la variante centrada sin crear otro sistema modal. El portal evita recortes causados por el scroll u `overflow` de la página. La coordinación superior representa menú, selector y gestor de etiquetas como estados excluyentes, de modo que no se solapen por accidente.
 
-La página usa `100dvh`. El catálogo conserva el desplazamiento vertical. En el área de composición, únicamente las dos frases pertenecen al viewport horizontal compartido; los títulos de idioma y las herramientas son elementos hermanos fijos. Los límites de ancho del viewport evitan que una secuencia larga desplace la página. Los avisos flotantes se separan del pie y de la zona segura. No se modifica el dominio, los casos de uso, los puertos, IndexedDB ni el formato de las copias.
+La página usa `100dvh`. El catálogo conserva el desplazamiento vertical. En el área de composición, únicamente las dos frases pertenecen al viewport horizontal compartido; los títulos de idioma y las herramientas son elementos hermanos fijos. Los límites de ancho del viewport evitan que una secuencia larga desplace la página. En móvil la columna de esos títulos tiene un límite explícito para que su tamaño intrínseco nunca ensanche el grid.
+
+Cuando las frases superan el ancho disponible, `CompositionPhrasesViewport` muestra bajo ellas un deslizador táctil fino con un tirador circular. Su recorrido representa exactamente `scrollWidth - clientWidth`, actualiza el mismo `scrollLeft` que utilizan el gesto directo, el teclado y el auto-scroll del arrastre, y desaparece cuando todo el contenido cabe. El inspector léxico conserva ambos idiomas en dos columnas también en móvil, de modo que abrirlo revela las dos colecciones en una sola interacción.
+
+Los avisos flotantes se separan del pie y de la zona segura. No se modifica el dominio, los casos de uso, los puertos, IndexedDB ni el formato de las copias.
 
 ## Verificación
 
 Las funciones de ordenación tienen pruebas unitarias para combinación, prioridad, retirada y ciclo. El control compacto se prueba como interacción completa. La prueba de la página simula la consulta de medios, cambia el dataset desde la hoja móvil, comprueba los comandos de composición mediante iconos, entra en selección mediante una pulsación prolongada y desde el menú, verifica la casilla triestado, ejecuta gestos laterales y comprueba la restauración por gesto. El estado normal de persistencia no ocupa una barra visible.
 
 Los diálogos tienen pruebas específicas para portal, foco, Escape y cierre mediante fondo. El filtro de etiquetas comprueba por separado el anclaje, el portal, la aplicación y el cierre exterior. La respuesta a cambios de la consulta de medios también se comprueba de forma aislada. La validación automatizada se completa con tipos, lint, formato, pruebas y construcción.
+
+El viewport de composición verifica además que el deslizador no exista sin overflow, que aparezca con el recorrido calculado y que su movimiento actualice el desplazamiento compartido. El inspector comprueba que ambos idiomas queden visibles tras una única apertura.
 
 ## Consecuencias
 

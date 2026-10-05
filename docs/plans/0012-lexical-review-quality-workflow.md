@@ -66,3 +66,14 @@ npm run build
 ```
 
 Verificación ejecutada al completar las tres fases: formato, lint y tipos sin avisos; 38 archivos con 167 pruebas; build Vite de producción correcto.
+
+## Ajuste posterior — composición móvil
+
+- [x] Impedir que los títulos de idioma ensanchen la pantalla compacta.
+- [x] Mostrar un deslizador táctil compartido sólo cuando la composición desborda.
+- [x] Abrir simultáneamente los dos idiomas del inspector léxico.
+- [x] Simplificar `Filtrar palabras` en la cabecera a una acción textual sin borde.
+- [x] Mantener transiciones breves y respetar `prefers-reduced-motion`.
+- [x] Añadir pruebas específicas y repetir la verificación completa.
+
+Resultado: 39 archivos con 168 pruebas, formato, lint y tipos sin avisos, y build Vite de producción correcto.

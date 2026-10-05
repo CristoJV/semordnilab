@@ -1,7 +1,14 @@
 .inspector {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   margin-top: 0.65rem;
   color: var(--color-text-muted);
   font-size: 0.72rem;
+}
+
+.inspector[open] .sides {
+  animation: reveal-inspector 160ms var(--motion-easing) both;
 }
 
 .inspector summary {
@@ -43,6 +50,7 @@
 
 .sides li {
   display: inline-flex;
+  flex-wrap: wrap;
   gap: 0.35rem;
   align-items: center;
   padding: 0.25rem 0.4rem;
@@ -52,13 +60,36 @@
 }
 
 .sides a {
+  min-width: 0;
   color: var(--color-violet-strong);
   font-size: 0.62rem;
   font-weight: 800;
 }
 
+@keyframes reveal-inspector {
+  from {
+    opacity: 0;
+    transform: translateY(-0.2rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 560px) {
   .sides {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+
+  .sides section {
+    padding: 0.45rem;
+  }
+
+  .sides li {
+    width: 100%;
+    border-radius: 0.55rem;
   }
 }
