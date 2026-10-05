@@ -89,3 +89,15 @@ Resultado: 39 archivos con 168 pruebas, formato, lint y tipos sin avisos, y buil
 - [x] Repetir formato, lint, tipos, pruebas completas y build de producción.
 
 Resultado: 39 archivos con 168 pruebas, formato, lint y tipos sin avisos, y build Vite de producción correcto. Las comprobaciones de presentación validan los dos tracks iguales, el portal sin reflow, las listas desplazables de cinco filas y el proveedor único de cada idioma.
+
+## Corrección posterior — contención del catálogo
+
+- [x] Auditar la cadena de tamaño desde la página hasta las filas bilingües.
+- [x] Limitar todos los ancestros del catálogo al ancho disponible.
+- [x] Evitar que toolbar, cabeceras o textos aporten ancho intrínseco al grid exterior.
+- [x] Sustituir el carril horizontal de vistas y filtros por wrapping responsivo.
+- [x] Distribuir las cuatro vistas en dos filas en pantallas estrechas.
+- [x] Verificar por prueba la contención, el wrapping y el reparto 50/50.
+- [x] Repetir formato, lint, tipos, pruebas completas y build de producción.
+
+Resultado: 39 archivos con 168 pruebas, formato, lint y tipos sin avisos, y build Vite de producción correcto. La verificación comprueba la cadena completa de contención, el wrapping de toolbar y vistas, y los dos tracks iguales en cabecera y filas.

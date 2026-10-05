@@ -878,8 +878,25 @@ describe('WorkspacePage', () => {
       .getByRole('heading', { name: 'Español' })
       .closest('[data-side="source"]')
     const pairedHeaders = sourceHeader?.parentElement
+    const catalogFrame = catalog.parentElement
+    const workspaceMain = catalogFrame?.parentElement
+    const page = workspaceMain?.parentElement
+    const viewNavigation = within(catalog).getByRole('navigation', {
+      name: 'Vistas del catálogo',
+    })
+    const catalogToolbar = viewNavigation.parentElement?.parentElement
 
     expect(pairedRows).toHaveLength(2)
+    expect(getComputedStyle(page as Element).gridTemplateColumns).toBe(
+      'minmax(0, 1fr)',
+    )
+    expect(getComputedStyle(workspaceMain as Element).gridTemplateColumns).toBe(
+      'minmax(0, 1fr)',
+    )
+    expect(getComputedStyle(catalogFrame as Element).maxWidth).toBe('100%')
+    expect(getComputedStyle(catalog as Element).maxWidth).toBe('100%')
+    expect(getComputedStyle(catalogToolbar as Element).flexWrap).toBe('wrap')
+    expect(getComputedStyle(viewNavigation).flexWrap).toBe('wrap')
     expect(getComputedStyle(pairedHeaders as Element).gridTemplateColumns).toBe(
       'repeat(2, minmax(0, 1fr))',
     )

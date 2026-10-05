@@ -1,8 +1,11 @@
 .views {
   display: flex;
-  flex: none;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
   gap: 0.25rem;
   align-items: center;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .views button[data-active='true'] {
@@ -17,7 +20,29 @@
 }
 
 @media (max-width: 560px) {
+  .views {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .views button {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 0.35rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .views button span {
     display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .views {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

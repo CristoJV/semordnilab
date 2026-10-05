@@ -83,7 +83,7 @@ La versión móvil conserva la misma pantalla, los mismos datos y las mismas ope
 - el área se titula `Compón` y utiliza iconos para plegar, deshacer, rehacer, guardar y vaciar;
 - las acciones principales mantienen un área táctil mínima de 44 píxeles y un nombre accesible aunque oculten su etiqueta visual;
 - las vistas se presentan en el orden `Todos`, `Guardados`, `Favoritos`, `Descartados` y `Etiquetas`;
-- la barra de filtros ocupa una sola línea desplazable; cuando existe alguna consulta, ordenación o etiqueta activa, un icono compacto permite restablecerlas desde esa misma línea;
+- la barra de filtros se ajusta al ancho disponible; las cuatro vistas pasan a dos filas equilibradas cuando no caben y los filtros adicionales continúan debajo sin ensanchar la página;
 - `Descubrir` se presenta como un botón flotante circular con dados en la esquina inferior derecha, respeta la zona segura y reserva espacio para no cubrir la última fila;
 - `Seleccionar` y `Restaurar todos` no ocupan una segunda barra; una pulsación prolongada abre la selección y el menú superior conserva una entrada accesible alternativa;
 - una pulsación prolongada sobre cualquier expresión entra directamente en selección múltiple y selecciona su fila bilingüe; un toque normal sigue añadiendo la pieza a la composición y el movimiento vertical cede el control al scroll;
@@ -98,7 +98,7 @@ La versión móvil conserva la misma pantalla, los mismos datos y las mismas ope
 - los diálogos se montan sobre el documento, ocupan el ancho disponible y respetan las zonas seguras del dispositivo;
 - el documento utiliza la altura dinámica del navegador y mantiene el desplazamiento vertical dentro del catálogo.
 
-Las filas bilingües permanecen alineadas y la composición conserva un desplazamiento horizontal compartido. La barra principal puede desplazarse lateralmente sin ensanchar la página ni reducir sus objetivos táctiles. El botón flotante desaparece durante la selección y queda cubierto por los overlays para no competir con una tarea modal.
+Las filas bilingües permanecen alineadas y la composición conserva un desplazamiento horizontal compartido. La barra principal envuelve sus controles sin ensanchar la página ni reducir sus objetivos táctiles. El botón flotante desaparece durante la selección y queda cubierto por los overlays para no competir con una tarea modal.
 
 La primera vez que están disponibles los gestos, un aviso temporal explica ambas direcciones. Favoritos, descartes y restauraciones ofrecen `Deshacer`. En escritorio, restaurar directamente una colección descartada grande solicita confirmación. En móvil, la misma operación se realiza entrando en selección, marcando todos los resultados y restaurando el lote.
 
