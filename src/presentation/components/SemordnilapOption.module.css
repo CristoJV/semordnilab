@@ -22,12 +22,14 @@
 }
 
 .button[data-side='source'] {
+  padding-right: 2.55rem;
   text-align: right;
 }
 
 .button[data-side='target'] {
   grid-template-columns: minmax(0, 1fr) minmax(3.45rem, auto);
   grid-template-areas: 'text metadata';
+  padding-left: 2.55rem;
   text-align: left;
 }
 
@@ -104,6 +106,14 @@
   .button {
     padding-inline: 0.55rem;
     font-size: 0.88rem;
+  }
+
+  .button[data-side='source'] {
+    padding-right: 1.95rem;
+  }
+
+  .button[data-side='target'] {
+    padding-left: 1.95rem;
   }
 }
 

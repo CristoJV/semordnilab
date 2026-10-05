@@ -30,7 +30,7 @@ Resultado: la identidad conserva diacríticos, la búsqueda sigue plegándolos, 
 - [x] Persistir la activación de filtros por dataset.
 - [x] Ejecutar la batería completa y actualizar documentación.
 
-Resultado: una única revisión presenta pendientes, verificadas y excluidas, calcula el impacto con ejemplos, conserva el foco, permite deshacer y abre DLE, RAG, ACL o Priberam según el idioma. Las rutas `#/words/...` sobreviven a recarga y navegación, la activación por dataset es una preferencia personal, IndexedDB 8 y backup 6 conservan todos los estados. La fase supera 164 pruebas y el build de producción.
+Resultado: una única revisión presenta pendientes, verificadas y excluidas, calcula el impacto con ejemplos, conserva el foco, permite deshacer y abre RAE, RAG o AdC según el idioma. Las rutas `#/words/...` sobreviven a recarga y navegación, la activación por dataset es una preferencia personal, IndexedDB 8 y backup 6 conservan todos los estados. La fase supera 164 pruebas y el build de producción.
 
 ## Fase 3 — Calidad del catálogo y asistencia a la composición
 
@@ -77,3 +77,15 @@ Verificación ejecutada al completar las tres fases: formato, lint y tipos sin a
 - [x] Añadir pruebas específicas y repetir la verificación completa.
 
 Resultado: 39 archivos con 168 pruebas, formato, lint y tipos sin avisos, y build Vite de producción correcto.
+
+## Corrección posterior — equilibrio e inspector flotante
+
+- [x] Restaurar dos mitades reales 50/50 en cabecera y filas del catálogo.
+- [x] Superponer las acciones centrales sin convertirlas en un tercer track.
+- [x] Abrir la revisión léxica en un popover que no desplaza la composición.
+- [x] Mostrar ambos idiomas en dos columnas y limitar cada lista a cinco filas con scroll.
+- [x] Reducir los proveedores visibles a `RAE (ES)`, `RAG (GL)` y `AdC (PT)`.
+- [x] Cubrir por prueba el portal, el reparto de columnas, el overflow y la política de enlaces.
+- [x] Repetir formato, lint, tipos, pruebas completas y build de producción.
+
+Resultado: 39 archivos con 168 pruebas, formato, lint y tipos sin avisos, y build Vite de producción correcto. Las comprobaciones de presentación validan los dos tracks iguales, el portal sin reflow, las listas desplazables de cinco filas y el proveedor único de cada idioma.

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useRef, useState } from 'react'
 
 import {
   expressionWords,
@@ -7,6 +7,7 @@ import {
 } from '@/application'
 import type { CompositionSnapshot } from '@/domain/semordnilap'
 
+import { AnchoredPopover } from './AnchoredPopover'
 import { dictionaryLinksForWord } from './dictionary-links'
 import styles from './CompositionLexicalInspector.module.css'
 
@@ -23,6 +24,8 @@ export function CompositionLexicalInspector({
   dataset,
   snapshot,
 }: CompositionLexicalInspectorProps) {
+  const [open, setOpen] = useState(false)
+  const triggerRef = useRef<HTMLButtonElement>(null)
   const sides = useMemo(
     () =>
       (
@@ -48,40 +51,67 @@ export function CompositionLexicalInspector({
   )
   const count = sides.reduce((total, side) => total + side.words.length, 0)
 
+  const close = () => {
+    setOpen(false)
+    triggerRef.current?.focus()
+  }
+
   return (
-    <details
-      className={styles.inspector}
-      role="group"
-      aria-label="Inspector léxico de la composición"
-    >
-      <summary>Revisar palabras · {count}</summary>
-      <div className={styles.sides}>
-        {sides.map(({ language, words }) => (
-          <section key={language.code} aria-label={language.label}>
-            <h2>{language.label}</h2>
-            <ul>
-              {words.map((word) => (
-                <li key={word.normalizedWord}>
-                  <span>{word.displayWord}</span>
-                  {dictionaryLinksForWord(language.code, word.displayWord).map(
-                    (link) => (
-                      <a
-                        key={link.label}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`Consultar ${word.displayWord} en ${link.label}`}
-                      >
-                        {link.label}
-                      </a>
-                    ),
-                  )}
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))}
-      </div>
-    </details>
+    <div className={styles.inspector}>
+      <button
+        ref={triggerRef}
+        className={styles.trigger}
+        type="button"
+        aria-expanded={open}
+        aria-haspopup="dialog"
+        onClick={() => setOpen((current) => !current)}
+      >
+        Revisar palabras · {count}
+      </button>
+      {open && (
+        <AnchoredPopover
+          anchorRef={triggerRef}
+          ariaLabel="Inspector léxico de la composición"
+          className={styles.panel}
+          preferredWidth={720}
+          onClose={() => setOpen(false)}
+        >
+          <div className={styles.panelHeader}>
+            <strong>Palabras de la composición</strong>
+            <button type="button" aria-label="Cerrar revisión" onClick={close}>
+              ×
+            </button>
+          </div>
+          <div className={styles.sides}>
+            {sides.map(({ language, words }) => (
+              <section key={language.code} aria-label={language.label}>
+                <h2>{language.label}</h2>
+                <ul aria-label={`Palabras en ${language.label}`}>
+                  {words.map((word) => (
+                    <li key={word.normalizedWord}>
+                      <span>{word.displayWord}</span>
+                      {dictionaryLinksForWord(
+                        language.code,
+                        word.displayWord,
+                      ).map((link) => (
+                        <a
+                          key={link.label}
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Consultar ${word.displayWord} en ${link.label}`}
+                        >
+                          {link.label}
+                        </a>
+                      ))}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+        </AnchoredPopover>
+      )}
+    </div>
   )
 }

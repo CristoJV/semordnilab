@@ -214,6 +214,9 @@ describe('WorkspacePage', () => {
     expect(
       screen.getByRole('link', { name: /Consultar ella/u }),
     ).toHaveAttribute('href', 'https://dle.rae.es/ella')
+    expect(
+      screen.getByRole('link', { name: /Consultar ella/u }),
+    ).toHaveTextContent('RAE (ES)')
     expect(ellaButton).toHaveTextContent('1')
     await user.click(ellaButton)
     expect(ellaButton).toHaveAttribute('data-transition', 'filter')
@@ -870,8 +873,25 @@ describe('WorkspacePage', () => {
       name: 'Semordnilaps filtrados',
     })
     const pairedRows = within(pairedList).getAllByRole('listitem')
+    const firstPairedRow = pairedRows[0]?.querySelector('[data-selected]')
+    const sourceHeader = within(catalog)
+      .getByRole('heading', { name: 'Español' })
+      .closest('[data-side="source"]')
+    const pairedHeaders = sourceHeader?.parentElement
 
     expect(pairedRows).toHaveLength(2)
+    expect(getComputedStyle(pairedHeaders as Element).gridTemplateColumns).toBe(
+      'repeat(2, minmax(0, 1fr))',
+    )
+    expect(
+      getComputedStyle(pairedHeaders?.children[1] as Element).position,
+    ).toBe('absolute')
+    expect(
+      getComputedStyle(firstPairedRow as Element).gridTemplateColumns,
+    ).toBe('repeat(2, minmax(0, 1fr))')
+    expect(
+      getComputedStyle(firstPairedRow?.children[1] as Element).position,
+    ).toBe('absolute')
     expect(
       within(pairedRows[0]!).getByRole('button', {
         name: 'Añadir ella a la composición',

@@ -25,20 +25,39 @@ describe('CompositionLexicalInspector', () => {
       />,
     )
 
-    const inspector = screen.getByRole('group', {
+    const trigger = screen.getByRole('button', {
+      name: 'Revisar palabras · 4',
+    })
+    expect(
+      screen.queryByRole('dialog', {
+        name: 'Inspector léxico de la composición',
+      }),
+    ).not.toBeInTheDocument()
+    await user.click(trigger)
+    const inspector = screen.getByRole('dialog', {
       name: 'Inspector léxico de la composición',
     })
+    expect(inspector.parentElement).toBe(document.body)
     expect(within(inspector).getAllByRole('link')).toHaveLength(4)
     expect(
-      within(inspector).getByRole('link', { name: /ella en DLE/u }),
+      within(inspector).getByRole('link', { name: /ella en RAE/u }),
     ).toHaveAttribute('href', 'https://dle.rae.es/ella')
     expect(within(inspector).getAllByText('ella')).toHaveLength(1)
-    await user.click(within(inspector).getByText('Revisar palabras · 4'))
     expect(
       within(inspector).getByRole('region', { name: 'Español' }),
     ).toBeVisible()
     expect(
       within(inspector).getByRole('region', { name: 'Gallego' }),
     ).toBeVisible()
+    const spanishWords = within(inspector).getByRole('list', {
+      name: 'Palabras en Español',
+    })
+    expect(getComputedStyle(spanishWords).overflowY).toBe('auto')
+    expect(getComputedStyle(spanishWords).maxHeight).toBe('192px')
+    expect(
+      getComputedStyle(spanishWords.parentElement?.parentElement as Element)
+        .gridTemplateColumns,
+    ).toBe('repeat(2, minmax(0, 1fr))')
+    expect(trigger).toHaveAttribute('aria-expanded', 'true')
   })
 })

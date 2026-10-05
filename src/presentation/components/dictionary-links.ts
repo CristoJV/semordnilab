@@ -13,23 +13,19 @@ export function dictionaryLinksForWord(
   if (!word) return []
   switch (language) {
     case 'es':
-      return [{ label: 'DLE · RAE', url: `https://dle.rae.es/${word}` }]
+      return [{ label: 'RAE (ES)', url: `https://dle.rae.es/${word}` }]
     case 'gl':
       return [
         {
-          label: 'Dicionario · RAG',
+          label: 'RAG (GL)',
           url: `https://academia.gal/dicionario/-/termo/${word}`,
         },
       ]
     case 'pt':
       return [
         {
-          label: 'Academia das Ciências',
+          label: 'AdC (PT)',
           url: `https://dicionario.acad-ciencias.pt/pesquisa/${word}/`,
-        },
-        {
-          label: 'Priberam',
-          url: `https://dicionario.priberam.org/${word}`,
         },
       ]
     default:

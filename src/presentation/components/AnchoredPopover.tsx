@@ -14,6 +14,7 @@ type AnchoredPopoverProps = {
   ariaLabel: string
   children: ReactNode
   className?: string
+  preferredWidth?: number
   onClose: () => void
 }
 
@@ -21,7 +22,10 @@ const VIEWPORT_MARGIN = 8
 const ANCHOR_GAP = 6
 const PREFERRED_WIDTH = 272
 
-function calculatePosition(anchor: HTMLElement | null): CSSProperties {
+function calculatePosition(
+  anchor: HTMLElement | null,
+  preferredWidth: number,
+): CSSProperties {
   const rect = anchor?.getBoundingClientRect()
   const viewport = window.visualViewport
   const viewportLeft = viewport?.offsetLeft ?? 0
@@ -29,7 +33,7 @@ function calculatePosition(anchor: HTMLElement | null): CSSProperties {
   const viewportWidth = viewport?.width ?? window.innerWidth
   const viewportHeight = viewport?.height ?? window.innerHeight
   const width = Math.min(
-    PREFERRED_WIDTH,
+    preferredWidth,
     Math.max(0, viewportWidth - VIEWPORT_MARGIN * 2),
   )
   const top = (rect?.bottom ?? viewportTop) + ANCHOR_GAP
@@ -57,6 +61,7 @@ export function AnchoredPopover({
   ariaLabel,
   children,
   className,
+  preferredWidth = PREFERRED_WIDTH,
   onClose,
 }: AnchoredPopoverProps) {
   const panelRef = useRef<HTMLDivElement>(null)
@@ -72,7 +77,7 @@ export function AnchoredPopover({
 
   useLayoutEffect(() => {
     const updatePosition = () =>
-      setPosition(calculatePosition(anchorRef.current))
+      setPosition(calculatePosition(anchorRef.current, preferredWidth))
     updatePosition()
     const viewport = window.visualViewport
     window.addEventListener('resize', updatePosition)
@@ -85,7 +90,7 @@ export function AnchoredPopover({
       viewport?.removeEventListener('resize', updatePosition)
       viewport?.removeEventListener('scroll', updatePosition)
     }
-  }, [anchorRef])
+  }, [anchorRef, preferredWidth])
 
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {

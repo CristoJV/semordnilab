@@ -13,7 +13,7 @@ La identidad de una palabra conserva diacríticos y letras propias de cada idiom
 
 Las decisiones léxicas tienen tres estados de trabajo: pendiente, verificada y excluida. Pendiente se deriva del vocabulario y no necesita persistencia; verificada y excluida se almacenan por idioma y clave exacta. Solo las excluidas eliminan semordnilaps del catálogo.
 
-La consulta de diccionarios se implementa mediante proveedores declarativos de enlaces profundos. La aplicación no extrae ni reproduce definiciones de terceros sin una API y licencia adecuadas. La acción de consulta es explícita y accesible; un doble clic puede ser un atajo, pero nunca la única vía.
+La consulta de diccionarios se implementa mediante proveedores declarativos de enlaces profundos. La interfaz los identifica de forma compacta como `RAE (ES)`, `RAG (GL)` y `AdC (PT)`; portugués utiliza únicamente el Diccionario de la Academia de Ciencias de Lisboa. La aplicación no extrae ni reproduce definiciones de terceros sin una API y licencia adecuadas. La acción de consulta es explícita y accesible; un doble clic puede ser un atajo, pero nunca la única vía.
 
 La revisión utiliza rutas hash propias, sin incorporar un router. `pending`, `verified` y `excluded` forman parte de la URL; abrir la revisión añade historial y cambiar de colección reemplaza la entrada actual. La activación de exclusiones se guarda por dataset dentro de las preferencias personales.
 

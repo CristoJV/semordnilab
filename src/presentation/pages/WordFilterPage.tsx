@@ -420,9 +420,7 @@ export function WordFilterPage({
                         aria-label={`Consultar ${word.displayWord} en ${link.label}`}
                         title={link.label}
                       >
-                        {dictionaryLinks.length > 1
-                          ? link.label
-                          : 'Diccionario'}
+                        {link.label}
                       </a>
                     ))}
                   </div>
