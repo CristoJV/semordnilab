@@ -16,6 +16,9 @@ type CatalogLanguageHeaderProps = {
   layout: ResponsiveLayout
   side: CatalogSide
   sort: CatalogSort
+  wordFilterCount: number
+  wordFilterActive: boolean
+  onToggleWordFilter: () => void
   onQueryChange: (query: string) => void
   onCycleSort: (field: CatalogSortField, side: CatalogSide) => void
   onSetSort: (
@@ -32,6 +35,9 @@ export function CatalogLanguageHeader({
   layout,
   side,
   sort,
+  wordFilterCount,
+  wordFilterActive,
+  onToggleWordFilter,
   onQueryChange,
   onCycleSort,
   onSetSort,
@@ -51,6 +57,20 @@ export function CatalogLanguageHeader({
           <span className={styles.results} aria-live="polite">
             {resultCount.toLocaleString('es-ES')}
           </span>
+          <button
+            className={styles.wordFilter}
+            type="button"
+            data-active={wordFilterActive}
+            aria-pressed={wordFilterActive}
+            aria-label={`${wordFilterActive ? 'Desactivar' : 'Activar'} filtro ${languageLabel}, ${wordFilterCount} ${wordFilterCount === 1 ? 'palabra' : 'palabras'}`}
+            title={`Filtro de palabras · ${wordFilterCount}`}
+            disabled={wordFilterCount === 0 && !wordFilterActive}
+            onClick={onToggleWordFilter}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 5h16l-6.2 7.1v5.2l-3.6 1.7v-6.9L4 5Z" />
+            </svg>
+          </button>
           <CatalogSortControl
             key={layout}
             languageLabel={languageLabel}

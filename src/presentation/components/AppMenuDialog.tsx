@@ -9,10 +9,12 @@ import type {
   PersonalDataImportPreview,
   PersonalDataSummary,
   PreviewPersonalDataImport,
+  SemordnilapTag,
 } from '@/application'
 import type { WorkspacePreferencesState } from '@/presentation/hooks/useWorkspacePreferences'
 
 import { ModalDialog } from './ModalDialog'
+import { TagIconGlyph } from './TagIconGlyph'
 import styles from './AppMenuDialog.module.css'
 
 type AppMenuUseCases = {
@@ -26,8 +28,13 @@ type AppMenuUseCases = {
 type AppMenuDialogProps = {
   useCases: AppMenuUseCases
   preferences: WorkspacePreferencesState
+  currentView: 'workspace' | 'word-filters' | 'tags'
+  tags: readonly SemordnilapTag[]
+  canNavigateWordFilters: boolean
   onClose: () => void
   onImported: () => void
+  onNavigateWorkspace: () => void
+  onNavigateWordFilters: () => void
   onManageTags: () => void
   onStartSelection?: () => void
 }
@@ -80,12 +87,16 @@ function Summary({ summary }: { summary: PersonalDataSummary }) {
 export function AppMenuDialog({
   useCases,
   preferences,
+  currentView,
+  tags,
+  canNavigateWordFilters,
   onClose,
   onImported,
+  onNavigateWorkspace,
+  onNavigateWordFilters,
   onManageTags,
   onStartSelection,
 }: AppMenuDialogProps) {
-  const [section, setSection] = useState<'data' | 'preferences'>('data')
   const [summary, setSummary] = useState<PersonalDataSummary | null>(null)
   const [content, setContent] = useState<string | null>(null)
   const [filename, setFilename] = useState('')
@@ -205,221 +216,232 @@ export function AppMenuDialog({
   }
 
   return (
-    <ModalDialog title="Menú" onClose={onClose} wide>
-      <nav className={styles.tabs} aria-label="Secciones del menú">
+    <ModalDialog title="Menú" onClose={onClose} drawer>
+      <nav className={styles.navigation} aria-label="Navegación principal">
         <button
           type="button"
-          data-active={section === 'data'}
-          onClick={() => setSection('data')}
+          data-active={currentView === 'workspace'}
+          aria-current={currentView === 'workspace' ? 'page' : undefined}
+          onClick={onNavigateWorkspace}
         >
-          Datos
+          Composición
         </button>
         <button
           type="button"
-          data-active={section === 'preferences'}
-          onClick={() => setSection('preferences')}
+          disabled={!canNavigateWordFilters}
+          data-active={currentView === 'word-filters'}
+          aria-current={currentView === 'word-filters' ? 'page' : undefined}
+          onClick={onNavigateWordFilters}
         >
-          Preferencias
+          Filtrado
         </button>
-        <button
-          type="button"
-          onClick={() => {
-            onClose()
-            onManageTags()
-          }}
-        >
-          Gestionar etiquetas
-        </button>
-        {onStartSelection && (
+        {onStartSelection && currentView === 'workspace' && (
           <button
+            className={styles.secondaryNavigation}
             type="button"
-            onClick={() => {
-              onClose()
-              onStartSelection()
-            }}
+            onClick={onStartSelection}
           >
             Seleccionar semordnilaps
           </button>
         )}
       </nav>
 
-      {section === 'data' ? (
-        <div className={styles.section}>
-          <div>
-            <h3>Almacenamiento local</h3>
-            <p>
-              La copia incluye estados, composites, borradores, etiquetas y
-              preferencias. Los TSV incluidos no se duplican.
-            </p>
-            {summary && <Summary summary={summary} />}
-          </div>
-
-          <div className={styles.dataActions}>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => void exportBackup()}
-            >
-              Exportar copia
-            </button>
-            <label className={styles.fileButton}>
-              <span>Seleccionar copia para importar</span>
-              <input
-                type="file"
-                accept="application/json,.json"
-                disabled={busy}
-                onChange={(event) => void readFile(event)}
-              />
-            </label>
-          </div>
-
-          {content && (
-            <div className={styles.importPanel}>
-              <h3>Importar {filename}</h3>
-              <fieldset disabled={busy}>
-                <legend>Cómo combinar la copia</legend>
-                <label>
-                  <input
-                    type="radio"
-                    name="import-mode"
-                    checked={options.mode === 'merge'}
-                    onChange={() =>
-                      setOptions((current) => ({ ...current, mode: 'merge' }))
-                    }
-                  />
-                  Combinar con los datos actuales
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="import-mode"
-                    checked={options.mode === 'replace'}
-                    onChange={() =>
-                      setOptions((current) => ({ ...current, mode: 'replace' }))
-                    }
-                  />
-                  Sustituir todos los datos actuales
-                </label>
-                {preview &&
-                  preview.draftConflicts > 0 &&
-                  options.mode === 'merge' && (
-                    <label>
-                      Borradores con conflicto
-                      <select
-                        value={options.draftConflicts}
-                        onChange={(event) =>
-                          setOptions((current) => ({
-                            ...current,
-                            draftConflicts: event.target.value as
-                              'keep-current' | 'use-imported',
-                          }))
-                        }
-                      >
-                        <option value="keep-current">
-                          Conservar los actuales
-                        </option>
-                        <option value="use-imported">
-                          Usar los importados
-                        </option>
-                      </select>
-                    </label>
-                  )}
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={options.importPreferences}
-                    onChange={(event) =>
-                      setOptions((current) => ({
-                        ...current,
-                        importPreferences: event.target.checked,
-                      }))
-                    }
-                  />
-                  Importar también las preferencias
-                </label>
-              </fieldset>
-              {preview && (
-                <>
-                  <p className={styles.previewDate}>
-                    Copia del{' '}
-                    {new Date(preview.backup.exportedAt).toLocaleString(
-                      'es-ES',
-                    )}
-                  </p>
-                  <h4>Contenido de la copia</h4>
-                  <Summary summary={preview.imported} />
-                  <h4>Resultado previsto</h4>
-                  <Summary summary={preview.resulting} />
-                  {(preview.duplicateComposites > 0 ||
-                    preview.draftConflicts > 0) && (
-                    <p>
-                      {preview.duplicateComposites} composites ya existentes y{' '}
-                      {preview.draftConflicts} borradores con conflicto.
-                    </p>
-                  )}
-                  <button
-                    className={styles.importButton}
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void importBackup()}
-                  >
-                    Confirmar importación
-                  </button>
-                </>
-              )}
-              {busy && !preview && <p role="status">Validando copia...</p>}
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className={styles.section}>
-          <div>
-            <h3>Recordar la vista</h3>
-            <label className={styles.preference}>
-              <span>
-                <strong>Filtros y ordenación por dataset</strong>
-                <small>
-                  Recupera búsquedas, vista activa y criterios de ordenación.
-                </small>
-              </span>
-              <input
-                type="checkbox"
-                checked={preferences.preferences.rememberCatalogView}
-                onChange={(event) =>
-                  preferences.setRememberCatalogView(event.target.checked)
-                }
-              />
-            </label>
-            <label className={styles.preference}>
-              <span>
-                <strong>Estado del área de composición</strong>
-                <small>Recuerda si el área está plegada.</small>
-              </span>
-              <input
-                type="checkbox"
-                checked={preferences.preferences.rememberCompositionCollapsed}
-                onChange={(event) =>
-                  preferences.setRememberCompositionCollapsed(
-                    event.target.checked,
-                  )
-                }
-              />
-            </label>
-          </div>
+      <section className={styles.menuSection} aria-labelledby="menu-data-title">
+        <h3 id="menu-data-title">Datos</h3>
+        <p>
+          Estados, composites, borradores, etiquetas y preferencias guardados
+          localmente.
+        </p>
+        {summary && <Summary summary={summary} />}
+        <div className={styles.dataActions}>
           <button
-            className={styles.reset}
             type="button"
-            onClick={preferences.resetViewPreferences}
+            disabled={busy}
+            onClick={() => void exportBackup()}
           >
-            Restablecer preferencias de vista
+            Exportar
           </button>
-          {preferences.errorMessage && (
-            <p className={styles.error} role="alert">
-              {preferences.errorMessage}
-            </p>
-          )}
+          <label className={styles.fileButton}>
+            <span>Importar</span>
+            <input
+              type="file"
+              accept="application/json,.json"
+              disabled={busy}
+              aria-label="Importar copia"
+              onChange={(event) => void readFile(event)}
+            />
+          </label>
         </div>
-      )}
+
+        {content && (
+          <div className={styles.importPanel}>
+            <h3>Importar {filename}</h3>
+            <fieldset disabled={busy}>
+              <legend>Cómo combinar la copia</legend>
+              <label>
+                <input
+                  type="radio"
+                  name="import-mode"
+                  checked={options.mode === 'merge'}
+                  onChange={() =>
+                    setOptions((current) => ({ ...current, mode: 'merge' }))
+                  }
+                />
+                Combinar con los datos actuales
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="import-mode"
+                  checked={options.mode === 'replace'}
+                  onChange={() =>
+                    setOptions((current) => ({ ...current, mode: 'replace' }))
+                  }
+                />
+                Sustituir todos los datos actuales
+              </label>
+              {preview &&
+                preview.draftConflicts > 0 &&
+                options.mode === 'merge' && (
+                  <label>
+                    Borradores con conflicto
+                    <select
+                      value={options.draftConflicts}
+                      onChange={(event) =>
+                        setOptions((current) => ({
+                          ...current,
+                          draftConflicts: event.target.value as
+                            'keep-current' | 'use-imported',
+                        }))
+                      }
+                    >
+                      <option value="keep-current">
+                        Conservar los actuales
+                      </option>
+                      <option value="use-imported">Usar los importados</option>
+                    </select>
+                  </label>
+                )}
+              <label>
+                <input
+                  type="checkbox"
+                  checked={options.importPreferences}
+                  onChange={(event) =>
+                    setOptions((current) => ({
+                      ...current,
+                      importPreferences: event.target.checked,
+                    }))
+                  }
+                />
+                Importar también las preferencias
+              </label>
+            </fieldset>
+            {preview && (
+              <>
+                <p className={styles.previewDate}>
+                  Copia del{' '}
+                  {new Date(preview.backup.exportedAt).toLocaleString('es-ES')}
+                </p>
+                <h4>Contenido de la copia</h4>
+                <Summary summary={preview.imported} />
+                <h4>Resultado previsto</h4>
+                <Summary summary={preview.resulting} />
+                {(preview.duplicateComposites > 0 ||
+                  preview.draftConflicts > 0) && (
+                  <p>
+                    {preview.duplicateComposites} composites ya existentes y{' '}
+                    {preview.draftConflicts} borradores con conflicto.
+                  </p>
+                )}
+                <button
+                  className={styles.importButton}
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void importBackup()}
+                >
+                  Confirmar importación
+                </button>
+              </>
+            )}
+            {busy && !preview && <p role="status">Validando copia...</p>}
+          </div>
+        )}
+      </section>
+
+      <section
+        className={styles.menuSection}
+        aria-labelledby="menu-preferences-title"
+      >
+        <h3 id="menu-preferences-title">Preferencias</h3>
+        <label className={styles.preference}>
+          <span>
+            <strong>Filtros y ordenación por dataset</strong>
+            <small>Recupera la vista de cada colección.</small>
+          </span>
+          <input
+            type="checkbox"
+            checked={preferences.preferences.rememberCatalogView}
+            onChange={(event) =>
+              preferences.setRememberCatalogView(event.target.checked)
+            }
+          />
+        </label>
+        <label className={styles.preference}>
+          <span>
+            <strong>Estado de composición</strong>
+            <small>Recuerda si el área está plegada.</small>
+          </span>
+          <input
+            type="checkbox"
+            checked={preferences.preferences.rememberCompositionCollapsed}
+            onChange={(event) =>
+              preferences.setRememberCompositionCollapsed(event.target.checked)
+            }
+          />
+        </label>
+        <button
+          className={styles.reset}
+          type="button"
+          onClick={preferences.resetViewPreferences}
+        >
+          Restablecer preferencias
+        </button>
+        {preferences.errorMessage && (
+          <p className={styles.error} role="alert">
+            {preferences.errorMessage}
+          </p>
+        )}
+      </section>
+
+      <section className={styles.menuSection} aria-labelledby="menu-tags-title">
+        <div className={styles.sectionHeading}>
+          <h3 id="menu-tags-title">Etiquetas</h3>
+          <button type="button" onClick={onManageTags}>
+            Gestionar
+          </button>
+        </div>
+        {tags.length === 0 ? (
+          <p>Todavía no hay etiquetas.</p>
+        ) : (
+          <ul className={styles.tagList}>
+            {tags.map((tag) => (
+              <li key={tag.id}>
+                <TagIconGlyph icon={tag.icon} color={tag.color} />
+                <span>{tag.name}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section
+        className={styles.menuSection}
+        aria-labelledby="menu-about-title"
+      >
+        <h3 id="menu-about-title">About</h3>
+        <p>SemordniLAB ayuda a explorar, componer y revisar semordnilaps.</p>
+      </section>
+
       {message && (
         <p className={styles.message} role="status">
           {message}

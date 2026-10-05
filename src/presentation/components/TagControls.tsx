@@ -128,13 +128,19 @@ export function TagFilterMenu({
           type="button"
           aria-expanded={compactOpen}
           aria-haspopup="dialog"
+          aria-label="Etiquetas"
+          title="Etiquetas"
+          data-active={selectedTagIds.size > 0}
           onClick={() => {
             if (!compactOpen) setDraftTagIds(new Set(selectedTagIds))
             setCompactOpen((current) => !current)
           }}
         >
-          Etiquetas
-          {selectedTagIds.size > 0 && <span>{selectedTagIds.size}</span>}
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 5v6l8 8 7-7-8-8H5a1 1 0 0 1-1-1V5Z" />
+            <circle cx="8" cy="8" r="1" />
+          </svg>
+          <span className={styles.visuallyHidden}>Etiquetas</span>
         </button>
         {compactOpen && (
           <AnchoredPopover
@@ -158,9 +164,16 @@ export function TagFilterMenu({
         if (event.currentTarget.open) setDraftTagIds(new Set(selectedTagIds))
       }}
     >
-      <summary>
-        Etiquetas
-        {selectedTagIds.size > 0 && <span>{selectedTagIds.size}</span>}
+      <summary
+        aria-label="Etiquetas"
+        title="Etiquetas"
+        data-active={selectedTagIds.size > 0}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 5v6l8 8 7-7-8-8H5a1 1 0 0 1-1-1V5Z" />
+          <circle cx="8" cy="8" r="1" />
+        </svg>
+        <span className={styles.visuallyHidden}>Etiquetas</span>
       </summary>
       <div className={styles.panel}>{panelContent}</div>
     </details>

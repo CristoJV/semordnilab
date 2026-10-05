@@ -39,6 +39,7 @@ type CompositionWorkspaceProps = {
   initialCollapsed: boolean
   onCollapsedChange: (collapsed: boolean) => void
   onDiscardIncompatibleDraft: () => Promise<void>
+  canSaveComposite: boolean
   onSave: (title?: string) => Promise<SaveCompositeSemordnilapResult>
   onNotify: Notify
 }
@@ -64,6 +65,7 @@ export function CompositionWorkspace({
   initialCollapsed,
   onCollapsedChange,
   onDiscardIncompatibleDraft,
+  canSaveComposite,
   onSave,
   onNotify,
 }: CompositionWorkspaceProps) {
@@ -186,7 +188,7 @@ export function CompositionWorkspace({
           canUndo={canUndo}
           canRedo={canRedo}
           hasComponents={components.length > 0}
-          canSave={snapshot.isComposite}
+          canSave={canSaveComposite}
           saving={saving}
           onToggleCollapsed={toggleCollapsed}
           onUndo={onUndo}

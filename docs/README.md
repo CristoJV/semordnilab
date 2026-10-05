@@ -18,14 +18,16 @@ Esta carpeta reúne la documentación funcional y técnica del proyecto. Su prop
 - [ADR 0010: gestión compacta de composites](adr/0010-compact-composite-management.md): resumen estructural, confirmación segura y política de dependencias.
 - [ADR 0011: filtros personales de palabras](adr/0011-language-word-filters.md): vocabulario por idioma, coincidencia por token, persistencia y navegación de revisión.
 - [ADR 0012: revisión léxica y calidad](adr/0012-lexical-review-and-quality.md): identidad exacta, estados de revisión, diccionarios y señales de calidad.
+- [ADR 0013: navegación lateral y controles compactos](adr/0013-compact-navigation-and-controls.md): drawer derecho, acciones estables y gestión de etiquetas como pantalla.
 - [Plan 0011: filtros de palabras por idioma](plans/0011-language-word-filters.md): fases y verificación de la implementación.
 - [Plan 0012: revisión léxica y calidad](plans/0012-lexical-review-quality-workflow.md): implementación por fases del flujo de revisión y asistencia.
+- [Plan 0013: navegación y controles compactos](plans/0013-compact-navigation-and-controls.md): compactación del espacio y consolidación de la navegación.
 
 ## Estado del proyecto
 
 Semordnilab está en una fase inicial funcional. La aplicación permite explorar tres colecciones lingüísticas, mantiene alineados los dos lados de cada semordnilap y ofrece búsqueda, descubrimiento, ordenación, favoritos, descarte y filtros personales de palabras por idioma. El espacio de trabajo admite inserción y reordenación directa, historial de cambios y composites anidados. La misma pantalla se adapta a escritorio y móvil con controles táctiles, selector compacto y diálogos que respetan el área segura del dispositivo.
 
-Los estados del catálogo, las etiquetas, los filtros de palabras, los borradores, los composites y las preferencias se conservan en IndexedDB. El menú superior permite exportar e importar estos datos mediante una copia versionada. La vista de revisión también permite exportar directamente el backup. La importación de colecciones lingüísticas externas todavía no está disponible: la importación actual restaura únicamente los datos personales generados por la aplicación.
+Los estados del catálogo, las etiquetas, los filtros de palabras, los borradores, los composites y las preferencias se conservan en IndexedDB. El drawer derecho permite navegar y exportar o importar estos datos mediante una copia versionada. La vista de revisión también permite exportar directamente el backup. La importación de colecciones lingüísticas externas todavía no está disponible: la importación actual restaura únicamente los datos personales generados por la aplicación.
 
 La aplicación se verifica mediante pruebas de dominio, aplicación, infraestructura y presentación, además de comprobaciones de formato, lint, tipos y construcción. El flujo de integración continua publica la versión de `main` en GitHub Pages cuando todas las comprobaciones finalizan correctamente.
 

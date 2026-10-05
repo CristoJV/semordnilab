@@ -17,7 +17,7 @@ La consulta de diccionarios se implementa mediante proveedores declarativos de e
 
 La revisión utiliza rutas hash propias, sin incorporar un router. `pending`, `verified` y `excluded` forman parte de la URL; abrir la revisión añade historial y cambiar de colección reemplaza la entrada actual. La activación de exclusiones se guarda por dataset dentro de las preferencias personales.
 
-Los metadatos existentes de frecuencia, tamaño del n-grama y puntuación de pareja se consideran señales de calidad del catálogo. Se exponen como filtros y ordenaciones sin alterar el dataset original.
+Los metadatos existentes de frecuencia, tamaño del n-grama y puntuación de pareja se consideran señales de calidad del catálogo. Se utilizan para ordenar sin alterar el dataset original. La política de filtrado reversible se conserva, pero su control explícito se retira provisionalmente de la barra para priorizar espacio.
 
 Los filtros de calidad son efímeros y reversibles. Los composites no tienen estos metadatos, por lo que permanecen visibles y se ordenan después de los resultados medibles. La vista `Guardados` continúa siendo la biblioteca canónica: busca tanto expresiones como títulos y permite insertar o abrir cada composite. La composición incorpora un inspector derivado, sin persistencia adicional, que enumera palabras únicas de ambos resultados.
 
@@ -30,5 +30,5 @@ Los filtros de calidad son efímeros y reversibles. Los composites no tienen est
 - Los diccionarios permanecen como recursos externos reemplazables y no contaminan dominio ni persistencia.
 - Los enlaces directos sustituyen al doble clic como vía principal: son descubribles, compatibles con teclado y no dependen de temporización táctil.
 - La calidad es una proyección reversible: no reescribe frecuencias, puntuaciones ni expresiones.
-- La barra del catálogo cuantifica el impacto de las exclusiones activas antes de aplicar búsquedas o vistas.
+- La activación de exclusiones se controla localmente en la cabecera de cada idioma, junto a su contador.
 - El inspector y la revisión comparten la misma política declarativa de proveedores de diccionario.

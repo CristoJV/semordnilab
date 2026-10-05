@@ -25,6 +25,8 @@ describe('ruta del espacio de trabajo', () => {
     expect(parseWorkspaceHash('')).toEqual({ view: 'workspace' })
     expect(parseWorkspaceHash('#/words/other')).toEqual({ view: 'workspace' })
     expect(workspaceHashFor({ view: 'workspace' })).toBe('#/')
+    expect(parseWorkspaceHash('#/tags')).toEqual({ view: 'tags' })
+    expect(workspaceHashFor({ view: 'tags' })).toBe('#/tags')
     expect(workspaceHashFor({ view: 'word-filters', mode: 'verified' })).toBe(
       '#/words/verified',
     )

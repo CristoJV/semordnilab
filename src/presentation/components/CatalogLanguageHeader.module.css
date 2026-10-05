@@ -63,6 +63,49 @@
   font-weight: 800;
 }
 
+.wordFilter {
+  display: grid;
+  width: 2.2rem;
+  height: 2.2rem;
+  padding: 0.5rem;
+  color: color-mix(in srgb, var(--color-violet) 52%, var(--color-text-muted));
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  place-items: center;
+}
+
+.wordFilter svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.wordFilter[data-active='true'] {
+  color: var(--color-violet-strong);
+  background: var(--color-violet-soft);
+}
+
+.wordFilter:hover:not(:disabled) {
+  color: var(--color-violet-strong);
+  background: color-mix(in srgb, var(--color-violet-soft) 65%, transparent);
+}
+
+.wordFilter:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-violet) 35%, transparent);
+  outline-offset: 1px;
+}
+
+.wordFilter:disabled {
+  cursor: default;
+  opacity: 0.32;
+}
+
 .search {
   position: relative;
   display: flex;
@@ -135,6 +178,12 @@
 
   .results {
     font-size: 0.68rem;
+  }
+
+  .wordFilter {
+    width: 2rem;
+    height: 2rem;
+    padding: 0.45rem;
   }
 
   .search input {

@@ -196,7 +196,12 @@ describe('WorkspacePage', () => {
     render(<WorkspacePage dependencies={dependencies} />)
 
     await screen.findByRole('region', { name: 'Catálogo bilingüe' })
-    await user.click(screen.getByRole('button', { name: 'Filtrar palabras' }))
+    await user.click(screen.getByRole('button', { name: 'Menú' }))
+    await user.click(
+      within(screen.getByRole('dialog', { name: 'Menú' })).getByRole('button', {
+        name: 'Filtrado',
+      }),
+    )
     expect(window.location.hash).toBe('#/words/pending')
 
     expect(
@@ -247,7 +252,12 @@ describe('WorkspacePage', () => {
       dependencies.personalDataFileGateway.downloadText,
     ).toHaveBeenCalledTimes(1)
 
-    await user.click(screen.getByRole('button', { name: 'Volver a componer' }))
+    await user.click(screen.getByRole('button', { name: 'Menú' }))
+    await user.click(
+      within(screen.getByRole('dialog', { name: 'Menú' })).getByRole('button', {
+        name: 'Composición',
+      }),
+    )
     expect(
       await screen.findByRole('region', { name: 'Catálogo bilingüe' }),
     ).toBeInTheDocument()
@@ -290,7 +300,6 @@ describe('WorkspacePage', () => {
         name: 'Añadir ella a la composición',
       }),
     ).not.toBeInTheDocument()
-    expect(within(catalog).getByText('1 resultado oculto')).toBeInTheDocument()
     expect(
       within(catalog).getByRole('button', {
         name: 'Añadir no se a la composición',
@@ -307,9 +316,6 @@ describe('WorkspacePage', () => {
         name: 'Añadir no se a la composición',
       }),
     ).not.toBeInTheDocument()
-    expect(
-      within(catalog).getByText('2 resultados ocultos'),
-    ).toBeInTheDocument()
 
     await user.click(
       within(catalog).getByRole('button', {
@@ -343,9 +349,7 @@ describe('WorkspacePage', () => {
     expect(
       await screen.findByRole('heading', { name: 'Palabras verificadas' }),
     ).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: 'Volver a componer' }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Menú' })).toBeInTheDocument()
   })
 
   it('ofrece los controles esenciales en la disposición móvil', async () => {
@@ -394,16 +398,22 @@ describe('WorkspacePage', () => {
     })
     const headingMeta = spanishHeading.parentElement?.nextElementSibling
     expect(headingMeta?.children[0]).toHaveTextContent('2')
-    expect(headingMeta?.children[1]).toHaveAccessibleName('Ordenar Español')
+    expect(headingMeta?.children[1]).toHaveAccessibleName(
+      'Activar filtro Español, 0 palabras',
+    )
+    expect(headingMeta?.children[2]).toHaveAccessibleName('Ordenar Español')
     const viewNavigation = within(catalog).getByRole('navigation', {
       name: 'Vistas del catálogo',
     })
     expect(
       within(viewNavigation)
         .getAllByRole('button')
-        .map((button) => button.textContent?.trim()),
+        .map((button) => button.getAttribute('aria-label')),
     ).toEqual(['Todos 2', 'Guardados 0', 'Favoritos 0', 'Descartados 0'])
-    expect(viewNavigation.nextElementSibling).toHaveTextContent('Etiquetas')
+    expect(
+      within(catalog).getByRole('button', { name: 'Etiquetas' }),
+    ).toContainHTML('svg')
+    expect(within(catalog).queryByText('Calidad')).not.toBeInTheDocument()
     expect(
       within(catalog).getByRole('searchbox', { name: 'Buscar en Español' }),
     ).toHaveAttribute('placeholder', 'Buscar')
@@ -431,15 +441,22 @@ describe('WorkspacePage', () => {
     )
     expect(sourceSearch).toHaveValue('')
 
+    const clearComposition = screen.getByRole('button', { name: 'Vaciar' })
+    const saveComposition = screen.getByRole('button', {
+      name: 'Guardar composite',
+    })
+    expect(clearComposition).toBeDisabled()
+    expect(saveComposition).toBeDisabled()
+
     await user.click(
       within(catalog).getByRole('button', {
         name: 'Añadir ella a la composición',
       }),
     )
-    expect(screen.getByRole('button', { name: 'Vaciar' })).toContainHTML('svg')
-    expect(
-      screen.getByRole('button', { name: 'Guardar composite' }),
-    ).toContainHTML('svg')
+    expect(clearComposition).toBeEnabled()
+    expect(clearComposition).toContainHTML('svg')
+    expect(saveComposition).toBeDisabled()
+    expect(saveComposition).toContainHTML('svg')
     const persistenceStatus = await screen.findByText(
       'Borrador guardado localmente',
     )
@@ -750,13 +767,20 @@ describe('WorkspacePage', () => {
     render(<WorkspacePage dependencies={createDependencies()} />)
 
     await user.click(screen.getByRole('button', { name: 'Menú' }))
+    const menu = screen.getByRole('dialog', { name: 'Menú' })
     await user.click(
-      screen.getByRole('button', { name: 'Gestionar etiquetas' }),
+      within(within(menu).getByRole('region', { name: 'Etiquetas' })).getByRole(
+        'button',
+        { name: 'Gestionar' },
+      ),
     )
 
     expect(
-      screen.getByRole('dialog', { name: 'Gestionar etiquetas' }),
+      screen.getByRole('heading', { name: 'Gestionar etiquetas', level: 1 }),
     ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('dialog', { name: 'Gestionar etiquetas' }),
+    ).not.toBeInTheDocument()
     expect(
       screen.queryByRole('dialog', { name: 'Menú' }),
     ).not.toBeInTheDocument()
@@ -769,28 +793,32 @@ describe('WorkspacePage', () => {
       screen.getByLabelText('Conjunto lingüístico'),
       testDataset.id,
     )
-    const catalog = await screen.findByRole('region', {
+    let catalog = await screen.findByRole('region', {
       name: 'Catálogo bilingüe',
     })
 
-    await user.click(
-      within(catalog).getByText('Etiquetas', { selector: 'summary' }),
-    )
+    await user.click(within(catalog).getByLabelText('Etiquetas'))
     await user.click(within(catalog).getByRole('button', { name: 'Gestionar' }))
-    const dialog = screen.getByRole('dialog', { name: 'Gestionar etiquetas' })
+    const tagPage = screen.getByRole('main')
     await user.click(
-      within(dialog).getByRole('button', { name: 'Nueva etiqueta' }),
+      within(tagPage).getByRole('button', { name: 'Nueva etiqueta' }),
     )
-    await user.type(within(dialog).getByLabelText('Nombre'), 'Curioso')
-    await user.click(within(dialog).getByRole('button', { name: 'Verde' }))
-    await user.click(within(dialog).getByRole('button', { name: 'Estrella' }))
+    await user.type(within(tagPage).getByLabelText('Nombre'), 'Curioso')
+    await user.click(within(tagPage).getByRole('button', { name: 'Verde' }))
+    await user.click(within(tagPage).getByRole('button', { name: 'Estrella' }))
     await user.click(
-      within(dialog).getByRole('button', { name: 'Crear etiqueta' }),
+      within(tagPage).getByRole('button', { name: 'Crear etiqueta' }),
     )
-    expect(await within(dialog).findByText('Curioso')).toBeInTheDocument()
+    expect(await within(tagPage).findByText('Curioso')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Menú' }))
     await user.click(
-      within(dialog).getByRole('button', { name: 'Cerrar diálogo' }),
+      within(screen.getByRole('dialog', { name: 'Menú' })).getByRole('button', {
+        name: 'Composición',
+      }),
     )
+    catalog = await screen.findByRole('region', {
+      name: 'Catálogo bilingüe',
+    })
 
     await user.click(
       within(catalog).getByRole('button', { name: 'Seleccionar' }),
@@ -834,9 +862,7 @@ describe('WorkspacePage', () => {
       within(catalog).getByRole('button', { name: 'Cerrar selección' }),
     )
 
-    const filterToggle = within(catalog).getByText('Etiquetas', {
-      selector: 'summary',
-    })
+    const filterToggle = within(catalog).getByLabelText('Etiquetas')
     await user.click(filterToggle)
     await user.click(within(catalog).getByRole('checkbox', { name: 'Curioso' }))
     expect(
@@ -896,7 +922,7 @@ describe('WorkspacePage', () => {
     expect(getComputedStyle(catalogFrame as Element).maxWidth).toBe('100%')
     expect(getComputedStyle(catalog as Element).maxWidth).toBe('100%')
     expect(getComputedStyle(catalogToolbar as Element).flexWrap).toBe('wrap')
-    expect(getComputedStyle(viewNavigation).flexWrap).toBe('wrap')
+    expect(getComputedStyle(viewNavigation).flexWrap).toBe('nowrap')
     expect(getComputedStyle(pairedHeaders as Element).gridTemplateColumns).toBe(
       'repeat(2, minmax(0, 1fr))',
     )
@@ -1188,10 +1214,9 @@ describe('WorkspacePage', () => {
     await user.click(within(catalog).getByRole('button', { name: /Todos 3/ }))
     expect(within(catalog).getAllByRole('listitem')).toHaveLength(3)
 
-    await user.click(screen.getByRole('button', { name: 'Guardar composite' }))
     expect(
-      await screen.findByText('Esta composición ya estaba guardada.'),
-    ).toBeInTheDocument()
+      screen.getByRole('button', { name: 'Guardar composite' }),
+    ).toBeDisabled()
     expect(within(catalog).getAllByRole('listitem')).toHaveLength(3)
   })
 
@@ -1849,16 +1874,29 @@ describe('WorkspacePage', () => {
     const user = userEvent.setup()
     render(<WorkspacePage dependencies={dependencies} />)
 
-    await user.click(screen.getByRole('button', { name: 'Menú' }))
+    const menuButton = screen.getByRole('button', { name: 'Menú' })
+    expect(menuButton).toHaveTextContent('')
+    expect(screen.queryByRole('button', { name: 'Filtrar' })).toBeNull()
+    await user.click(menuButton)
     const dialog = screen.getByRole('dialog', { name: 'Menú' })
-    await user.click(
-      within(dialog).getByRole('button', { name: 'Exportar copia' }),
-    )
+    expect(dialog).toHaveAttribute('data-drawer', 'true')
+    expect(
+      within(dialog)
+        .getAllByRole('heading')
+        .map((heading) => heading.textContent),
+    ).toEqual(['Menú', 'Datos', 'Preferencias', 'Etiquetas', 'About'])
+    expect(
+      within(
+        within(dialog).getByRole('navigation', {
+          name: 'Navegación principal',
+        }),
+      )
+        .getAllByRole('button')
+        .map((button) => button.textContent),
+    ).toEqual(['Composición', 'Filtrado'])
+    await user.click(within(dialog).getByRole('button', { name: 'Exportar' }))
     await waitFor(() => expect(download).toHaveBeenCalledOnce())
 
-    await user.click(
-      within(dialog).getByRole('button', { name: 'Preferencias' }),
-    )
     await user.click(
       within(dialog).getByRole('checkbox', {
         name: /Filtros y ordenación por dataset/,
@@ -1883,9 +1921,7 @@ describe('WorkspacePage', () => {
 
     await user.click(screen.getByRole('button', { name: 'Menú' }))
     const dialog = screen.getByRole('dialog', { name: 'Menú' })
-    const fileInput = within(dialog).getByLabelText(
-      'Seleccionar copia para importar',
-    )
+    const fileInput = within(dialog).getByLabelText('Importar copia')
     await user.upload(
       fileInput,
       new File(['{}'], 'copia.json', { type: 'application/json' }),

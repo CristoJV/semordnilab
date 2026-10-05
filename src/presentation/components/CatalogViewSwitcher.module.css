@@ -1,7 +1,6 @@
 .views {
   display: flex;
-  flex: 0 1 auto;
-  flex-wrap: wrap;
+  flex: 0 0 auto;
   gap: 0.25rem;
   align-items: center;
   max-width: 100%;
@@ -14,35 +13,43 @@
   border-color: var(--color-violet);
 }
 
-.views button span {
-  margin-left: 0.15rem;
-  opacity: 0.72;
+.views button {
+  display: inline-grid;
+  min-width: 2.4rem;
+  min-height: 2.25rem;
+  padding-inline: 0.55rem;
+  place-items: center;
+}
+
+.views svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.allLabel {
+  margin: 0;
+  opacity: 1;
 }
 
 @media (max-width: 560px) {
   .views {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    flex: 1 1 100%;
-    width: 100%;
+    flex: 0 0 auto;
   }
 
   .views button {
-    width: 100%;
-    min-width: 0;
-    padding-inline: 0.35rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    width: 2.75rem;
+    min-width: 2.75rem;
+    padding: 0.65rem;
   }
 
-  .views button span {
-    display: none;
-  }
-}
-
-@media (max-width: 480px) {
-  .views {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .views button:first-child {
+    width: auto;
+    min-width: 3.7rem;
+    padding-inline: 0.65rem;
   }
 }

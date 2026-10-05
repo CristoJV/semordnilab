@@ -111,3 +111,58 @@
     border-radius: 1rem;
   }
 }
+
+.backdrop[data-drawer='true'] {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0;
+  overflow: hidden;
+  animation: drawer-backdrop-in 160ms var(--motion-easing) both;
+}
+
+.dialog[data-drawer='true'],
+.dialog[data-drawer='true'][data-wide='true'] {
+  width: min(25rem, 92vw);
+  height: 100dvh;
+  max-height: 100dvh;
+  border-width: 0 0 0 1px;
+  border-radius: 1rem 0 0 1rem;
+  animation: drawer-in 220ms var(--motion-easing) both;
+}
+
+.dialog[data-drawer='true'] .content {
+  max-height: calc(100dvh - 3.8rem);
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes drawer-backdrop-in {
+  from {
+    background: rgb(30 25 38 / 0%);
+    backdrop-filter: blur(0);
+  }
+}
+
+@media (max-width: 560px) {
+  .dialog[data-drawer='true'],
+  .dialog[data-drawer='true'][data-wide='true'] {
+    width: min(22rem, 92vw);
+    border-radius: 0.9rem 0 0 0.9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop[data-drawer='true'],
+  .dialog[data-drawer='true'] {
+    animation: none;
+  }
+}

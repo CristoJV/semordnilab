@@ -70,38 +70,37 @@ export function CompositionToolbar({
         </svg>
         <span>Rehacer</span>
       </button>
-      {hasComponents && (
-        <button
-          className={styles.save}
-          type="button"
-          disabled={!canSave || saving}
-          aria-label={saving ? 'Guardando composite' : 'Guardar composite'}
-          title={
-            canSave
-              ? 'Guardar composite'
+      <button
+        className={styles.save}
+        type="button"
+        disabled={!canSave || saving}
+        aria-label={saving ? 'Guardando composite' : 'Guardar composite'}
+        title={
+          canSave
+            ? 'Guardar composite'
+            : hasComponents
+              ? 'Esta composición no se puede guardar o ya está guardada'
               : 'Añade al menos dos componentes para guardar'
-          }
-          onClick={onSave}
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M5 4h12l2 2v14H5V4Zm3 0v6h8V4M8 20v-6h8v6" />
-          </svg>
-          <span>{saving ? 'Guardando...' : 'Guardar'}</span>
-        </button>
-      )}
-      {hasComponents && (
-        <button
-          className={styles.clear}
-          type="button"
-          aria-label="Vaciar"
-          onClick={onClear}
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5" />
-          </svg>
-          <span>Vaciar</span>
-        </button>
-      )}
+        }
+        onClick={onSave}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 4h12l2 2v14H5V4Zm3 0v6h8V4M8 20v-6h8v6" />
+        </svg>
+        <span>{saving ? 'Guardando...' : 'Guardar'}</span>
+      </button>
+      <button
+        className={styles.clear}
+        type="button"
+        disabled={!hasComponents}
+        aria-label="Vaciar"
+        onClick={onClear}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5" />
+        </svg>
+        <span>Vaciar</span>
+      </button>
     </div>
   )
 }

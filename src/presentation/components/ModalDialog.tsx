@@ -9,6 +9,7 @@ type ModalDialogProps = {
   children: ReactNode
   wide?: boolean
   centered?: boolean
+  drawer?: boolean
 }
 
 export function ModalDialog({
@@ -17,6 +18,7 @@ export function ModalDialog({
   children,
   wide = false,
   centered = false,
+  drawer = false,
 }: ModalDialogProps) {
   const titleId = useId()
   const closeButton = useRef<HTMLButtonElement>(null)
@@ -58,6 +60,7 @@ export function ModalDialog({
     <div
       className={styles.backdrop}
       data-centered={centered}
+      data-drawer={drawer}
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onCloseRef.current()
@@ -67,6 +70,7 @@ export function ModalDialog({
         ref={dialog}
         className={styles.dialog}
         data-wide={wide}
+        data-drawer={drawer}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}

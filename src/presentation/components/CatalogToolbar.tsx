@@ -4,8 +4,6 @@ import type { ResponsiveLayout } from '@/presentation/responsive/useResponsiveLa
 import styles from './PairedSemordnilapCatalog.module.css'
 import { CatalogViewSwitcher } from './CatalogViewSwitcher'
 import { TagFilterMenu } from './TagControls'
-import { CatalogQualityControl } from './CatalogQualityControl'
-import type { CatalogQualityFilters } from './catalog-items-view'
 
 type CatalogToolbarProps = {
   layout: ResponsiveLayout
@@ -27,18 +25,6 @@ type CatalogToolbarProps = {
   onSelect: () => void
   onReset: () => void
   onRestoreAll: () => void
-  wordFilterOptions: readonly {
-    code: string
-    label: string
-    count: number
-    active: boolean
-  }[]
-  onToggleWordFilter: (language: string) => void
-  qualityFilters: CatalogQualityFilters
-  sourceLanguage: string
-  targetLanguage: string
-  wordFilterHiddenCount: number
-  onQualityFiltersChange: (filters: CatalogQualityFilters) => void
 }
 
 export function CatalogToolbar({
@@ -61,13 +47,6 @@ export function CatalogToolbar({
   onSelect,
   onReset,
   onRestoreAll,
-  wordFilterOptions,
-  onToggleWordFilter,
-  qualityFilters,
-  sourceLanguage,
-  targetLanguage,
-  wordFilterHiddenCount,
-  onQualityFiltersChange,
 }: CatalogToolbarProps) {
   return (
     <>
@@ -85,37 +64,6 @@ export function CatalogToolbar({
           onApply={onApplyTagFilter}
           onManage={onManageTags}
         />
-        <CatalogQualityControl
-          filters={qualityFilters}
-          sourceLanguage={sourceLanguage}
-          targetLanguage={targetLanguage}
-          onChange={onQualityFiltersChange}
-        />
-        {wordFilterOptions.map(({ code, label, count, active }) => {
-          const countText = `${count} ${count === 1 ? 'palabra' : 'palabras'}`
-          return (
-            <button
-              key={code}
-              className={styles.wordFilterToggle}
-              type="button"
-              data-active={active}
-              aria-pressed={active}
-              aria-label={`${active ? 'Desactivar' : 'Activar'} filtro ${label}, ${countText}`}
-              disabled={count === 0 && !active}
-              onClick={() => onToggleWordFilter(code)}
-            >
-              {label} · {count}
-            </button>
-          )
-        })}
-        {wordFilterHiddenCount > 0 && (
-          <span className={styles.filterImpact} aria-live="polite">
-            {wordFilterHiddenCount}{' '}
-            {wordFilterHiddenCount === 1
-              ? 'resultado oculto'
-              : 'resultados ocultos'}
-          </span>
-        )}
         {layout === 'compact' && hasViewModifiers && (
           <button
             className={styles.compactReset}

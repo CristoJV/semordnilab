@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import type { ApplicationDependencies } from '@/app/composition/create-application-dependencies'
 import { AppFooter } from '@/presentation/components/AppFooter'
@@ -17,8 +17,11 @@ import { useSavedCompositeSemordnilaps } from '@/presentation/hooks/useSavedComp
 import { useWorkspacePreferences } from '@/presentation/hooks/useWorkspacePreferences'
 import { useWordFilters } from '@/presentation/hooks/useWordFilters'
 import { semordnilapMatchesWordFilters } from '@/application'
-import type { CompositeSemordnilap } from '@/domain/semordnilap'
-import { TagManagerDialog } from '@/presentation/components/TagManagerDialog'
+import {
+  createStableSemordnilapId,
+  type CompositeSemordnilap,
+} from '@/domain/semordnilap'
+import { TagManagerPage } from '@/presentation/components/TagManagerDialog'
 import { tagsForSemordnilap } from '@/presentation/components/tag-view'
 import { DatasetPickerDialog } from '@/presentation/components/DatasetPickerDialog'
 import { useResponsiveLayout } from '@/presentation/responsive/useResponsiveLayout'
@@ -40,21 +43,19 @@ type WorkspacePageProps = {
 
 const EMPTY_CATALOG_ITEMS = [] as const
 
-type WorkspaceUtilityOverlay =
-  'app-menu' | 'dataset-picker' | 'tag-manager' | null
+type WorkspaceUtilityOverlay = 'app-menu' | 'dataset-picker' | null
 
 export function WorkspacePage({ dependencies }: WorkspacePageProps) {
   const initialRoute = useMemo(
     () => parseWorkspaceHash(window.location.hash),
     [],
   )
-  const [pageView, setPageView] = useState<'workspace' | 'word-filters'>(
+  const [pageView, setPageView] = useState<WorkspaceRoute['view']>(
     initialRoute.view,
   )
   const [wordFilterMode, setWordFilterMode] = useState<WordFilterMode>(
     initialRoute.view === 'word-filters' ? initialRoute.mode : 'pending',
   )
-  const reviewHistoryEntry = useRef(false)
   const [utilityOverlay, setUtilityOverlay] =
     useState<WorkspaceUtilityOverlay>(null)
   const [selectedComposite, setSelectedComposite] =
@@ -174,7 +175,6 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
   useEffect(() => {
     const syncFromHistory = () => {
       const route = parseWorkspaceHash(window.location.hash)
-      reviewHistoryEntry.current = route.view === 'word-filters'
       applyRoute(route)
     }
     window.addEventListener('popstate', syncFromHistory)
@@ -188,7 +188,6 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
   const openWordFilters = useCallback(() => {
     const route: WorkspaceRoute = { view: 'word-filters', mode: 'pending' }
     window.history.pushState(null, '', workspaceHashFor(route))
-    reviewHistoryEntry.current = true
     setUtilityOverlay(null)
     applyRoute(route)
   }, [applyRoute])
@@ -202,15 +201,17 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
     [applyRoute],
   )
 
-  const backToWorkspace = useCallback(() => {
-    if (reviewHistoryEntry.current) {
-      reviewHistoryEntry.current = false
-      window.history.back()
-      applyRoute({ view: 'workspace' })
-      return
-    }
+  const openWorkspace = useCallback(() => {
     const route: WorkspaceRoute = { view: 'workspace' }
-    window.history.replaceState(null, '', workspaceHashFor(route))
+    window.history.pushState(null, '', workspaceHashFor(route))
+    setUtilityOverlay(null)
+    applyRoute(route)
+  }, [applyRoute])
+
+  const openTagManager = useCallback(() => {
+    const route: WorkspaceRoute = { view: 'tags' }
+    window.history.pushState(null, '', workspaceHashFor(route))
+    setUtilityOverlay(null)
     applyRoute(route)
   }, [applyRoute])
 
@@ -221,6 +222,33 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
     }
     return counts
   }, [composition.components])
+
+  const canSaveComposition = useMemo(() => {
+    if (!catalog.selectedDatasetId || !composition.snapshot.isComposite) {
+      return false
+    }
+    const atomicComponentIds = composition.components.flatMap(
+      ({ semordnilap }) =>
+        semordnilap.kind === 'atomic'
+          ? [semordnilap.id]
+          : semordnilap.atomicComponents.map(
+              ({ semordnilapId }) => semordnilapId,
+            ),
+    )
+    const id = createStableSemordnilapId(
+      'composite',
+      catalog.selectedDatasetId,
+      atomicComponentIds,
+    )
+    return !savedComposites.items.some(
+      ({ semordnilap }) => semordnilap.id === id,
+    )
+  }, [
+    catalog.selectedDatasetId,
+    composition.components,
+    composition.snapshot.isComposite,
+    savedComposites.items,
+  ])
 
   const loadedDataset = catalog.loadedDataset
   const wordFilterLanguages = useMemo(() => {
@@ -254,12 +282,11 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
               ? 'Palabras verificadas'
               : 'Palabras excluidas'
         }
-        canOpenWordFilters={Boolean(loadedDataset && wordFilters.ready)}
-        onOpenWordFilters={openWordFilters}
-        onBackToWorkspace={backToWorkspace}
       />
 
-      {pageView === 'word-filters' && loadedDataset ? (
+      {pageView === 'tags' ? (
+        <TagManagerPage state={tagState} />
+      ) : pageView === 'word-filters' && loadedDataset ? (
         <WordFilterPage
           items={atomicItems}
           languages={wordFilterLanguages}
@@ -298,6 +325,7 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
             }
             onCollapsedChange={preferences.setCompositionCollapsed}
             onDiscardIncompatibleDraft={composition.discardIncompatibleDraft}
+            canSaveComposite={canSaveComposition}
             onSave={(title) =>
               savedComposites.save(
                 composition.components.map(({ semordnilap }) => semordnilap),
@@ -336,7 +364,7 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
                 initialView={preferences.catalogView(loadedDataset.dataset.id)}
                 onViewChange={preferences.saveCatalogView}
                 onOpenComposite={setSelectedComposite}
-                onManageTags={() => setUtilityOverlay('tag-manager')}
+                onManageTags={openTagManager}
                 onNotify={notify}
                 layout={layout}
                 overlayOpen={
@@ -361,9 +389,6 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
                     next,
                   )
                 }}
-                wordFilterHiddenCount={
-                  catalogItems.length - filteredCatalogItems.length
-                }
               />
             ) : (
               <div className={styles.catalogState}>
@@ -419,11 +444,21 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
         <AppMenuDialog
           useCases={dependencies}
           preferences={preferences}
+          currentView={pageView}
+          tags={tagState.tags}
+          canNavigateWordFilters={Boolean(loadedDataset && wordFilters.ready)}
           onClose={() => setUtilityOverlay(null)}
           onImported={() => window.location.reload()}
-          onManageTags={() => setUtilityOverlay('tag-manager')}
+          onNavigateWorkspace={openWorkspace}
+          onNavigateWordFilters={openWordFilters}
+          onManageTags={openTagManager}
           onStartSelection={
-            layout === 'compact' ? startCatalogSelection : undefined
+            layout === 'compact' && pageView === 'workspace'
+              ? () => {
+                  setUtilityOverlay(null)
+                  startCatalogSelection()
+                }
+              : undefined
           }
         />
       )}
@@ -495,13 +530,6 @@ export function WorkspacePage({ dependencies }: WorkspacePageProps) {
               result.content,
             )
           }}
-        />
-      )}
-
-      {utilityOverlay === 'tag-manager' && (
-        <TagManagerDialog
-          state={tagState}
-          onClose={() => setUtilityOverlay(null)}
         />
       )}
 

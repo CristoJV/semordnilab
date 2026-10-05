@@ -7,7 +7,7 @@ import { DatasetPicker } from './DatasetPicker'
 import styles from './AppHeader.module.css'
 
 type AppHeaderProps = {
-  view: 'workspace' | 'word-filters'
+  view: 'workspace' | 'word-filters' | 'tags'
   datasets: readonly AvailableDataset[]
   selectedDatasetId: DatasetId | ''
   status: CatalogStatus
@@ -17,9 +17,6 @@ type AppHeaderProps = {
   onOpenDatasetPicker: () => void
   layout: ResponsiveLayout
   wordFilterTitle: string
-  canOpenWordFilters: boolean
-  onOpenWordFilters: () => void
-  onBackToWorkspace: () => void
 }
 
 export function AppHeader({
@@ -33,9 +30,6 @@ export function AppHeader({
   onOpenDatasetPicker,
   layout,
   wordFilterTitle,
-  canOpenWordFilters,
-  onOpenWordFilters,
-  onBackToWorkspace,
 }: AppHeaderProps) {
   const statusText =
     status === 'loading'
@@ -63,50 +57,35 @@ export function AppHeader({
           onChange={onDatasetChange}
           onOpenCompact={onOpenDatasetPicker}
         />
-      ) : (
+      ) : view === 'word-filters' ? (
         <div className={styles.pageTitle}>
           <span>Revisión léxica</span>
           <strong>{wordFilterTitle}</strong>
         </div>
+      ) : (
+        <div className={styles.pageTitle}>
+          <span>Organización</span>
+          <strong>Gestionar etiquetas</strong>
+        </div>
       )}
 
       <div className={styles.trailing}>
-        {view === 'workspace' ? (
-          <>
-            <p className={styles.status} aria-live="polite">
-              {statusText}
-            </p>
-            <button
-              className={`${styles.menuButton} ${styles.filterButton}`}
-              type="button"
-              disabled={!canOpenWordFilters}
-              onClick={onOpenWordFilters}
-            >
-              Filtrar <span className={styles.buttonQualifier}>palabras</span>
-            </button>
-            <button
-              className={styles.menuButton}
-              type="button"
-              onClick={onOpenMenu}
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-              Menú
-            </button>
-          </>
-        ) : (
-          <button
-            className={styles.menuButton}
-            type="button"
-            onClick={onBackToWorkspace}
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="m14 5-7 7 7 7M7 12h13" />
-            </svg>
-            Volver <span className={styles.buttonQualifier}>a componer</span>
-          </button>
+        {view === 'workspace' && (
+          <p className={styles.status} aria-live="polite">
+            {statusText}
+          </p>
         )}
+        <button
+          className={`${styles.menuButton} ${styles.iconButton}`}
+          type="button"
+          aria-label="Menú"
+          title="Menú"
+          onClick={onOpenMenu}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
       </div>
     </header>
   )

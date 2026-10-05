@@ -45,24 +45,6 @@
   );
 }
 
-.toolbar .wordFilterToggle[data-active='true'] {
-  color: var(--color-violet-strong);
-  background: var(--color-violet-soft);
-  border-color: color-mix(
-    in srgb,
-    var(--color-violet) 45%,
-    var(--color-border)
-  );
-}
-
-.filterImpact {
-  align-self: center;
-  color: var(--color-text-muted);
-  font-size: 0.68rem;
-  font-weight: 750;
-  white-space: nowrap;
-}
-
 .primaryControls,
 .secondaryControls,
 .selectionControls {

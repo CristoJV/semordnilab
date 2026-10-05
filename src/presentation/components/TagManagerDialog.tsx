@@ -10,7 +10,6 @@ import {
 } from '@/application'
 import type { SemordnilapTagState } from '@/presentation/hooks/useSemordnilapTags'
 
-import { ModalDialog } from './ModalDialog'
 import { TagIconGlyph } from './TagIconGlyph'
 import styles from './TagManagerDialog.module.css'
 
@@ -239,12 +238,11 @@ function TagRow({
   )
 }
 
-type TagManagerDialogProps = {
+type TagManagerPageProps = {
   state: SemordnilapTagState
-  onClose: () => void
 }
 
-export function TagManagerDialog({ state, onClose }: TagManagerDialogProps) {
+export function TagManagerPage({ state }: TagManagerPageProps) {
   const [editing, setEditing] = useState<SemordnilapTag | 'new' | null>(null)
   const [message, setMessage] = useState<string | null>(null)
 
@@ -259,55 +257,63 @@ export function TagManagerDialog({ state, onClose }: TagManagerDialogProps) {
   }
 
   return (
-    <ModalDialog title="Gestionar etiquetas" onClose={onClose} wide>
-      {editing ? (
-        <AppearanceEditor
-          key={editing === 'new' ? 'new' : editing.id}
-          tag={editing === 'new' ? undefined : editing}
-          onCancel={() => setEditing(null)}
-          onSave={async (name, color, icon) => {
-            if (editing === 'new') {
-              await state.create(name, color, icon)
-              complete('Etiqueta creada.')
-            } else {
-              await state.update(editing, name, color, icon)
-              complete('Etiqueta actualizada.')
-            }
-          }}
-        />
-      ) : (
-        <>
-          <div className={styles.overviewHeading}>
-            <p className={styles.intro}>
-              Las etiquetas se comparten entre colecciones. Eliminarlas retira
-              sus asignaciones, pero no modifica los semordnilaps.
-            </p>
-            <button type="button" onClick={() => setEditing('new')}>
-              Nueva etiqueta
-            </button>
-          </div>
-          {state.tags.length === 0 ? (
-            <p className={styles.empty}>Todavía no has creado etiquetas.</p>
-          ) : (
-            <ul className={styles.list}>
-              {state.tags.map((tag) => (
-                <TagRow
-                  key={tag.id}
-                  tag={tag}
-                  usage={usage.get(tag.id) ?? 0}
-                  onEdit={() => setEditing(tag)}
-                  onDelete={state.remove}
-                />
-              ))}
-            </ul>
-          )}
-        </>
-      )}
-      {(message || state.errorMessage) && (
-        <p className={styles.message} role="status">
-          {message ?? state.errorMessage}
-        </p>
-      )}
-    </ModalDialog>
+    <main className={styles.page} aria-labelledby="tag-manager-title">
+      <header className={styles.pageHeading}>
+        <div>
+          <p>Organización personal</p>
+          <h1 id="tag-manager-title">Gestionar etiquetas</h1>
+        </div>
+      </header>
+      <div className={styles.content}>
+        {editing ? (
+          <AppearanceEditor
+            key={editing === 'new' ? 'new' : editing.id}
+            tag={editing === 'new' ? undefined : editing}
+            onCancel={() => setEditing(null)}
+            onSave={async (name, color, icon) => {
+              if (editing === 'new') {
+                await state.create(name, color, icon)
+                complete('Etiqueta creada.')
+              } else {
+                await state.update(editing, name, color, icon)
+                complete('Etiqueta actualizada.')
+              }
+            }}
+          />
+        ) : (
+          <>
+            <div className={styles.overviewHeading}>
+              <p className={styles.intro}>
+                Las etiquetas se comparten entre colecciones. Eliminarlas retira
+                sus asignaciones, pero no modifica los semordnilaps.
+              </p>
+              <button type="button" onClick={() => setEditing('new')}>
+                Nueva etiqueta
+              </button>
+            </div>
+            {state.tags.length === 0 ? (
+              <p className={styles.empty}>Todavía no has creado etiquetas.</p>
+            ) : (
+              <ul className={styles.list}>
+                {state.tags.map((tag) => (
+                  <TagRow
+                    key={tag.id}
+                    tag={tag}
+                    usage={usage.get(tag.id) ?? 0}
+                    onEdit={() => setEditing(tag)}
+                    onDelete={state.remove}
+                  />
+                ))}
+              </ul>
+            )}
+          </>
+        )}
+        {(message || state.errorMessage) && (
+          <p className={styles.message} role="status">
+            {message ?? state.errorMessage}
+          </p>
+        )}
+      </div>
+    </main>
   )
 }

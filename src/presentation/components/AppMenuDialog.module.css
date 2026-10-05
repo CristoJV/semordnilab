@@ -1,13 +1,11 @@
-.tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  margin: -0.2rem 0 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--color-border);
+.navigation {
+  display: grid;
+  gap: 0.2rem;
+  padding-bottom: 0.85rem;
 }
 
-.tabs button,
+.navigation button,
+.sectionHeading button,
 .dataActions button,
 .fileButton,
 .importButton,
@@ -17,33 +15,52 @@
   font: inherit;
   font-size: 0.78rem;
   font-weight: 750;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: transparent;
+  border: 1px solid transparent;
   border-radius: 0.65rem;
   cursor: pointer;
 }
 
-.tabs button[data-active='true'] {
-  color: white;
-  background: var(--color-violet);
-  border-color: var(--color-violet);
+.navigation button {
+  width: 100%;
+  min-height: 2.6rem;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  text-align: left;
 }
 
-.tabs button:last-child {
-  margin-left: auto;
+.navigation button[data-active='true'] {
+  color: var(--color-violet-strong);
+  background: var(--color-violet-soft);
 }
 
-.section {
+.navigation button:hover,
+.sectionHeading button:hover,
+.dataActions button:hover,
+.fileButton:hover,
+.reset:hover {
+  color: var(--color-violet-strong);
+  background: color-mix(in srgb, var(--color-violet-soft) 62%, transparent);
+}
+
+.navigation .secondaryNavigation {
+  color: var(--color-violet-strong);
+  font-size: 0.75rem;
+}
+
+.menuSection {
   display: grid;
-  gap: 1.1rem;
+  gap: 0.6rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--color-border);
 }
 
-.section h3 {
-  margin: 0 0 0.35rem;
+.menuSection h3 {
+  margin: 0;
   font-size: 0.9rem;
 }
 
-.section h4 {
+.menuSection h4 {
   margin: 0;
   color: var(--color-text-muted);
   font-size: 0.68rem;
@@ -51,7 +68,7 @@
   text-transform: uppercase;
 }
 
-.section p {
+.menuSection p {
   margin: 0;
   color: var(--color-text-muted);
   font-size: 0.76rem;
@@ -62,7 +79,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.4rem;
-  margin: 0.75rem 0 0;
+  margin: 0.1rem 0 0;
 }
 
 .summary div {
@@ -94,6 +111,12 @@
   color: white;
   background: var(--color-violet);
   border-color: var(--color-violet);
+}
+
+.dataActions > button:first-child:hover,
+.importButton:hover {
+  color: white;
+  background: var(--color-violet-strong);
 }
 
 .fileButton input {
@@ -172,6 +195,48 @@
   justify-self: start;
 }
 
+.sectionHeading {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionHeading button {
+  padding-block: 0.3rem;
+  color: var(--color-violet-strong);
+}
+
+.tagList {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tagList li {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  min-width: 0;
+  padding: 0.35rem 0.2rem;
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+}
+
+.tagList li > span:first-child {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  color: var(--tag-color);
+}
+
+.tagList svg {
+  width: 100%;
+  height: 100%;
+}
+
 .message,
 .error {
   margin-top: 1rem;
@@ -185,27 +250,13 @@
 }
 
 @media (max-width: 480px) {
-  .tabs {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .tabs::-webkit-scrollbar {
-    display: none;
-  }
-
-  .tabs button,
+  .navigation button,
+  .sectionHeading button,
   .dataActions button,
   .fileButton,
   .importButton,
   .reset {
-    flex: none;
     min-height: 2.75rem;
-  }
-
-  .tabs button:last-child {
-    margin-left: 0;
   }
 
   .summary {

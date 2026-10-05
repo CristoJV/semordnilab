@@ -82,7 +82,6 @@ type PairedSemordnilapCatalogProps = {
     active: boolean
   }[]
   onToggleWordFilter: (language: string) => void
-  wordFilterHiddenCount: number
 }
 
 export function PairedSemordnilapCatalog({
@@ -106,7 +105,6 @@ export function PairedSemordnilapCatalog({
   onSelectionRequestHandled,
   wordFilterOptions,
   onToggleWordFilter,
-  wordFilterHiddenCount,
 }: PairedSemordnilapCatalogProps) {
   const [sourceQuery, setSourceQuery] = useState(initialView?.sourceQuery ?? '')
   const [targetQuery, setTargetQuery] = useState(initialView?.targetQuery ?? '')
@@ -556,17 +554,6 @@ export function PairedSemordnilapCatalog({
             onSelect={() => setInternalSelectionMode(true)}
             onReset={resetView}
             onRestoreAll={requestRestoreAll}
-            wordFilterOptions={wordFilterOptions}
-            onToggleWordFilter={onToggleWordFilter}
-            qualityFilters={qualityFilters}
-            sourceLanguage={dataset.sourceLanguage.label}
-            targetLanguage={dataset.targetLanguage.label}
-            wordFilterHiddenCount={wordFilterHiddenCount}
-            onQualityFiltersChange={(filters) => {
-              setDiscoverySession(null)
-              setQualityFilters(filters)
-              virtualRows.reset()
-            }}
           />
         )}
       </div>
@@ -585,6 +572,19 @@ export function PairedSemordnilapCatalog({
           layout={layout}
           side="source"
           sort={sort}
+          wordFilterCount={
+            wordFilterOptions.find(
+              ({ code }) => code === dataset.sourceLanguage.code,
+            )?.count ?? 0
+          }
+          wordFilterActive={
+            wordFilterOptions.find(
+              ({ code }) => code === dataset.sourceLanguage.code,
+            )?.active ?? false
+          }
+          onToggleWordFilter={() =>
+            onToggleWordFilter(dataset.sourceLanguage.code)
+          }
           onQueryChange={(query) => changeQuery('source', query)}
           onCycleSort={changeSort}
           onSetSort={changeSortDirection}
@@ -597,6 +597,19 @@ export function PairedSemordnilapCatalog({
           layout={layout}
           side="target"
           sort={sort}
+          wordFilterCount={
+            wordFilterOptions.find(
+              ({ code }) => code === dataset.targetLanguage.code,
+            )?.count ?? 0
+          }
+          wordFilterActive={
+            wordFilterOptions.find(
+              ({ code }) => code === dataset.targetLanguage.code,
+            )?.active ?? false
+          }
+          onToggleWordFilter={() =>
+            onToggleWordFilter(dataset.targetLanguage.code)
+          }
           onQueryChange={(query) => changeQuery('target', query)}
           onCycleSort={changeSort}
           onSetSort={changeSortDirection}

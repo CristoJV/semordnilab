@@ -69,3 +69,16 @@ it('lleva el foco al cierre y lo devuelve al elemento anterior', async () => {
   await user.keyboard('{Escape}')
   expect(opener).toHaveFocus()
 })
+
+it('marca la variante de navegación lateral sin perder el portal', () => {
+  const { container } = render(
+    <ModalDialog title="Navegación" onClose={() => undefined} drawer>
+      <button type="button">Destino</button>
+    </ModalDialog>,
+  )
+
+  const dialog = screen.getByRole('dialog', { name: 'Navegación' })
+  expect(container).not.toContainElement(dialog)
+  expect(dialog).toHaveAttribute('data-drawer', 'true')
+  expect(dialog.parentElement).toHaveAttribute('data-drawer', 'true')
+})

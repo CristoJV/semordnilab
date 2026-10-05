@@ -20,7 +20,7 @@ Los estados funcionales y las etiquetas permanecen separados. Favorito y descart
 
 El catálogo muestra iconos compactos y coloreados en un espacio fijo y combina con una operación inclusiva las etiquetas elegidas en el filtro.
 
-El gestor permite crear, renombrar, cambiar la combinación visual y eliminar etiquetas. Los colores aparecen como círculos y los iconos como una cuadrícula visual. El gestor está disponible tanto desde el catálogo como desde el menú superior. Eliminar una definición retira todas sus asignaciones dentro de la misma transacción, sin modificar unidades atómicas ni composites.
+El gestor permite crear, renombrar, cambiar la combinación visual y eliminar etiquetas. Los colores aparecen como círculos y los iconos como una cuadrícula visual. El gestor está disponible tanto desde el catálogo como desde el menú superior y utiliza la pantalla `#/tags`, no un diálogo; crear o editar cambia el contenido de esa pantalla sin apilar modales. Eliminar una definición retira todas sus asignaciones dentro de la misma transacción, sin modificar unidades atómicas ni composites.
 
 ### Eliminación de composites
 

@@ -58,7 +58,7 @@ Cada explorador dispone de búsqueda y ordenación propias. En una pantalla ampl
 
 Las listas personales de palabras inválidas se activan por idioma desde el catálogo. Cada lado se controla de forma independiente, la activación se recuerda para ese dataset y una pareja deja de mostrarse si contiene como token completo cualquier palabra de una lista activa. La exclusión sólo afecta a la vista: no elimina borradores, favoritos, etiquetas ni composites guardados.
 
-El acceso `Filtrar` de la cabecera abre una pantalla de revisión sin desplazar la navegación superior. Allí se elige el idioma y se alterna entre palabras pendientes, verificadas y excluidas. Las tres colecciones comparten una rejilla multicolumna y un buscador aproximado que ignora diferencias de acentuación. Cada término muestra cuántos semordnilaps afecta, ejemplos desplegables y un enlace compacto al diccionario correspondiente: `RAE (ES)`, `RAG (GL)` o `AdC (PT)`. Al excluir, el fondo se vuelve rojo; al verificar o devolver a pendientes, verde. La acción puede deshacerse y el foco avanza a la siguiente palabra.
+El acceso `Filtrado` del drawer derecho abre una pantalla de revisión sin desplazar la navegación superior. Allí se elige el idioma y se alterna entre palabras pendientes, verificadas y excluidas. Las tres colecciones comparten una rejilla multicolumna y un buscador aproximado que ignora diferencias de acentuación. Cada término muestra cuántos semordnilaps afecta, ejemplos desplegables y un enlace compacto al diccionario correspondiente: `RAE (ES)`, `RAG (GL)` o `AdC (PT)`. Al excluir, el fondo se vuelve rojo; al verificar o devolver a pendientes, verde. La acción puede deshacerse y el foco avanza a la siguiente palabra.
 
 Las direcciones `#/words/pending`, `#/words/verified` y `#/words/excluded` permiten recargar, compartir y recorrer la revisión con el historial del navegador. La pantalla también exporta el mismo backup personal versionado que ofrece el menú.
 
@@ -80,10 +80,12 @@ La versión móvil conserva la misma pantalla, los mismos datos y las mismas ope
 
 - el selector central muestra los códigos del par lingüístico y abre una hoja de selección;
 - el estado general de carga deja de ocupar espacio en la barra superior, aunque sigue disponible mediante anuncios accesibles;
-- el área se titula `Compón` y utiliza iconos para plegar, deshacer, rehacer, guardar y vaciar;
-- las acciones principales mantienen un área táctil mínima de 44 píxeles y un nombre accesible aunque oculten su etiqueta visual;
-- las vistas se presentan en el orden `Todos`, `Guardados`, `Favoritos`, `Descartados` y `Etiquetas`;
-- la barra de filtros se ajusta al ancho disponible; las cuatro vistas pasan a dos filas equilibradas cuando no caben y los filtros adicionales continúan debajo sin ensanchar la página;
+- la cabecera global muestra únicamente el icono de hamburguesa para abrir la navegación; `Filtrado` vive dentro de ese drawer;
+- el área se titula `Compón` y mantiene siempre visibles los iconos para plegar, deshacer, rehacer, guardar y vaciar;
+- todas esas acciones usan fondo transparente, violeta cuando están disponibles y violeta claro cuando están deshabilitadas; guardar también se deshabilita después de guardar la misma pieza y vaciar cuando no hay componentes;
+- las acciones principales conservan nombre accesible aunque oculten su etiqueta visual;
+- las vistas se presentan en una única fila: `Todos` como texto y `Guardados`, `Favoritos`, `Descartados` y `Etiquetas` como iconos;
+- el control de calidad no ocupa actualmente un botón en esta barra;
 - `Descubrir` se presenta como un botón flotante circular con dados en la esquina inferior derecha, respeta la zona segura y reserva espacio para no cubrir la última fila;
 - `Seleccionar` y `Restaurar todos` no ocupan una segunda barra; una pulsación prolongada abre la selección y el menú superior conserva una entrada accesible alternativa;
 - una pulsación prolongada sobre cualquier expresión entra directamente en selección múltiple y selecciona su fila bilingüe; un toque normal sigue añadiendo la pieza a la composición y el movimiento vertical cede el control al scroll;
@@ -93,12 +95,12 @@ La versión móvil conserva la misma pantalla, los mismos datos y las mismas ope
 - durante la selección múltiple, favorito, descarte y etiquetado se agrupan en una única superficie y se representan mediante estrella, papelera y etiqueta para conservar espacio sin reducir su zona táctil; en `Descartados` no se ofrece la acción de favorito;
 - una casilla triestado permite seleccionar o deseleccionar todos los resultados del filtro completo; muestra un estado parcial cuando solo se ha seleccionado una parte y permite restaurar en lote desde `Descartados`;
 - una cruz visualmente pequeña, situada en el extremo derecho, cierra la selección y conserva alrededor un objetivo táctil de 44 píxeles;
-- cada idioma coloca el contador junto a un menú de tres puntos en el extremo derecho y abre su ordenación en una hoja inferior;
+- cada idioma coloca el contador, su icono de filtro léxico y la ordenación en el extremo derecho;
 - el filtro de etiquetas aparece anclado justo debajo de su botón, aunque se monta fuera del contenedor de scroll para evitar recortes;
 - los diálogos se montan sobre el documento, ocupan el ancho disponible y respetan las zonas seguras del dispositivo;
 - el documento utiliza la altura dinámica del navegador y mantiene el desplazamiento vertical dentro del catálogo.
 
-Las filas bilingües permanecen alineadas y la composición conserva un desplazamiento horizontal compartido. La barra principal envuelve sus controles sin ensanchar la página ni reducir sus objetivos táctiles. El botón flotante desaparece durante la selección y queda cubierto por los overlays para no competir con una tarea modal.
+Las filas bilingües permanecen alineadas y la composición conserva un desplazamiento horizontal compartido. La barra principal puede enviar controles secundarios a otra línea sin romper la fila de cinco vistas ni ensanchar la página. El botón flotante desaparece durante la selección y queda cubierto por los overlays para no competir con una tarea modal.
 
 La primera vez que están disponibles los gestos, un aviso temporal explica ambas direcciones. Favoritos, descartes y restauraciones ofrecen `Deshacer`. En escritorio, restaurar directamente una colección descartada grande solicita confirmación. En móvil, la misma operación se realiza entrando en selección, marcando todos los resultados y restaurando el lote.
 
@@ -144,7 +146,7 @@ Cuando no hay una ordenación explícita, una consulta muestra primero la coinci
 
 Cada cabecera permite ordenar por texto, longitud en caracteres, frecuencia, número de palabras o puntuación de pareja. Un control recorre tres estados: ascendente, descendente y desactivado. Los criterios se acumulan según su orden de activación y muestran su prioridad numérica. Pueden combinar comparaciones de ambos idiomas, pero la fila bilingüe sigue siendo indivisible. Los resultados sin metadatos quedan al final de una ordenación numérica.
 
-El control `Calidad` reduce candidatos mediante una frecuencia mínima para cada idioma, un máximo de palabras para cada expresión y una puntuación mínima de pareja. Todos los umbrales son opcionales, combinables y reversibles. No reescriben el dataset y no ocultan composites, porque éstos carecen de metadatos comparables. Junto a los filtros por idioma, la barra indica cuántos resultados han quedado ocultos por decisiones léxicas activas.
+La frecuencia, el número de palabras y la puntuación de pareja continúan disponibles como criterios de ordenación. La política interna admite umbrales opcionales, combinables y reversibles, pero el control visible `Calidad` se ha retirado provisionalmente para compactar la barra. Los filtros léxicos activos se habilitan por separado desde el icono situado junto al contador de cada idioma.
 
 En móvil el panel de ordenación muestra simultáneamente `Sin orden`, la dirección ascendente y la descendente para cada criterio. Elegir una opción aplica la misma lista ordenada que utilizan los controles de escritorio, por lo que cambiar de tamaño no altera el resultado ni las preferencias guardadas.
 
@@ -182,11 +184,11 @@ La asignación se realiza desde la selección múltiple. Una misma etiqueta pued
 
 Las filas reservan dos carriles exteriores fijos para la información de la unidad bilingüe. El extremo izquierdo muestra hasta tres iconos coloreados. El extremo derecho muestra su contador de usos y, a continuación, una estrella mostaza cuando la unidad es favorita. Ambos indicadores aparecen una sola vez. Las etiquetas adicionales se resumen mediante un contador y los nombres permanecen disponibles como información textual. Reservar los espacios incluso cuando están vacíos evita que la longitud de una palabra desplace esos indicadores.
 
-El control `Etiquetas` filtra por cualquiera de las etiquetas seleccionadas sin romper la alineación de las columnas. Las casillas preparan el filtro y el botón `Aplicar` lo activa y cierra el desplegable. El gestor también está accesible desde el menú superior y permite crear, renombrar, cambiar el icono o el color y eliminar etiquetas. La apariencia se elige en una cuadrícula visual de opciones, no mediante selectores nativos. Eliminar una etiqueta retira sus asignaciones en todas las colecciones, pero no modifica los semordnilaps.
+El icono de etiqueta filtra por cualquiera de las etiquetas seleccionadas sin romper la alineación de las columnas. Las casillas preparan el filtro y el botón `Aplicar` lo activa y cierra el desplegable. El gestor también está accesible desde el drawer y utiliza la pantalla `#/tags`, que conserva la cabecera y la navegación al crear o editar. La apariencia se elige en una cuadrícula visual de opciones, no mediante selectores nativos. Eliminar una etiqueta retira sus asignaciones en todas las colecciones, pero no modifica los semordnilaps.
 
 ## Validación de una composición
 
-El dominio valida la composición sin añadir ruido permanente al constructor. La interfaz habilita el guardado cuando el borrador puede formar un composite, pero no muestra continuamente la concatenación normalizada ni un mensaje de éxito. Un semordnilap compuesto guardable debe cumplir al menos estas condiciones:
+El dominio valida la composición sin añadir ruido permanente al constructor. La interfaz mantiene visible el guardado y solo lo habilita cuando el borrador puede formar un composite cuya identidad todavía no existe; no muestra continuamente la concatenación normalizada ni un mensaje de éxito. Un semordnilap compuesto guardable debe cumplir al menos estas condiciones:
 
 - contiene dos o más componentes;
 - todos los componentes hacen referencia a un semordnilap válido;
@@ -233,7 +235,7 @@ El conjunto lingüístico seleccionado se conserva como estado ligero de sesión
 
 La base tiene una versión explícita y las actualizaciones conservan las tablas anteriores mediante migraciones aditivas. Los identificadores atómicos son estables aunque una fila cambie de posición en el TSV. Los estados guardados con los identificadores antiguos se convierten dentro de una transacción cuando se carga cada dataset.
 
-El menú de la barra superior separa `Datos` y `Preferencias` e incluye un acceso directo al gestor de etiquetas. La sección de datos resume el almacenamiento local y permite exportar una copia JSON versionada. La copia contiene estados, composites, borradores, etiquetas, asignaciones y preferencias, pero no duplica los TSV incluidos.
+El icono de hamburguesa abre desde la derecha un drawer con un orden estable: `Composición` y `Filtrado`; `Datos` con resumen, exportación e importación; `Preferencias`; `Etiquetas` con su lista y acceso al gestor; y `About`. La copia JSON versionada contiene estados, composites, borradores, etiquetas, asignaciones y preferencias, pero no duplica los TSV incluidos.
 
 Antes de importar se analiza todo el archivo y se muestra un resumen. El usuario puede combinarlo con los datos actuales o sustituirlos, decidir cómo resolver conflictos de borradores y excluir las preferencias. La validación comprueba formato, versión, datasets, identificadores, referencias, ciclos e integridad de composites. Solo después se reemplazan las tablas dentro de una única transacción. La aplicación descarga automáticamente una copia del estado anterior antes de confirmar la escritura.
 
